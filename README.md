@@ -16,13 +16,25 @@ The menu (top right, on every page) is the only navigation:
 **Home · About · Services · Partners · Post-production · Blog · Projects · Book**
 and, smaller, **Privacy · Impresszum · GDPR**.
 
-The flight follows the same order. Scrolling (wheel, swipe, arrow keys) moves
-one chapter at a time through a page; one more push at the end flies on to the
-next page, one push back at the top returns to the previous one (landing on its
-last chapter). Book loops back to Home. Every page opens with a short intro
-chapter, arrives out of focus and pulls into focus; chapters rack-focus as they
-approach. The small "Next · …" at the end of each page does the same as the
-push. Legal pages and project/blog detail pages are ordinary scrolling pages.
+The flight follows the same order. Scrolling (wheel, trackpad, swipe, arrow
+keys) moves exactly one chapter per gesture, with a one-second glide. To leave
+a page you must first come to rest on its last chapter and then push again —
+the first push only lights up "Next · … · Scroll again to continue". On a new
+page all input waits until the old gesture (trackpad momentum included) has
+died away, so a long flick never carries you more than one page. Pushing back
+at the top of a page returns to the previous one, landing on its last chapter.
+Book loops back to Home. Timings are at the top of section 7 in `js/main.js`
+(`SNAP_MS`, `EDGE_HOLD`, `ARRIVAL_QUIET`…).
+
+Between pages the old page drifts past the camera and out of focus while the
+bokeh swells, the name of the next page settles in the middle of the screen
+over a short amber line, and the new page pulls into focus beneath it as the
+name fades.
+
+On the right (wider screens), the rail names every page: the current one in
+amber with its chapters as dots beneath it, the next one a little brighter.
+Clicking a name flies there. Legal pages and project/blog detail pages are
+ordinary scrolling pages.
 
 | URL | File | Kind |
 |---|---|---|

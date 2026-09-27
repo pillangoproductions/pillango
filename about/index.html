@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
+<script>(function(){var r=document.documentElement;r.classList.add("js");try{var t=JSON.parse(sessionStorage.getItem("pillango-transit")||"null");if(t&&t.label){r.setAttribute("data-transit",t.label);r.classList.add("transit-in");if(t.dir==="back")r.classList.add("arriving-back");}}catch(e){}setTimeout(function(){r.classList.remove("arriving","transit-in");},3500);})();</script>
 <title>About — Pillango Productions</title>
 <meta name="description" content="Pillango Productions is a Hungary-based film production company working at the intersection of storytelling, technology and global collaboration.">
 <link rel="canonical" href="https://pillangoprod.com/about">
@@ -28,8 +28,8 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=4">
-<link rel="stylesheet" href="/css/style.css?v=4">
+<link rel="stylesheet" href="/css/fonts.css?v=5">
+<link rel="stylesheet" href="/css/style.css?v=5">
 <noscript><style>
   .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
@@ -37,11 +37,11 @@
   .scroll-space,.rail{display:none!important}
 </style></noscript>
 </head>
-<body class="flight" data-next="/services" data-prev="/">
+<body class="flight" data-next="/services" data-next-label="Services" data-prev="/" data-prev-label="Home">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
-  <a class="nav-brand" href="/" aria-label="Pillango Productions — home">
+  <a class="nav-brand" href="/" data-label="Home" aria-label="Pillango Productions — home">
     <span class="wm wm-nav"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
   </a>
   <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="overlay-menu">
@@ -101,18 +101,26 @@
     <div class="layer-inner narrow">
       <h2 class="display">Hungary &amp; Europe</h2>
       <p class="lede">With international partnerships and deep knowledge of European production ecosystems, including Hungary’s competitive film incentives, Pillango Productions offers both creative leadership and smart production strategy.</p>
-      <a class="next-hint" href="/services">Next<b>Services</b></a>
+      <a class="next-hint" href="/services" data-label="Services">Next<b>Services</b><i>Scroll again to continue</i></a>
     </div>
   </section>
 </main>
 
-<aside class="rail" id="rail" aria-hidden="true">
-  <div class="rail-line"><div class="rail-fill" id="rail-fill"></div></div>
-  <ol class="rail-stops" id="rail-stops"></ol>
-</aside>
+<nav class="rail" id="rail" aria-label="Pages">
+  <ol class="rail-pages">
+    <li class=""><a href="/" data-label="Home" data-dir="back">Home</a></li>
+    <li class="is-current"><a href="/about" data-label="About" aria-current="page">About</a><ol class="rail-stops" id="rail-stops"></ol></li>
+    <li class="is-next"><a href="/services" data-label="Services">Services</a></li>
+    <li class=""><a href="/partners" data-label="Partners">Partners</a></li>
+    <li class=""><a href="/post-production" data-label="Post-production">Post-production</a></li>
+    <li class=""><a href="/blog" data-label="Blog">Blog</a></li>
+    <li class=""><a href="/projects" data-label="Projects">Projects</a></li>
+    <li class=""><a href="/book" data-label="Book">Book</a></li>
+  </ol>
+</nav>
 
 <div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=4"></script>
+<script src="/js/main.js?v=5"></script>
 </body>
 </html>

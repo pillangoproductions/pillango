@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
+<script>(function(){var r=document.documentElement;r.classList.add("js");try{var t=JSON.parse(sessionStorage.getItem("pillango-transit")||"null");if(t&&t.label){r.setAttribute("data-transit",t.label);r.classList.add("transit-in");if(t.dir==="back")r.classList.add("arriving-back");}}catch(e){}setTimeout(function(){r.classList.remove("arriving","transit-in");},3500);})();</script>
 <title>Impresszum — Pillango Productions Kft.</title>
 <meta name="description" content="Impresszum: a Pillango Productions Kft. cégadatai, elérhetősége és tárhelyszolgáltatója. Company details of Pillango Productions Kft.">
 <link rel="canonical" href="https://pillangoprod.com/impresszum">
@@ -28,8 +28,8 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=4">
-<link rel="stylesheet" href="/css/style.css?v=4">
+<link rel="stylesheet" href="/css/fonts.css?v=5">
+<link rel="stylesheet" href="/css/style.css?v=5">
 <noscript><style>
   .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
@@ -41,7 +41,7 @@
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
-  <a class="nav-brand" href="/" aria-label="Pillango Productions — home">
+  <a class="nav-brand" href="/" data-label="Home" aria-label="Pillango Productions — home">
     <span class="wm wm-nav"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
   </a>
   <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="overlay-menu">
@@ -109,6 +109,6 @@
 </footer>
 </div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=4"></script>
+<script src="/js/main.js?v=5"></script>
 </body>
 </html>

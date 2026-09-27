@@ -29,6 +29,7 @@
 
   --nav-h: 4rem;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-slow: cubic-bezier(0.22, 0.61, 0.24, 1);
   color-scheme: dark;
 }
 
@@ -106,24 +107,80 @@ img { max-width: 100%; height: auto; }
    ARRIVING AND LEAVING — every page pulls into focus as it arrives
    and falls out of focus as the flight moves on
    ============================================================ */
+/* Arriving: the page comes up from the distance (or, flying back, from
+   behind the camera) out of focus and settles sharp; the light behind
+   it relaxes from the zoom it had while leaving the last page. */
 #stage, #page, .bokeh {
-  transition: filter 1.2s var(--ease), transform 1.2s var(--ease), opacity 1s var(--ease);
+  transition: filter 1.7s var(--ease-slow), transform 1.9s var(--ease-slow), opacity 1.4s var(--ease-slow);
 }
 html.js.arriving #stage,
-html.js.arriving #page { filter: blur(16px); transform: scale(1.05); opacity: 0.2; }
-html.js.arriving .bokeh { filter: blur(10px); transform: scale(1.04); }
-html.leaving #stage,
-html.leaving #page,
-html.leaving-back #stage,
-html.leaving-back #page {
-  transition-duration: 0.6s;
-  transition-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
-  filter: blur(14px);
+html.js.arriving #page { filter: blur(18px); transform: scale(0.88); opacity: 0; }
+html.js.arriving.arriving-back #stage,
+html.js.arriving.arriving-back #page { transform: scale(1.14); }
+html.js.arriving .bokeh { filter: blur(6px); transform: scale(1.1); }
+
+/* Leaving: the page drifts past the camera and dissolves; the bokeh
+   swells, as if we were moving through it. */
+html.leaving #stage, html.leaving #page,
+html.leaving-back #stage, html.leaving-back #page {
+  transition-duration: 1.1s, 1.15s, 0.95s;
+  transition-timing-function: cubic-bezier(0.55, 0, 0.75, 0.25);
+  filter: blur(18px);
   opacity: 0;
 }
-html.leaving #stage, html.leaving #page { transform: scale(1.12); }
-html.leaving-back #stage, html.leaving-back #page { transform: scale(0.9); }
-html.leaving .bokeh, html.leaving-back .bokeh { transition-duration: 0.6s; filter: blur(8px); }
+html.leaving #stage, html.leaving #page { transform: scale(1.22); }
+html.leaving-back #stage, html.leaving-back #page { transform: scale(0.82); }
+html.leaving .bokeh, html.leaving-back .bokeh {
+  transition-duration: 1.15s;
+  transition-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  filter: blur(6px);
+  transform: scale(1.1);
+}
+html.leaving-back .bokeh { transform: scale(0.96); }
+
+/* The title card: the name of the page we are flying to, over a short
+   amber line, carried from the page we left into the one we arrive at. */
+html[data-transit]::before,
+html[data-transit]::after {
+  position: fixed;
+  z-index: 95;
+  pointer-events: none;
+  opacity: 0;
+}
+html[data-transit]::before {
+  content: attr(data-transit);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  letter-spacing: 0.22em;
+  color: var(--white);
+  filter: blur(6px);
+  transition: opacity 0.9s var(--ease-slow), letter-spacing 1.6s var(--ease-slow), filter 1.1s var(--ease-slow);
+}
+html[data-transit]::after {
+  content: "";
+  left: 50%;
+  top: calc(50% + clamp(2rem, 4vw, 2.8rem));
+  width: 3.2rem;
+  height: 1px;
+  margin-left: -1.6rem;
+  background: var(--amber);
+  transform: scaleX(0);
+  transition: opacity 0.9s var(--ease-slow), transform 1.3s var(--ease-slow);
+}
+html.leaving[data-transit]::before, html.leaving-back[data-transit]::before,
+html.transit-in[data-transit]::before {
+  opacity: 1;
+  letter-spacing: 0.04em;
+  filter: none;
+}
+html.leaving[data-transit]::before, html.leaving-back[data-transit]::before { transition-delay: 0.3s; }
+html.leaving[data-transit]::after, html.leaving-back[data-transit]::after,
+html.transit-in[data-transit]::after { opacity: 1; transform: scaleX(1); }
+html.leaving[data-transit]::after, html.leaving-back[data-transit]::after { transition-delay: 0.5s; }
 
 /* ============================================================
    THE CURSOR — a tiny ⅃L with a pool of orange light beneath it
@@ -313,6 +370,20 @@ html.leaving .bokeh, html.leaving-back .bokeh { transition-duration: 0.6s; filte
   animation: cue 2.4s ease-in-out infinite;
 }
 .next-hint:hover, .next-hint:hover b { color: var(--amber); }
+.next-hint i {
+  font-style: normal;
+  font-size: 0.54rem;
+  letter-spacing: 0.26em;
+  color: var(--amber);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.4s, transform 0.4s var(--ease);
+  order: 3;
+}
+.next-hint::after { order: 4; }
+.next-hint.is-nudged i { animation: whisper 2.4s var(--ease) both; }
+.next-hint.is-nudged b { color: var(--amber); }
+@keyframes whisper { 0% { opacity: 0; transform: translateY(-4px); } 15%, 70% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
 /* ============================================================
    BOXES — small, hairline, glassy. On hover they lift a little and
@@ -479,42 +550,64 @@ a.box:focus-visible::after, button.box:focus-visible::after { opacity: 1; transf
 }
 .back::before { content: "←"; letter-spacing: 0; }
 
-/* ---------- the dotted progress thread (no labels: the menu is the only menu) ---------- */
+/* ---------- the rail: every page by name, where you are, what comes next ---------- */
 .rail {
   position: fixed;
   right: clamp(1rem, 2.4vw, 2rem);
   top: 50%;
   transform: translateY(-50%);
   z-index: 30;
+}
+.rail-pages { list-style: none; display: grid; gap: 0.62rem; justify-items: end; }
+.rail-pages > li { display: grid; justify-items: end; }
+.rail-pages a {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  pointer-events: none;
+  gap: 0.6rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-decoration: none;
+  opacity: 0.75;
+  transition: color 0.35s, opacity 0.35s;
 }
-.rail-line {
-  position: absolute;
-  right: 3px;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--hair-2);
+.rail-pages a::after {
+  content: "";
+  width: 0.9rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+  transition: width 0.45s var(--ease), background 0.35s;
 }
-.rail-fill { position: absolute; inset: 0 0 auto 0; width: 1px; background: var(--amber); height: 0; }
-.rail-stops { list-style: none; display: grid; gap: 1.1rem; pointer-events: auto; position: relative; }
+.rail-pages a:hover { color: var(--white); opacity: 1; }
+.rail-pages a:hover::after { width: 1.5rem; }
+.rail-pages .is-next > a { color: var(--text); opacity: 1; }
+.rail-pages .is-current > a { color: var(--amber); opacity: 1; }
+.rail-pages .is-current > a::after { width: 2.2rem; background: var(--amber); opacity: 1; box-shadow: 0 0 8px rgba(var(--glow), 0.6); }
+.rail-stops {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  justify-items: end;
+  margin: 0.55rem 0 0.2rem;
+  padding-right: calc(1.1rem - 3px);
+}
 .rail-stops button {
   display: block;
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: var(--night);
-  border: 1px solid var(--hair-2);
+  background: transparent;
+  border: 1px solid rgba(var(--glow), 0.5);
   padding: 0;
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
 }
+.rail-stops button:hover { transform: scale(1.4); }
 .rail-stops button.is-current {
   background: var(--amber);
   border-color: var(--amber);
-  box-shadow: 0 0 10px rgba(var(--glow), 0.7);
+  box-shadow: 0 0 8px rgba(var(--glow), 0.8);
 }
 
 .grain {
@@ -920,3 +1013,8 @@ html.gate-through #stage { filter: blur(12px); transition: filter 0.9s; }
 /* pictures inside a flight chapter never push it past one screen */
 .layer .frame { max-height: 30vh; }
 .layer .frame.is-portrait { max-height: none; }
+
+/* narrower screens: the rail keeps its lines, the names move into the menu */
+@media (max-width: 1100px) {
+  .rail-pages a { font-size: 0; gap: 0; }
+}

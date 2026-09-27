@@ -51,24 +51,52 @@
      1. Arrival and departure: out of focus → into focus
      ============================================================ */
   var arrive = store("pillango-arrive");
+  /* The head script already put the name of this page on screen (the
+     "title card") if we flew in from another page; let it fade as the
+     page pulls into focus. */
+  var TRANSIT_OUT = 1500;
   requestAnimationFrame(function () {
-    requestAnimationFrame(function () { root.classList.remove("arriving"); });
+    requestAnimationFrame(function () {
+      root.classList.remove("arriving");
+      if (root.classList.contains("transit-in")) {
+        setTimeout(function () { root.classList.remove("transit-in"); }, 350);
+        setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, 350 + TRANSIT_OUT);
+      }
+    });
   });
+  store("pillango-transit");
 
+  /* Leaving: the page drifts past the camera and out of focus, the light
+     behind it swells, and the name of the next page settles in the middle
+     of the screen. The next page picks the same card up and fades it. */
+  var LEAVE_MS = 1150;
   var leaving = false;
-  function leave(url, dir) {
+  /* landLast: scrolling back into the previous page lands on its last
+     chapter; clicking a link always lands on the intro. */
+  function leave(url, dir, label, landLast) {
     if (leaving) return;
     leaving = true;
-    if (dir === "back") store("pillango-arrive", "back");
+    if (landLast) store("pillango-arrive", "back");
+    if (label) {
+      store("pillango-transit", JSON.stringify({ label: label, dir: dir || "forward" }));
+      root.setAttribute("data-transit", label);
+    }
+    root.classList.remove("transit-in");
     root.classList.add(dir === "back" ? "leaving-back" : "leaving");
-    setTimeout(function () { window.location.href = url; }, reduceMotion ? 0 : 620);
+    setTimeout(function () { window.location.href = url; }, reduceMotion ? 0 : LEAVE_MS);
   }
   window.addEventListener("pageshow", function (e) {
     if (e.persisted) {
       leaving = false;
-      root.classList.remove("leaving", "leaving-back", "arriving");
+      root.classList.remove("leaving", "leaving-back", "arriving", "transit-in");
+      root.removeAttribute("data-transit");
     }
   });
+  function linkLabel(a) {
+    if (a.getAttribute("data-label")) return a.getAttribute("data-label");
+    var h = a.querySelector("h3, b");
+    return (h || a).textContent.replace(/\s+/g, " ").trim().slice(0, 40);
+  }
 
   /* Every internal link leaves through the same focus-out. */
   document.addEventListener("click", function (e) {
@@ -80,7 +108,7 @@
     if (url.pathname === window.location.pathname && url.hash) return;
     e.preventDefault();
     closeOverlay();
-    leave(url.href, a.getAttribute("data-dir") || "forward");
+    leave(url.href, a.getAttribute("data-dir") || "forward", linkLabel(a));
   });
 
   /* ============================================================
@@ -492,11 +520,13 @@
 
   var scrollSpace = document.getElementById("scroll-space");
   var grade = document.getElementById("grade");
-  var railFill = document.getElementById("rail-fill");
   var railStops = document.getElementById("rail-stops");
   var nav = document.getElementById("nav");
   var nextUrl = body.getAttribute("data-next");
   var prevUrl = body.getAttribute("data-prev");
+  var nextLabel = body.getAttribute("data-next-label") || "";
+  var prevLabel = body.getAttribute("data-prev-label") || "";
+  var hint = stage.querySelector(".next-hint");
 
   if (scrollSpace) scrollSpace.style.height = single ? "0px" : TOTAL_DEPTH + "px";
 
@@ -551,7 +581,7 @@
     layer.fadeInEnd = -Math.min(-FADE_IN_END, gapPrev * 0.28);
   });
 
-  /* the progress rail: a thread with a dot per chapter */
+  /* the rail: every page by name, this page's chapters as dots beneath it */
   if (railStops && !single) {
     CHAPTERS.forEach(function (ch) {
       var li = document.createElement("li");
@@ -616,7 +646,6 @@
     layers.forEach(function (layer, idx) { layer.el.classList.toggle("is-active", idx === activeIdx); });
     if (nav) nav.classList.toggle("at-hero", body.classList.contains("home") && activeIdx === 0 && currentP < 0.02);
 
-    if (railFill) railFill.style.height = (currentP * 100).toFixed(2) + "%";
     if (railStops && activeIdx >= 0) {
       var id = layers[activeIdx].id;
       railStops.querySelectorAll("button").forEach(function (b) {
@@ -626,8 +655,20 @@
   }
 
   /* ---- the detent: one push, one chapter; past the ends, the next page ---- */
-  var SNAP_MS = 560, WHEEL_TRIGGER = 42, GESTURE_GAP = 170, REST_MS = 90, SWIPE_TRIGGER = 42, SETTLE_MS = 140;
-  var ARRIVAL_QUIET = 900;   // no leaving the page in the first moment after arriving
+  /* The stops. One push moves one chapter and no further: a push is one
+     gesture, and the next needs a fresh one (a pause in the wheel or a
+     new swipe). Leaving the page takes more: you must have come to rest
+     on the last (or first) chapter first, and then push again. Right
+     after arriving on a page all input waits until the old gesture —
+     trackpad momentum included — has died away, so one long flick can
+     never carry you past more than one page. */
+  var SNAP_MS = 1000;          // chapter-to-chapter glide
+  var WHEEL_TRIGGER = 60;      // wheel distance that makes one push
+  var GESTURE_GAP = 280;       // quiet time that ends a gesture
+  var REST_MS = 260;           // pause on arriving at a chapter
+  var EDGE_HOLD = 650;         // rest on the last chapter before the page can be left
+  var ARRIVAL_QUIET = 1300;    // nothing moves in the first moment on a new page
+  var SWIPE_TRIGGER = 50, SETTLE_MS = 160;
   var loadedAt = performance.now();
   root.classList.add("snap");
 
@@ -644,10 +685,11 @@
     if (overlay && !overlay.hidden) return true;
     return gateOpen();
   }
-  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function easeInOut(t) { return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2; }
 
   var snapIndex = nearestChapter(window.scrollY), tween = null;
-  var wheelAccum = 0, lastWheel = 0, armed = true, restAt = 0;
+  /* start disarmed: a gesture still running from the previous page is ignored */
+  var wheelAccum = 0, lastWheel = performance.now(), armed = false, restAt = performance.now();
   var touching = false, touchY = 0, touchDy = 0, settleTimer = null;
 
   function stepTween(now) {
@@ -666,17 +708,23 @@
     tween = { from: window.scrollY, to: to, start: performance.now() };
     requestAnimationFrame(stepTween);
   }
+  function nudgeHint() {
+    if (!hint) return;
+    hint.classList.remove("is-nudged");
+    void hint.offsetWidth;
+    hint.classList.add("is-nudged");
+  }
   function push(dir) {
     if (tween || busy() || leaving) return;
     var now = performance.now();
+    if (now - loadedAt < ARRIVAL_QUIET) return;
     if (now - restAt < REST_MS) return;
     var next = snapIndex + dir;
-    if (next >= CHAPTERS.length) {
-      if (nextUrl && now - loadedAt > ARRIVAL_QUIET) leave(nextUrl, "forward");
-      return;
-    }
-    if (next < 0) {
-      if (prevUrl && now - loadedAt > ARRIVAL_QUIET) leave(prevUrl, "back");
+    if (next >= CHAPTERS.length || next < 0) {
+      var url = next < 0 ? prevUrl : nextUrl;
+      if (!url) return;
+      if (now - restAt < EDGE_HOLD) { if (next > 0) nudgeHint(); return; }
+      leave(url, next < 0 ? "back" : "forward", next < 0 ? prevLabel : nextLabel, next < 0);
       return;
     }
     travelTo(next);
@@ -686,10 +734,16 @@
     if (busy()) return;
     e.preventDefault();
     var now = performance.now();
+    var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+    /* Anything that arrives in the first moment on a page is the tail of
+       the gesture that brought us here: it keeps the wheel locked, so
+       only a fresh gesture after a pause can move on. */
+    if (now - loadedAt < ARRIVAL_QUIET) { lastWheel = now; armed = false; wheelAccum = 0; return; }
     if (now - lastWheel > GESTURE_GAP) { wheelAccum = 0; armed = true; }
     lastWheel = now;
-    if (tween || !armed) return;
-    wheelAccum += e.deltaY * (e.deltaMode === 1 ? 16 : 1);
+    if (tween || !armed || leaving) return;
+    if (Math.abs(dy) < 4) return;            // the faint tail of momentum never counts
+    wheelAccum += dy;
     if (Math.abs(wheelAccum) >= WHEEL_TRIGGER) {
       var dir = wheelAccum > 0 ? 1 : -1;
       wheelAccum = 0; armed = false;
@@ -699,6 +753,7 @@
 
   window.addEventListener("touchstart", function (e) {
     if (busy() || e.touches.length !== 1) { touching = false; return; }
+    armed = true;
     touching = true; touchY = e.touches[0].clientY; touchDy = 0;
   }, { passive: true });
   window.addEventListener("touchmove", function (e) {
