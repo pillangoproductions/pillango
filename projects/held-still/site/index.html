@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- HELD STILL — placeholder for the Held Still website.
+     Replace everything in this folder (projects/held-still/site/) with the
+     existing Held Still site: index.html plus its assets. Use relative paths
+     (e.g. "assets/still.jpg"), or absolute ones starting /projects/held-still/.
+     Every file here is only served after the password. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Held Still</title>
+<style>
+  :root { color-scheme: dark; }
+  * { margin: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    background: radial-gradient(ellipse at 50% 40%, #2a1a14 0%, #0b0908 60%, #050505 100%);
+    color: #e9e3da;
+    font: 300 15px/1.7 Georgia, "Times New Roman", serif;
+    text-align: center;
+    animation: in 1.6s ease both;
+  }
+  @keyframes in { from { opacity: 0; filter: blur(12px); } to { opacity: 1; filter: none; } }
+  h1 { font-weight: 400; font-style: italic; font-size: clamp(2.6rem, 8vw, 5rem); letter-spacing: 0.02em; }
+  p { max-width: 30rem; margin: 1rem auto 0; color: #a79f95; }
+  nav { margin-top: 2.4rem; font: 400 11px/1 Arial, sans-serif; letter-spacing: 0.24em; text-transform: uppercase; }
+  a { color: #ee8a2b; text-decoration: none; margin: 0 0.8rem; }
+  a:hover { color: #f6a452; }
+</style>
+</head>
+<body>
+  <main>
+    <h1>Held Still</h1>
+    <p>The Held Still site goes here — story, stills, credits and screener.</p>
+    <nav><a href="/projects">Back to Pillango</a><a href="/projects/held-still/gate.php?action=logout">Sign out</a></nav>
+  </main>
+</body>
+</html>

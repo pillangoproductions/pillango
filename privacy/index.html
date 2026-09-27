@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
 <title>Privacy Notice — Pillango Productions</title>
-<meta name="description" content="How Pillango Productions Kft. handles personal data on pillangoprod.com: no cookies, no tracking, and what happens when you e-mail us.">
+<meta name="description" content="How Pillango Productions Kft. handles personal data on pillangoprod.com: no tracking, and what happens when you e-mail us.">
 <link rel="canonical" href="https://pillangoprod.com/privacy">
-<meta name="theme-color" content="#0B0B0B">
+<meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
 <meta property="og:title" content="Privacy Notice — Pillango Productions">
-<meta property="og:description" content="How Pillango Productions Kft. handles personal data on pillangoprod.com: no cookies, no tracking, and what happens when you e-mail us.">
+<meta property="og:description" content="How Pillango Productions Kft. handles personal data on pillangoprod.com: no tracking, and what happens when you e-mail us.">
 <meta property="og:url" content="https://pillangoprod.com/privacy">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -19,7 +20,7 @@
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Privacy Notice — Pillango Productions">
-<meta name="twitter:description" content="How Pillango Productions Kft. handles personal data on pillangoprod.com: no cookies, no tracking, and what happens when you e-mail us.">
+<meta name="twitter:description" content="How Pillango Productions Kft. handles personal data on pillangoprod.com: no tracking, and what happens when you e-mail us.">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
@@ -27,8 +28,14 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=3">
-<link rel="stylesheet" href="/css/style.css?v=3">
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/style.css?v=4">
+<noscript><style>
+  .stage{position:relative!important;height:auto!important}
+  .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
+  .nav.at-hero .nav-brand{opacity:1!important}
+  .scroll-space,.rail{display:none!important}
+</style></noscript>
 </head>
 <body class="page">
 <a class="skip" href="#main">Skip to content</a>
@@ -43,23 +50,28 @@
 </header>
 
 <div class="overlay-menu" id="overlay-menu" hidden>
-  <nav class="overlay-links" aria-label="Site">
+  <nav class="overlay-links" aria-label="Menu">
     <a href="/">Home</a>
     <a href="/about">About</a>
     <a href="/services">Services</a>
-    <a href="/post-production">Post-production</a>
-    <a href="/projects">Projects</a>
     <a href="/partners">Partners</a>
-    <a href="/blog">Journal</a>
-    <a href="/#ch-contact">Contact</a>
+    <a href="/post-production">Post-production</a>
+    <a href="/blog">Blog</a>
+    <a href="/projects">Projects</a>
+    <a href="/book">Book</a>
   </nav>
-  <p class="overlay-foot"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a> · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+  <nav class="overlay-legal" aria-label="Legal"><a href="/privacy" aria-current="page">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
+  <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
 </div>
 
+<canvas class="bokeh" id="bokeh" aria-hidden="true"></canvas>
+<div class="grade" id="grade" aria-hidden="true"></div>
+
+<div id="page">
 <main class="doc-main" id="main">
   <header class="doc-head">
     <h1 class="display">Privacy notice</h1>
-    <p class="lede">Short version: no cookies, no tracking, and we only use what you send us to reply.</p>
+    <p class="lede">No tracking, and we only use what you send us to reply.</p>
   </header>
   <div class="prose">
     <p>This notice explains what personal data Pillango Productions Kft. (“we”) processes when you visit <strong>pillangoprod.com</strong> or contact us, why, and for how long. It is written to meet the EU General Data Protection Regulation (GDPR) and Hungarian Act CXII of 2011 (Infotv.). Your rights under the GDPR are summarised on the <a href="/gdpr">GDPR page</a>.</p>
@@ -69,10 +81,13 @@
 
     <h2>What this website does not do</h2>
     <ul>
-      <li>It sets <strong>no cookies</strong> and uses no analytics, advertising or tracking tools.</li>
+      <li>It uses no analytics, advertising or tracking tools.</li>
       <li>It loads no third-party scripts or fonts — everything, including typefaces, is served from our own host.</li>
       <li>It has no forms, accounts or newsletter sign-up.</li>
     </ul>
+
+    <h2>Cookies</h2>
+    <p>The site sets no cookies — with one exception: if you enter the password for a private project page, a strictly necessary session cookie keeps you signed in until you close the browser. It holds no personal data and is not used for anything else.</p>
 
     <h2>Server logs</h2>
     <p>Like every web server, our host records technical request data (IP address, date and time, requested page, browser user-agent, referrer) to keep the site secure and working.</p>
@@ -82,9 +97,6 @@
       <dt>Processor</dt><dd>DreamHost, LLC (USA) — hosting provider</dd>
       <dt>Retention</dt><dd>According to the host’s standard log rotation <span class="tbc">[confirm period]</span></dd>
     </dl>
-
-    <h2>Private project pages</h2>
-    <p>Some project pages are password-protected. The login is checked by the web server; we do not store anything beyond the server logs described above.</p>
 
     <h2>When you e-mail us</h2>
     <p>If you write to us, we process your name, e-mail address and whatever you include in your message, in order to reply and — if we work together — to prepare and carry out the project.</p>
@@ -104,29 +116,12 @@
   </div>
 
 </main>
-
 <footer class="site-foot">
-  <div class="site-foot-inner">
-    <div>
-      <span class="wm wm-foot"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
-    </div>
-    <div>
-      <h2>Company</h2>
-      <ul><li><a href="/about">About</a></li><li><a href="/services">Services</a></li><li><a href="/post-production">Post-production</a></li><li><a href="/partners">Partners</a></li></ul>
-    </div>
-    <div>
-      <h2>Work</h2>
-      <ul><li><a href="/projects">Projects</a></li><li><a href="/the-book">The Book</a></li><li><a href="/blog">Journal</a></li></ul>
-    </div>
-    <div>
-      <h2>Contact</h2>
-      <ul><li><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></li><li><a href="/impresszum">Impresszum</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/gdpr">GDPR</a></li></ul>
-    </div>
-    <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
-  </div>
+  <span class="wm wm-foot"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
+  <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
 </footer>
-
+</div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=3"></script>
+<script src="/js/main.js?v=4"></script>
 </body>
 </html>

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
 <title>About — Pillango Productions</title>
 <meta name="description" content="Pillango Productions is a Hungary-based film production company working at the intersection of storytelling, technology and global collaboration.">
 <link rel="canonical" href="https://pillangoprod.com/about">
-<meta name="theme-color" content="#0B0B0B">
+<meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
@@ -27,17 +28,16 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=3">
-<link rel="stylesheet" href="/css/style.css?v=3">
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/style.css?v=4">
 <noscript><style>
-  .stage{position:static!important;height:auto!important;background:var(--night)!important}
+  .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
-  .bg-film,.grade{position:fixed!important}.grade{background:rgba(5,5,5,.72)!important}
   .nav.at-hero .nav-brand{opacity:1!important}
-  .scroll-space,.dust,.rail{display:none!important}
+  .scroll-space,.rail{display:none!important}
 </style></noscript>
 </head>
-<body>
+<body class="flight" data-next="/services" data-prev="/">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
@@ -50,76 +50,58 @@
 </header>
 
 <div class="overlay-menu" id="overlay-menu" hidden>
-  <nav class="overlay-links" aria-label="Site">
+  <nav class="overlay-links" aria-label="Menu">
     <a href="/">Home</a>
     <a href="/about" aria-current="page">About</a>
     <a href="/services">Services</a>
-    <a href="/post-production">Post-production</a>
-    <a href="/projects">Projects</a>
     <a href="/partners">Partners</a>
-    <a href="/blog">Journal</a>
-    <a href="/#ch-contact">Contact</a>
+    <a href="/post-production">Post-production</a>
+    <a href="/blog">Blog</a>
+    <a href="/projects">Projects</a>
+    <a href="/book">Book</a>
   </nav>
-  <p class="overlay-foot"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a> · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+  <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
+  <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
 </div>
 
-<main class="stage" id="stage" aria-label="About Pillango Productions">
+<canvas class="bokeh" id="bokeh" aria-hidden="true"></canvas>
+<div class="grade" id="grade" aria-hidden="true"></div>
+
+<main class="stage" id="stage" aria-label="About">
 <div id="main"></div>
-  <section class="layer" id="ch-hero" data-chapter="hero" data-sky="#0B0B0B">
-    <div class="hero-light" aria-hidden="true"></div>
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
+    <span class="scroll-cue" aria-hidden="true"></span>
     <div class="layer-inner narrow">
-      <h1 class="display">About Pillango Productions</h1>
+      <p class="kicker">About</p>
+      <h1 class="display intro">About Pillango Productions</h1>
       <p class="lede">Pillango Productions is a Hungary-based film production company operating at the intersection of storytelling, technology, and global collaboration.</p>
     </div>
-    <span class="scroll-cue" aria-hidden="true"></span>
   </section>
 
-  <section class="layer" id="ch-make" data-chapter="make" data-gap="1.3" data-sky="#0E0E0E" data-rail="What we make">
+  <section class="layer" id="ch-make" data-chapter="make" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.7">
     <div class="layer-inner narrow">
-      <h2 class="display display-small">What we make</h2>
+      <h2 class="display">What we make</h2>
       <p class="lede">We produce feature films, vertical series, branded content, and high-impact advertising — combining traditional production expertise with next-generation AI-driven workflows. By integrating AI-assisted development, pre-visualization, and scalable content pipelines, we reduce production costs while increasing creative flexibility.</p>
     </div>
   </section>
 
-  <section class="layer" id="ch-platforms" data-chapter="platforms" data-gap="1.3" data-sky="#0B0B0B" data-rail="Audiences">
-    <div class="layer-inner narrow">
-      <h2 class="display display-small">For today’s platforms</h2>
+  <section class="layer" id="ch-platforms" data-chapter="platforms" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.7">
+    <div class="layer-inner">
+      <h2 class="display">For today’s platforms</h2>
       <p class="lede">From cinematic feature films to fast-moving vertical dramas and digital campaigns, we create content designed for today’s platforms — and tomorrow’s audiences.</p>
-      <ul class="card-grid cols-3" style="margin-top:2rem">
-        <li class="card"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/></svg><h3>Feature films</h3></li>
-        <li class="card"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg><h3>Vertical series</h3></li>
-        <li class="card"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/></svg><h3>Branded &amp; advertising</h3></li>
+      <ul class="box-grid cols-3" style="margin-top:2rem">
+        <li class="box"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/></svg><h3>Feature films</h3><p>Cinematic features and documentaries.</p></li>
+        <li class="box"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg><h3>Vertical series</h3><p>Fast-moving vertical dramas.</p></li>
+        <li class="box"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg><h3>Brands &amp; ads</h3><p>Branded content and advertising.</p></li>
       </ul>
     </div>
   </section>
 
-  <section class="layer" id="ch-europe" data-chapter="europe" data-gap="1.3" data-sky="#0E0B09" data-rail="Europe">
+  <section class="layer" id="ch-europe" data-chapter="europe" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.7">
     <div class="layer-inner narrow">
-      <h2 class="display display-small">Hungary &amp; Europe</h2>
+      <h2 class="display">Hungary &amp; Europe</h2>
       <p class="lede">With international partnerships and deep knowledge of European production ecosystems, including Hungary’s competitive film incentives, Pillango Productions offers both creative leadership and smart production strategy.</p>
-    </div>
-  </section>
-
-  <section class="layer" id="ch-contact" data-chapter="contact" data-gap="1.15" data-sky="#070707" data-veil="0.8" data-rail="Contact">
-    <div class="layer-inner">
-      <h2 class="display display-small">Work with us</h2>
-      <p class="chapter-note">Tell us about your project — a feature, a vertical series, a campaign, or a film that needs its sound finished.</p>
-      <div class="btn-row"><a class="btn btn-solid" href="mailto:hello@pillangoprod.com?subject=Project%20enquiry">hello@pillangoprod.com</a></div>
-      <div class="contact-grid">
-        <div>
-          <h3 class="contact-label">Company</h3>
-          <p>Pillango Productions Kft.<br>Hungary</p>
-        </div>
-        <div>
-          <h3 class="contact-label">Explore</h3>
-          <p><a href="/about">About</a><br><a href="/services">Services</a><br><a href="/post-production">Post-production</a></p>
-        </div>
-        <div>
-          <h3 class="contact-label">More</h3>
-          <p><a href="/projects">Projects</a><br><a href="/partners">Partners</a><br><a href="/blog">Journal</a></p>
-        </div>
-      </div>
-      <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft. · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+      <a class="next-hint" href="/services">Next<b>Services</b></a>
     </div>
   </section>
 </main>
@@ -131,7 +113,6 @@
 
 <div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-
-<script src="/js/main.js?v=3"></script>
+<script src="/js/main.js?v=4"></script>
 </body>
 </html>

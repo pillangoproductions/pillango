@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
 <title>Projects — Pillango Productions</title>
 <meta name="description" content="Pillango Productions’ own projects: feature films, vertical series and publishing, with private screening rooms for partners.">
 <link rel="canonical" href="https://pillangoprod.com/projects">
-<meta name="theme-color" content="#0B0B0B">
+<meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
@@ -27,10 +28,16 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=3">
-<link rel="stylesheet" href="/css/style.css?v=3">
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/style.css?v=4">
+<noscript><style>
+  .stage{position:relative!important;height:auto!important}
+  .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
+  .nav.at-hero .nav-brand{opacity:1!important}
+  .scroll-space,.rail{display:none!important}
+</style></noscript>
 </head>
-<body class="page">
+<body class="flight" data-next="/book" data-prev="/blog">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
@@ -43,77 +50,85 @@
 </header>
 
 <div class="overlay-menu" id="overlay-menu" hidden>
-  <nav class="overlay-links" aria-label="Site">
+  <nav class="overlay-links" aria-label="Menu">
     <a href="/">Home</a>
     <a href="/about">About</a>
     <a href="/services">Services</a>
-    <a href="/post-production">Post-production</a>
-    <a href="/projects" aria-current="page">Projects</a>
     <a href="/partners">Partners</a>
-    <a href="/blog">Journal</a>
-    <a href="/#ch-contact">Contact</a>
+    <a href="/post-production">Post-production</a>
+    <a href="/blog">Blog</a>
+    <a href="/projects" aria-current="page">Projects</a>
+    <a href="/book">Book</a>
   </nav>
-  <p class="overlay-foot"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a> · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+  <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
+  <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
 </div>
 
-<main class="doc-main wide" id="main">
-  <header class="doc-head">
-    <h1 class="display">Projects</h1>
-    <p class="lede">Feature films, vertical series and more from our own slate.</p>
-  </header>
-  <ul class="project-grid">
-    <li class="project is-private">
-      <a href="/projects/held-still">
-        <div class="frame"><span class="frame-label">Key art placeholder</span></div>
-        <p class="project-kicker"><svg class="lock" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1"/><path d="M5 7V5a3 3 0 0 1 6 0v2"/></svg>Private screening room</p>
-        <h2>Held Still</h2>
-        <p>Password required. If you were given access, the login is on the next page.</p>
-        <span class="more">Enter</span>
-      </a>
-    </li>
-    <li class="project">
-      <a href="/the-book">
-        <div class="frame"><span class="frame-label">Cover placeholder</span></div>
-        <p class="project-kicker">Publishing</p>
-        <h2>The Book</h2>
-        <p>Cover, synopsis and where to get a copy.</p>
-        <span class="more">Read more</span>
-      </a>
-    </li>
-    <li class="project is-soon">
-      <div>
-        <div class="frame"><span class="frame-label">In development</span></div>
-        <p class="project-kicker">In development</p>
-        <h2>Next on the slate</h2>
-        <p>New projects will be announced here.</p>
-      </div>
-    </li>
-  </ul>
+<canvas class="bokeh" id="bokeh" aria-hidden="true"></canvas>
+<div class="grade" id="grade" aria-hidden="true"></div>
 
+<main class="stage" id="stage" aria-label="Projects">
+<div id="main"></div>
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
+    <span class="scroll-cue" aria-hidden="true"></span>
+    <div class="layer-inner narrow">
+      <p class="kicker">Projects</p>
+      <h1 class="display intro">Projects</h1>
+      <p class="lede">Feature films, vertical series and more from our own slate.</p>
+    </div>
+  </section>
+
+  <section class="layer" id="ch-list" data-chapter="list" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.72">
+    <div class="layer-inner wide">
+      <!-- A project with a full page: copy /_templates/project.html to /projects/<slug>/index.html
+           and link its box here. Held Still opens the password box instead. -->
+      <ul class="box-grid cols-3">
+        <li><button class="box" type="button" data-gate id="held-still">
+          <div class="frame"><span class="frame-label">Key art</span></div>
+          <p class="meta"><svg class="icon" style="width:.7rem;height:.7rem;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Private screening room</p>
+          <h3><em>Held Still</em></h3>
+          <p>Password required.</p>
+          <span class="go">Enter</span>
+        </button></li>
+        <li><a class="box" href="/book">
+          <div class="frame"><span class="frame-label">Cover</span></div>
+          <p class="meta">Publishing</p>
+          <h3>The Book</h3>
+          <p>Cover, synopsis and where to get a copy.</p>
+          <span class="go">Read more</span>
+        </a></li>
+        <li class="box logo-box is-empty">
+          <div class="frame"><span class="frame-label">In development</span></div>
+          <p class="meta">In development</p>
+          <h3>Next on the slate</h3>
+          <p>New projects will be announced here.</p>
+        </li>
+      </ul>
+      <a class="next-hint" href="/book">Next<b>Book</b></a>
+    </div>
+  </section>
 </main>
 
-<footer class="site-foot">
-  <div class="site-foot-inner">
-    <div>
-      <span class="wm wm-foot"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
-    </div>
-    <div>
-      <h2>Company</h2>
-      <ul><li><a href="/about">About</a></li><li><a href="/services">Services</a></li><li><a href="/post-production">Post-production</a></li><li><a href="/partners">Partners</a></li></ul>
-    </div>
-    <div>
-      <h2>Work</h2>
-      <ul><li><a href="/projects">Projects</a></li><li><a href="/the-book">The Book</a></li><li><a href="/blog">Journal</a></li></ul>
-    </div>
-    <div>
-      <h2>Contact</h2>
-      <ul><li><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></li><li><a href="/impresszum">Impresszum</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/gdpr">GDPR</a></li></ul>
-    </div>
-    <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
-  </div>
-</footer>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title" data-endpoint="/projects/held-still/gate.php?action=login" hidden>
+  <form class="gate-box" id="gate-form" autocomplete="off">
+    <button type="button" class="gate-close" data-gate-close aria-label="Close">×</button>
+    <p class="gate-kicker"><svg class="icon" style="width:.75rem;height:.75rem" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Private screening room</p>
+    <h2 class="gate-title" id="gate-title">Held Still</h2>
+    <label class="visually-hidden" for="gate-pw">Password</label>
+    <input id="gate-pw" name="password" type="password" placeholder="Password" autocomplete="current-password" required>
+    <button class="btn" type="submit">Enter</button>
+    <p class="gate-msg" id="gate-msg" role="status" aria-live="polite"></p>
+  </form>
+</div>
+<div class="gate-light" aria-hidden="true"></div>
 
+<aside class="rail" id="rail" aria-hidden="true">
+  <div class="rail-line"><div class="rail-fill" id="rail-fill"></div></div>
+  <ol class="rail-stops" id="rail-stops"></ol>
+</aside>
+
+<div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=3"></script>
+<script src="/js/main.js?v=4"></script>
 </body>
 </html>

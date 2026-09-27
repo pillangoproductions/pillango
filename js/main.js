@@ -1,68 +1,296 @@
 /* ============================================================
-   Pillango Productions — flight engine.
-   Native scroll drives a camera along the z-axis; each chapter of a
-   page sits at a depth, and the frame's colour grades along with it,
-   from the first shot to the end credits.
+   Pillango Productions — site engine.
 
-   The chapter spine is read straight from the markup: every
-   [data-chapter] layer inside #stage carries
+   One continuous flight through the site. Every page in the menu is
+   a stretch of the same journey, in menu order:
+     Home → About → Services → Partners → Post-production → Blog →
+     Projects → Book → (back to Home)
+   Inside a page, native scroll drives a camera along the z-axis
+   through its chapters; a push past the last chapter flies on into
+   the next page (<body data-next>), a push back past the first returns
+   to the previous one (<body data-prev>). Each page arrives out of
+   focus and pulls into focus.
+
+   The chapter spine is read from the markup: every [data-chapter]
+   layer inside #stage carries
      data-gap   distance from the previous chapter (1 = one unit)
-     data-sky   the background colour while it is on screen
-     data-rail  optional label for the progress rail
-   so adding a chapter lengthens the flight rather than crowding it.
+     data-sky   the colour laid over the background while on screen
+     data-veil  how much of that colour covers the bokeh, 0–1
 
-     data-veil  on pages with a background film (#grade present): how
-                much of the chapter's colour lies over the video, 0–1
-   Pages without a #stage (the legal pages, the blog) get only the
-   menu and the sheets; the flight never starts there.
-
-   The flight is detented: one push of the wheel, one swipe or one
-   arrow key carries the camera to the next chapter and stops there.
+   Also here: the live bokeh background (every page), the orange light
+   under the cursor, the water ripple on click, the menu, and the
+   Held Still password box.
    ============================================================ */
 (function () {
   "use strict";
 
-  var UNIT_DEPTH = 1150;       // px of travel per unit of data-gap
-
+  var root = document.documentElement;
+  var body = document.body;
   var stage = document.getElementById("stage");
-  var scrollSpace = document.getElementById("scroll-space");
-  var railFill = document.getElementById("rail-fill");
-  var railStops = document.getElementById("rail-stops");
-  var burger = document.getElementById("burger");
-  var overlay = document.getElementById("overlay-menu");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
+
   document.querySelectorAll("[data-year]").forEach(function (el) {
     el.textContent = new Date().getFullYear();
   });
 
-  /* ---- the menu overlay: every page has one ---- */
+  function store(key, val) {
+    try {
+      if (val === undefined) {
+        var v = sessionStorage.getItem(key);
+        sessionStorage.removeItem(key);
+        return v;
+      }
+      sessionStorage.setItem(key, val);
+    } catch (e) { /* private mode: arrive at the top instead */ }
+    return null;
+  }
+
+  /* ============================================================
+     1. Arrival and departure: out of focus → into focus
+     ============================================================ */
+  var arrive = store("pillango-arrive");
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { root.classList.remove("arriving"); });
+  });
+
+  var leaving = false;
+  function leave(url, dir) {
+    if (leaving) return;
+    leaving = true;
+    if (dir === "back") store("pillango-arrive", "back");
+    root.classList.add(dir === "back" ? "leaving-back" : "leaving");
+    setTimeout(function () { window.location.href = url; }, reduceMotion ? 0 : 620);
+  }
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) {
+      leaving = false;
+      root.classList.remove("leaving", "leaving-back", "arriving");
+    }
+  });
+
+  /* Every internal link leaves through the same focus-out. */
+  document.addEventListener("click", function (e) {
+    if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest("a[href]");
+    if (!a || a.target || a.hasAttribute("download") || a.hasAttribute("data-goto")) return;
+    var url = new URL(a.href, window.location.href);
+    if (url.origin !== window.location.origin) return;
+    if (url.pathname === window.location.pathname && url.hash) return;
+    e.preventDefault();
+    closeOverlay();
+    leave(url.href, a.getAttribute("data-dir") || "forward");
+  });
+
+  /* ============================================================
+     2. The menu — the one way around the site
+     ============================================================ */
+  var burger = document.getElementById("burger");
+  var overlay = document.getElementById("overlay-menu");
   function closeOverlay() {
     if (!overlay || overlay.hidden) return;
     overlay.hidden = true;
-    document.body.classList.remove("menu-open");
+    body.classList.remove("menu-open");
     if (burger) {
       burger.setAttribute("aria-expanded", "false");
       burger.setAttribute("aria-label", "Open menu");
     }
-    document.body.style.overflow = "";
   }
   if (burger && overlay) {
     burger.addEventListener("click", function () {
       var open = overlay.hidden;
       overlay.hidden = !open;
-      document.body.classList.toggle("menu-open", open);
+      body.classList.toggle("menu-open", open);
       burger.setAttribute("aria-expanded", String(open));
       burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-      document.body.style.overflow = open ? "hidden" : "";
-    });
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape") closeOverlay();
     });
   }
 
-  /* ---- ripples: every click or tap sends rings out from the point,
-     like a drop on water. Purely decorative; skipped for visitors who
-     asked for less motion. ---- */
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  /* ============================================================
+     3. The bokeh — drawn live at screen resolution
+     Out-of-focus lights after the hero of the current site: rose and
+     red to the left, magenta and violet across the top, falling away
+     to blue-black at the lower right, with a few warm sparks. Three
+     depths drift at different speeds and slide apart as you fly.
+     ============================================================ */
+  var bokehShift = 0;
+  (function bokeh() {
+    var canvas = document.getElementById("bokeh");
+    if (!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext("2d");
+    var seed = 11;
+    function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+    var WARM = [[232, 96, 124], [214, 80, 104], [240, 128, 150], [200, 72, 98]];
+    var COOL = [[182, 88, 158], [156, 82, 170], [128, 72, 160], [104, 64, 146], [205, 106, 168]];
+    var LAYERS = [
+      { n: 14, r: [0.035, 0.06], a: [0.22, 0.40], soft: 0.30, speed: 0.35, depth: 0.25 },
+      { n: 32, r: [0.07, 0.12],  a: [0.24, 0.40], soft: 0.42, speed: 0.6,  depth: 0.55 },
+      { n: 16, r: [0.13, 0.21],  a: [0.09, 0.17], soft: 0.65, speed: 0.9,  depth: 1.0 }
+    ];
+    var discs = [];
+    LAYERS.forEach(function (L) {
+      for (var i = 0; i < L.n; i++) {
+        var x = Math.pow(rnd(), 1.35) * 1.12 - 0.08;
+        var y = Math.pow(rnd(), 1.9) * 1.05 - 0.08;                   // massed along the top
+        var fall = 1 - 0.75 * Math.min(1, (x * 0.55 + y * 1.0) / 1.15); // dimmer toward lower right
+        var pal = x < 0.3 && rnd() < 0.75 ? WARM : COOL;
+        discs.push({
+          x: x, y: y,
+          rn: L.r[0] + rnd() * (L.r[1] - L.r[0]),
+          a: (L.a[0] + rnd() * (L.a[1] - L.a[0])) * fall,
+          col: pal[Math.floor(rnd() * pal.length)],
+          soft: L.soft,
+          vx: (rnd() - 0.6) * 0.006 * L.speed,
+          vy: -(0.002 + rnd() * 0.006) * L.speed,
+          sw: 0.006 + rnd() * 0.016, sf: 0.04 + rnd() * 0.1, ph: rnd() * 6.283,
+          depth: L.depth
+        });
+      }
+    });
+    var sparks = [];
+    for (var s = 0; s < 8; s++) {
+      sparks.push({
+        x: rnd(), y: 0.25 + rnd() * 0.72, rn: 0.005 + rnd() * 0.006,
+        a: 0.55 + rnd() * 0.45, tw: 0.3 + rnd() * 0.7, ph: rnd() * 6.283,
+        vx: (rnd() - 0.5) * 0.004, vy: -(0.001 + rnd() * 0.003)
+      });
+    }
+
+    var W = 0, H = 0, bg = null, sparkSprite = null;
+    function sprite(r, col, a, soft) {
+      var size = Math.ceil(r * 2 + 4), c = document.createElement("canvas");
+      c.width = c.height = size;
+      var g = c.getContext("2d"), m = size / 2;
+      var gr = g.createRadialGradient(m, m, 0, m, m, r);
+      var rgb = col[0] + "," + col[1] + "," + col[2];
+      gr.addColorStop(0, "rgba(" + rgb + "," + (a * 0.7) + ")");
+      gr.addColorStop(0.6, "rgba(" + rgb + "," + (a * 0.8) + ")");
+      gr.addColorStop(Math.max(0.66, 1 - soft * 0.3), "rgba(" + rgb + "," + (a * 0.95) + ")");  // a soft rim
+      gr.addColorStop(Math.max(0.8, 1 - soft * 0.08), "rgba(" + rgb + "," + (a * 0.45) + ")");
+      gr.addColorStop(1, "rgba(" + rgb + ",0)");
+      g.fillStyle = gr;
+      g.beginPath(); g.arc(m, m, r, 0, 6.2832); g.fill();
+      return c;
+    }
+    function glow(g, x, y, r, css) {
+      var gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, css); gr.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    }
+    function build() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      /* the canvas overhangs the screen a little (css/style.css), so the
+         water ripple has real light to pull in at the edges */
+      var cw = canvas.clientWidth || window.innerWidth, ch = canvas.clientHeight || window.innerHeight;
+      if (cw * ch * dpr * dpr > 4.6e6) dpr = Math.sqrt(4.6e6 / (cw * ch));
+      W = canvas.width = Math.round(cw * dpr);
+      H = canvas.height = Math.round(ch * dpr);
+      bg = document.createElement("canvas");
+      bg.width = W; bg.height = H;
+      var g = bg.getContext("2d");
+      var lg = g.createLinearGradient(0, 0, W, H);
+      lg.addColorStop(0, "#2d1524");
+      lg.addColorStop(0.42, "#1e1423");
+      lg.addColorStop(0.75, "#0f1119");
+      lg.addColorStop(1, "#05090d");
+      g.fillStyle = lg; g.fillRect(0, 0, W, H);
+      glow(g, W * 0.0, H * 0.4, Math.max(W, H) * 0.45, "rgba(196,70,98,0.5)");
+      glow(g, W * 0.38, H * 0.0, Math.max(W, H) * 0.55, "rgba(128,56,140,0.42)");
+      glow(g, W * 0.95, H * 0.95, Math.max(W, H) * 0.5, "rgba(4,12,18,0.6)");
+      var unit = Math.min(W, H) * 1.05;
+      discs.forEach(function (d) { d.r = d.rn * unit; d.img = sprite(d.r, d.col, d.a, d.soft); });
+      var sr = unit * 0.02;
+      sparkSprite = document.createElement("canvas");
+      sparkSprite.width = sparkSprite.height = Math.ceil(sr * 2);
+      var sg = sparkSprite.getContext("2d"), m = sr;
+      var gr = sg.createRadialGradient(m, m, 0, m, m, sr);
+      gr.addColorStop(0, "rgba(255,238,210,1)");
+      gr.addColorStop(0.12, "rgba(255,196,140,0.9)");
+      gr.addColorStop(0.35, "rgba(255,150,80,0.28)");
+      gr.addColorStop(1, "rgba(255,130,60,0)");
+      sg.fillStyle = gr; sg.fillRect(0, 0, sr * 2, sr * 2);
+      sparks.forEach(function (p) { p.r = p.rn * unit; });
+    }
+    function wrap(v) { return ((v + 0.15) % 1.3 + 1.3) % 1.3 - 0.15; }
+    function draw(t) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+      ctx.drawImage(bg, 0, 0);
+      ctx.globalCompositeOperation = "lighter";
+      for (var i = 0; i < discs.length; i++) {
+        var d = discs[i];
+        var x = wrap(d.x + d.vx * t + Math.sin(t * d.sf + d.ph) * d.sw) * W;
+        var y = wrap(d.y + d.vy * t + Math.cos(t * d.sf * 0.8 + d.ph) * d.sw * 0.6 - bokehShift * d.depth * 0.22) * H;
+        ctx.globalAlpha = 0.82 + 0.18 * Math.sin(t * d.sf * 2 + d.ph);
+        ctx.drawImage(d.img, x - d.img.width / 2, y - d.img.height / 2);
+      }
+      for (var j = 0; j < sparks.length; j++) {
+        var p = sparks[j];
+        var sx = wrap(p.x + p.vx * t) * W, sy = wrap(p.y + p.vy * t - bokehShift * 0.3) * H;
+        ctx.globalAlpha = p.a * (0.55 + 0.45 * Math.sin(t * p.tw * 2 + p.ph));
+        var k = p.r * 6 / sparkSprite.width;
+        ctx.drawImage(sparkSprite, sx - p.r * 3, sy - p.r * 3, sparkSprite.width * k, sparkSprite.height * k);
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+    }
+    build();
+    var t0 = performance.now(), last = 0;
+    draw(12);
+    if (!reduceMotion) {
+      (function loop(now) {
+        if (now - last > 32) {       // ~30 fps is plenty for drifting light
+          last = now;
+          draw(12 + (now - t0) / 1000);
+        }
+        requestAnimationFrame(loop);
+      })(t0);
+    }
+    var rs;
+    window.addEventListener("resize", function () {
+      clearTimeout(rs);
+      rs = setTimeout(function () { build(); draw(12 + (performance.now() - t0) / 1000); }, 150);
+    });
+  })();
+
+  /* ============================================================
+     4. The cursor: a tiny ⅃L (a CSS cursor image) with a pool of
+     orange light underneath that follows it and swells over anything
+     you can click.
+     ============================================================ */
+  var HOT = "a[href], button, [role='button'], label, summary, .box, input[type='submit']";
+  if (finePointer) {
+    var glowEl = document.createElement("div");
+    glowEl.className = "cursor-light";
+    glowEl.setAttribute("aria-hidden", "true");
+    body.appendChild(glowEl);
+    var gx = -500, gy = -500, tx = -500, ty = -500, glowOn = false;
+    document.addEventListener("pointermove", function (e) {
+      if (e.pointerType !== "mouse") return;
+      tx = e.clientX; ty = e.clientY;
+      if (!glowOn) { gx = tx; gy = ty; glowOn = true; glowEl.classList.add("is-on"); }
+      var hot = e.target.closest && e.target.closest(HOT);
+      glowEl.classList.toggle("is-hot", !!hot);
+    }, { passive: true });
+    document.addEventListener("pointerleave", function () { glowOn = false; glowEl.classList.remove("is-on"); });
+    (function follow() {
+      gx += (tx - gx) * (reduceMotion ? 1 : 0.22);
+      gy += (ty - gy) * (reduceMotion ? 1 : 0.22);
+      glowEl.style.transform = "translate3d(" + gx.toFixed(1) + "px," + gy.toFixed(1) + "px,0)";
+      requestAnimationFrame(follow);
+    })();
+  }
+
+  /* ============================================================
+     5. Ripples: a click sends rings out from the point, and the page
+     itself ripples like water (an SVG displacement filter over the
+     stage). Skipped for reduced motion; Safari gets the rings only.
+     ============================================================ */
+  var rippleDisplace = null;
+  if (!reduceMotion) {
+    if (!isSafari) rippleDisplace = makeWater();
     document.addEventListener("pointerdown", function (e) {
       if (e.button !== 0) return;
       var r = document.createElement("span");
@@ -71,21 +299,179 @@
       r.style.left = e.clientX + "px";
       r.style.top = e.clientY + "px";
       r.innerHTML = "<i></i><i></i><i></i>";
-      document.body.appendChild(r);
-      setTimeout(function () { r.remove(); }, 1500);
+      body.appendChild(r);
+      setTimeout(function () { r.remove(); }, 1600);
+      if (rippleDisplace) rippleDisplace(e.clientX, e.clientY);
     }, { passive: true });
   }
 
-  /* ---- the chapter spine, read from the markup ---- */
-  var CHAPTERS = [];
-  var TOTAL_DEPTH = 0;
-  if (stage) {
+  function makeWater() {
+    var NS = "http://www.w3.org/2000/svg";
+    /* The displacement map: one expanding ring of waves. Red pushes
+       along x, green along y, mid-grey means "no movement". */
+    var M = 256, c = document.createElement("canvas");
+    c.width = c.height = M;
+    var g = c.getContext("2d"), img = g.createImageData(M, M);
+    for (var yy = 0; yy < M; yy++) {
+      for (var xx = 0; xx < M; xx++) {
+        var dx = (xx + 0.5) / M * 2 - 1, dy = (yy + 0.5) / M * 2 - 1;
+        var r = Math.sqrt(dx * dx + dy * dy), o = (yy * M + xx) * 4;
+        var env = r < 1 ? Math.exp(-Math.pow((r - 0.72) / 0.2, 2)) : 0;
+        var w = Math.sin(r * 34) * env;
+        img.data[o] = 128 + (r > 0 ? 127 * w * dx / r : 0);
+        img.data[o + 1] = 128 + (r > 0 ? 127 * w * dy / r : 0);
+        img.data[o + 2] = 128;
+        img.data[o + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("class", "fx-defs");
+    body.appendChild(svg);
+    var href = c.toDataURL();
+    /* One filter per rippling layer, since each measures from its own
+       top-left corner: the stage (the page) and the bokeh behind it. */
+    var targets = [];
+    [stage, document.getElementById("bokeh")].forEach(function (el, i) {
+      if (!el) return;
+      var id = "fx-water-" + i;
+      var f = document.createElementNS(NS, "filter");
+      f.setAttribute("id", id);
+      f.setAttribute("filterUnits", "userSpaceOnUse");
+      f.setAttribute("primitiveUnits", "userSpaceOnUse");
+      f.setAttribute("color-interpolation-filters", "sRGB");
+      f.innerHTML =
+        '<feFlood flood-color="rgb(128,128,128)" result="flat"/>' +
+        '<feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="ring"/>' +
+        '<feComposite in="ring" in2="flat" operator="over" result="map"/>' +
+        '<feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G"/>';
+      svg.appendChild(f);
+      var img = f.querySelector("feImage");
+      img.setAttribute("href", href);
+      targets.push({ el: el, id: id, f: f, img: img, disp: f.querySelector("feDisplacementMap") });
+    });
+    var anim = null;
+    return function (cx, cy) {
+      if (!targets.length) return;
+      targets.forEach(function (t) {
+        var r = t.el.getBoundingClientRect();
+        t.ox = r.left; t.oy = r.top;
+        t.f.setAttribute("x", 0); t.f.setAttribute("y", 0);
+        t.f.setAttribute("width", Math.ceil(r.width)); t.f.setAttribute("height", Math.ceil(r.height));
+        t.el.style.filter = "url(#" + t.id + ")";
+      });
+      var start = performance.now(), DUR = 1300;
+      if (anim) cancelAnimationFrame(anim);
+      (function step(now) {
+        var t = Math.min(1, (now - start) / DUR);
+        var e = 1 - Math.pow(1 - t, 3);
+        var size = 60 + e * Math.max(window.innerWidth, window.innerHeight) * 1.1;
+        var scale = (34 * Math.pow(1 - t, 1.6)).toFixed(2);
+        targets.forEach(function (tg) {
+          tg.img.setAttribute("x", cx - tg.ox - size / 2);
+          tg.img.setAttribute("y", cy - tg.oy - size / 2);
+          tg.img.setAttribute("width", size);
+          tg.img.setAttribute("height", size);
+          tg.disp.setAttribute("scale", scale);
+        });
+        if (t < 1) { anim = requestAnimationFrame(step); }
+        else { anim = null; targets.forEach(function (tg) { tg.el.style.filter = ""; }); }
+      })(start);
+    };
+  }
+
+  /* ============================================================
+     6. Held Still: a small password box. The password is checked by
+     the server (/projects/held-still/gate.php); a right answer
+     dissolves the page into light and opens the Held Still site.
+     ============================================================ */
+  var gate = document.getElementById("gate");
+  var gateOpener = null;
+  function gateOpen() { return gate && !gate.hidden; }
+  if (gate) {
+    var form = document.getElementById("gate-form");
+    var input = document.getElementById("gate-pw");
+    var msg = document.getElementById("gate-msg");
+    var boxEl = gate.querySelector(".gate-box");
+    var endpoint = gate.getAttribute("data-endpoint");
+    var openGate = function (opener) {
+      gateOpener = opener || null;
+      gate.hidden = false;
+      msg.textContent = "";
+      boxEl.classList.remove("is-wrong", "is-granted");
+      requestAnimationFrame(function () { gate.classList.add("is-open"); input.focus(); });
+    };
+    var closeGate = function () {
+      gate.classList.remove("is-open");
+      setTimeout(function () { gate.hidden = true; }, 250);
+      if (gateOpener) gateOpener.focus();
+    };
+    document.querySelectorAll("[data-gate]").forEach(function (b) {
+      b.addEventListener("click", function () { openGate(b); });
+    });
+    gate.querySelectorAll("[data-gate-close]").forEach(function (b) { b.addEventListener("click", closeGate); });
+    gate.addEventListener("click", function (e) { if (e.target === gate) closeGate(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && gateOpen()) closeGate(); });
+
+    var granted = function (url) {
+      boxEl.classList.add("is-granted");
+      msg.textContent = "Welcome.";
+      setTimeout(function () { root.classList.add("gate-through"); }, 350);
+      setTimeout(function () { window.location.href = url; }, reduceMotion ? 300 : 1500);
+    };
+    var wrong = function (text) {
+      msg.textContent = text;
+      boxEl.classList.remove("is-wrong");
+      void boxEl.offsetWidth;
+      boxEl.classList.add("is-wrong");
+      input.select();
+    };
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var pw = input.value;
+      if (!pw) return;
+      msg.textContent = "Checking…";
+      var fd = new FormData();
+      fd.append("password", pw);
+      fetch(endpoint, { method: "POST", body: fd, credentials: "same-origin" })
+        .then(function (res) {
+          return res.json().catch(function () { return { ok: false, error: "offline", status: res.status }; })
+            .then(function (j) { j.status = res.status; return j; });
+        })
+        .catch(function () { return { ok: false, error: "offline" }; })
+        .then(function (j) {
+          if (j.ok) return granted(j.url || "/projects/held-still/");
+          if (j.error === "offline" && window.PILLANGO_DEMO_PASSWORD) {   // static preview only
+            return pw === window.PILLANGO_DEMO_PASSWORD
+              ? granted(gate.getAttribute("data-demo-url") || "/projects/held-still/")
+              : wrong("That password isn’t right.");
+          }
+          if (j.error === "wrong") return wrong("That password isn’t right.");
+          if (j.error === "too-many") return wrong("Too many tries. Wait a few minutes and try again.");
+          if (j.error === "not-configured") return wrong("Access isn’t set up yet.");
+          wrong("Couldn’t check the password. Try again.");
+        });
+    });
+    if (window.location.hash === "#held-still") {
+      var hs = document.querySelector("[data-gate]");
+      setTimeout(function () { openGate(hs); }, 700);
+    }
+  }
+
+  /* ============================================================
+     7. The flight
+     ============================================================ */
+  if (!stage) return;
+
+  var UNIT_DEPTH = 1150;
+  var CHAPTERS = [], TOTAL_DEPTH = 0;
+  (function spine() {
     var els = stage.querySelectorAll("[data-chapter]");
     var total = 0, gaps = [];
     els.forEach(function (el, i) {
       var g = i === 0 ? 0 : parseFloat(el.getAttribute("data-gap") || "1.25");
-      gaps.push(g);
-      total += g;
+      gaps.push(g); total += g;
     });
     if (total <= 0) total = 1;
     var cum = 0;
@@ -93,220 +479,103 @@
       cum += gaps[i];
       CHAPTERS.push({
         id: el.getAttribute("data-chapter"),
+        el: el,
         p: Math.round((cum / total) * 1e5) / 1e5,
-        sky: el.getAttribute("data-sky") || "#08090B",
-        veil: parseFloat(el.getAttribute("data-veil") || "0.8"),
-        rail: el.getAttribute("data-rail") || null
+        sky: el.getAttribute("data-sky") || "#0B0B0B",
+        veil: parseFloat(el.getAttribute("data-veil") || "0.7")
       });
     });
     TOTAL_DEPTH = Math.round(total * UNIT_DEPTH);
-  }
+  })();
+  if (!CHAPTERS.length) return;
+  var single = CHAPTERS.length === 1;
 
-  /* The scroll driver is as tall as the journey is deep, so one
-     pixel of scrolling is one pixel of travel. */
-  if (scrollSpace && TOTAL_DEPTH) scrollSpace.style.height = TOTAL_DEPTH + "px";
-
-  /* the frame's colour at each chapter, interpolated in between. */
-  var SKY = CHAPTERS.map(function (ch) { return [ch.p, ch.sky]; });
-
-  var FADE_OUT_START = 140;     // begins passing the camera
-  var FADE_OUT_END = 620;       // gone behind us
-  var FADE_IN_START = -2400;    // layer appears this far ahead
-  var FADE_IN_END = -650;       // fully visible from here
-  var DUST_COUNT = 30;
-
-  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var supports3d = window.CSS && CSS.supports && CSS.supports("transform", "translateZ(1px)");
-
-  /* background film: the grade over it follows the chapters; a visitor
-     who asked for less motion gets the poster frame instead */
+  var scrollSpace = document.getElementById("scroll-space");
   var grade = document.getElementById("grade");
-  var bgVideo = document.getElementById("bg-video");
-  if (bgVideo && reduceMotion) {
-    bgVideo.removeAttribute("autoplay");
-    bgVideo.pause();
+  var railFill = document.getElementById("rail-fill");
+  var railStops = document.getElementById("rail-stops");
+  var nav = document.getElementById("nav");
+  var nextUrl = body.getAttribute("data-next");
+  var prevUrl = body.getAttribute("data-prev");
+
+  if (scrollSpace) scrollSpace.style.height = single ? "0px" : TOTAL_DEPTH + "px";
+
+  function hexToRgb(hex) {
+    var n = parseInt(hex.slice(1), 16);
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  var VEIL = CHAPTERS.map(function (ch) { return [ch.p, ch.veil]; });
-  function veilAt(p) {
-    if (!VEIL.length) return 0.8;
-    if (p <= VEIL[0][0]) return VEIL[0][1];
-    for (var i = 1; i < VEIL.length; i++) {
-      if (p <= VEIL[i][0]) {
-        var a = VEIL[i - 1], b = VEIL[i];
-        var t = b[0] > a[0] ? (p - a[0]) / (b[0] - a[0]) : 1;
-        return a[1] + (b[1] - a[1]) * t;
+  CHAPTERS.forEach(function (ch) { ch.rgb = hexToRgb(ch.sky); });
+  function lerpAt(p, pick) {
+    if (p <= CHAPTERS[0].p) return pick(CHAPTERS[0]);
+    for (var i = 1; i < CHAPTERS.length; i++) {
+      if (p <= CHAPTERS[i].p) {
+        var a = CHAPTERS[i - 1], b = CHAPTERS[i];
+        var t = b.p > a.p ? (p - a.p) / (b.p - a.p) : 1;
+        var va = pick(a), vb = pick(b);
+        if (typeof va === "number") return va + (vb - va) * t;
+        return [va[0] + (vb[0] - va[0]) * t, va[1] + (vb[1] - va[1]) * t, va[2] + (vb[2] - va[2]) * t];
       }
     }
-    return VEIL[VEIL.length - 1][1];
+    return pick(CHAPTERS[CHAPTERS.length - 1]);
+  }
+  function paintGrade(p) {
+    if (!grade) return;
+    var c = lerpAt(p, function (ch) { return ch.rgb; });
+    var v = lerpAt(p, function (ch) { return ch.veil; });
+    grade.style.background = "rgba(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + "," + v.toFixed(3) + ")";
   }
 
-  /* ---- sheets: full-screen scrollable panels over the flight ---- */
-  var lastSheetOpener = null;
-
-  function openSheet(id, opener) {
-    var sheet = document.getElementById(id);
-    if (!sheet) return;
-    sheet.hidden = false;
-    sheet.scrollTop = 0;
-    document.body.style.overflow = "hidden";
-    lastSheetOpener = opener || null;
-    var close = sheet.querySelector("[data-close-sheet]");
-    if (close) close.focus();
-  }
-
-  function closeSheets() {
-    var closed = false;
-    document.querySelectorAll(".sheet").forEach(function (sheet) {
-      if (!sheet.hidden) { sheet.hidden = true; closed = true; }
-    });
-    if (closed) {
-      document.body.style.overflow = "";
-      if (lastSheetOpener) { lastSheetOpener.focus(); lastSheetOpener = null; }
-    }
-    return closed;
-  }
-
-  document.querySelectorAll("[data-open-sheet]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      openSheet(btn.getAttribute("data-open-sheet"), btn);
-    });
-  });
-  document.querySelectorAll("[data-close-sheet]").forEach(function (btn) {
-    btn.addEventListener("click", closeSheets);
-  });
-
-
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape") { closeSheets(); return; }
-    if (e.key !== "Tab") return;
-    /* A sheet is a modal dialog: keep Tab inside it. */
-    var sheet = null;
-    document.querySelectorAll(".sheet").forEach(function (el) {
-      if (!el.hidden) sheet = el;
-    });
-    if (!sheet) return;
-    var focusable = sheet.querySelectorAll(
-      'a[href], button:not([disabled]), input:not([type="hidden"]), select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    if (!focusable.length) return;
-    var first = focusable[0], last = focusable[focusable.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault(); last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault(); first.focus();
-    }
-  });
-
-  if (!stage || !CHAPTERS.length) return;
-
-  /* A deep link (/#ch-contact) lands straight on its chapter. */
+  /* A deep link (/#ch-name) lands on its chapter; arriving backwards
+     from the next page lands on the last one. */
   var landOn = null;
   if (/^#ch-/.test(window.location.hash)) landOn = window.location.hash.replace("#ch-", "");
+  else if (arrive === "back") landOn = CHAPTERS[CHAPTERS.length - 1].id;
 
+  var supports3d = window.CSS && CSS.supports && CSS.supports("transform", "translateZ(1px)");
   if (reduceMotion || !supports3d) {
-    document.documentElement.classList.add("flat");
-    wireNav();
-    if (landOn) goTo(landOn);
+    root.classList.add("flat");
+    paintGrade(0);
+    if (landOn) {
+      var el = document.getElementById("ch-" + landOn);
+      if (el) el.scrollIntoView();
+    }
     return;
   }
 
   /* ---- layers ---- */
-  var layers = [];
-  CHAPTERS.forEach(function (ch) {
-    var el = document.querySelector('[data-chapter="' + ch.id + '"]');
-    if (el) layers.push({ el: el, depth: ch.p * TOTAL_DEPTH, id: ch.id });
-  });
-  /* each layer emerges within the gap behind it, so close chapters
-     don't bleed through each other */
+  var FADE_OUT_START = 140, FADE_OUT_END = 620, FADE_IN_START = -2400, FADE_IN_END = -650;
+  var layers = CHAPTERS.map(function (ch) { return { el: ch.el, depth: ch.p * TOTAL_DEPTH, id: ch.id }; });
   layers.forEach(function (layer, i) {
     var gapPrev = i === 0 ? TOTAL_DEPTH : layer.depth - layers[i - 1].depth;
     layer.fadeInStart = -Math.min(-FADE_IN_START, gapPrev * 0.88);
     layer.fadeInEnd = -Math.min(-FADE_IN_END, gapPrev * 0.28);
   });
 
-  /* dust in the projector beam */
-  var dust = [];
-  for (var i = 0; i < DUST_COUNT; i++) {
-    var d = document.createElement("div");
-    d.className = "dust";
-    stage.appendChild(d);
-    dust.push({
-      el: d,
-      x: (Math.random() * 2 - 1) * 46,          // vw offset
-      y: (Math.random() * 2 - 1) * 42,          // vh offset
-      z: Math.random() * TOTAL_DEPTH,
-      s: 0.35 + Math.random() * 0.9
-    });
-  }
-
-  /* the progress rail — only chapters that named a label */
-  if (railStops) {
+  /* the progress rail: a thread with a dot per chapter */
+  if (railStops && !single) {
     CHAPTERS.forEach(function (ch) {
-      if (!ch.rail) return;
       var li = document.createElement("li");
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = ch.rail;
       b.setAttribute("data-goto", ch.id);
-      b.setAttribute("aria-label", "Go to: " + ch.rail);
+      b.setAttribute("tabindex", "-1");
       li.appendChild(b);
       railStops.appendChild(li);
     });
   }
 
-  /* ---- colour helpers ---- */
-  function hexToRgb(hex) {
-    var n = parseInt(hex.slice(1), 16);
-    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-  }
-  var SKY_RGB = SKY.map(function (s) { return [s[0], hexToRgb(s[1])]; });
-
-  function skyColor(p) {
-    if (p <= SKY_RGB[0][0]) return SKY_RGB[0][1];
-    for (var i = 1; i < SKY_RGB.length; i++) {
-      if (p <= SKY_RGB[i][0]) {
-        var a = SKY_RGB[i - 1], b = SKY_RGB[i];
-        var span = b[0] - a[0];
-        var t = span > 0 ? (p - a[0]) / span : 1;
-        return [
-          Math.round(a[1][0] + (b[1][0] - a[1][0]) * t),
-          Math.round(a[1][1] + (b[1][1] - a[1][1]) * t),
-          Math.round(a[1][2] + (b[1][2] - a[1][2]) * t)
-        ];
-      }
-    }
-    return SKY_RGB[SKY_RGB.length - 1][1];
-  }
-
-  /* ---- scroll → camera ---- */
-  var targetP = 0, currentP = 0;
-  var lastFrame = 0;
-
-  function maxScroll() {
-    return Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-  }
-
+  var targetP = 0, currentP = 0, lastFrame = 0;
+  function maxScroll() { return Math.max(1, root.scrollHeight - window.innerHeight); }
   function readScroll() {
-    targetP = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
-    /* When the tab is hidden or rAF is being throttled, the smoothing
-       loop stops firing — so drive the scene straight from the scroll
-       event. This keeps scrolling responsive in a background tab, an
-       embedded preview, or low-power mode. */
-    if (document.hidden || performance.now() - lastFrame > 250) {
-      currentP = targetP;
-      render();
-    }
+    targetP = single ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll()));
+    if (document.hidden || performance.now() - lastFrame > 250) { currentP = targetP; render(); }
   }
   window.addEventListener("scroll", readScroll, { passive: true });
   window.addEventListener("resize", readScroll);
-  document.addEventListener("visibilitychange", function () {
-    if (!document.hidden) readScroll();
-  });
 
   function frame(now) {
     lastFrame = now || performance.now();
-    /* debug: pin the camera (window.__freezeP = 0..1) */
-    if (typeof window.__freezeP === "number") targetP = currentP = window.__freezeP;
+    if (typeof window.__freezeP === "number") targetP = currentP = window.__freezeP;   // debug
     currentP += (targetP - currentP) * 0.085;
     if (Math.abs(targetP - currentP) < 0.00004) currentP = targetP;
     render();
@@ -315,221 +584,141 @@
 
   function render() {
     var camZ = currentP * TOTAL_DEPTH;
+    paintGrade(currentP);
+    bokehShift = currentP;
 
-    /* the frame's grade */
-    var c = skyColor(currentP);
-    if (grade) {
-      grade.style.background = "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + veilAt(currentP).toFixed(3) + ")";
-    } else {
-      stage.style.background = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
-    }
-
-    /* nav ink follows the frame's brightness (over the film, only a
-       heavy light veil makes the frame light) */
-    var lum = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
-    if (grade) lum *= veilAt(currentP);
-    var overlayOpen = overlay && !overlay.hidden;
-    var nav = document.getElementById("nav");
-    if (nav) nav.classList.toggle("on-light", !overlayOpen && lum > 0.52);
-    var rail = document.getElementById("rail");
-    if (rail) rail.classList.toggle("on-light", lum > 0.52);
-
-    /* chapters */
     var activeIdx = -1, bestDist = Infinity;
     layers.forEach(function (layer, idx) {
-      var dz = camZ - layer.depth; /* <0: ahead of camera, >0: behind */
-      var visible = dz > layer.fadeInStart && dz < FADE_OUT_END;
-      if (!visible) {
+      var dz = camZ - layer.depth;
+      if (!(dz > layer.fadeInStart && dz < FADE_OUT_END)) {
         layer.el.style.opacity = "0";
         layer.el.style.visibility = "hidden";
-        layer.el.classList.remove("is-active");
         return;
       }
-      var opacity;
+      var o;
       if (dz < layer.fadeInEnd) {
-        opacity = (dz - layer.fadeInStart) / (layer.fadeInEnd - layer.fadeInStart);
-        opacity = opacity * opacity * opacity; /* ease in from the deep */
+        o = (dz - layer.fadeInStart) / (layer.fadeInEnd - layer.fadeInStart);
+        o = o * o * o;
       } else if (dz > FADE_OUT_START) {
-        opacity = 1 - (dz - FADE_OUT_START) / (FADE_OUT_END - FADE_OUT_START);
+        o = 1 - (dz - FADE_OUT_START) / (FADE_OUT_END - FADE_OUT_START);
       } else {
-        opacity = 1;
+        o = 1;
       }
+      /* rack focus: soft in the distance, sharp at the camera */
+      var blur = dz < 0 ? Math.min(10, Math.max(0, (-dz - 60) / 85)) : Math.min(8, Math.max(0, dz - 40) / 60);
       layer.el.style.visibility = "visible";
-      layer.el.style.opacity = opacity.toFixed(3);
+      layer.el.style.opacity = o.toFixed(3);
       layer.el.style.transform = "translateZ(" + dz.toFixed(1) + "px)";
-
+      layer.el.style.filter = blur > 0.25 ? "blur(" + blur.toFixed(1) + "px)" : "";
       var dist = Math.abs(dz);
       if (dist < bestDist) { bestDist = dist; activeIdx = idx; }
     });
-    layers.forEach(function (layer, idx) {
-      layer.el.classList.toggle("is-active", idx === activeIdx);
-    });
-    /* the nav logo stays out of the way while the big one is on screen */
-    if (nav && grade) nav.classList.toggle("at-hero", activeIdx === 0 && currentP < 0.02);
+    layers.forEach(function (layer, idx) { layer.el.classList.toggle("is-active", idx === activeIdx); });
+    if (nav) nav.classList.toggle("at-hero", body.classList.contains("home") && activeIdx === 0 && currentP < 0.02);
 
-    /* dust */
-    dust.forEach(function (p) {
-      var dz = camZ - p.z;
-      if (dz > 300 || dz < -4200) {
-        p.el.style.opacity = "0";
-        return;
-      }
-      var o = dz > 0 ? 1 - dz / 300 : Math.max(0, 1 + dz / 4200);
-      p.el.style.opacity = (o * 0.5).toFixed(3);
-      p.el.style.transform =
-        "translate3d(" + (50 + p.x) + "vw," + (50 + p.y) + "vh," + dz.toFixed(1) + "px) scale(" + p.s + ")";
-    });
-
-    /* rail */
     if (railFill) railFill.style.height = (currentP * 100).toFixed(2) + "%";
     if (railStops && activeIdx >= 0) {
-      var activeId = layers[activeIdx].id;
+      var id = layers[activeIdx].id;
       railStops.querySelectorAll("button").forEach(function (b) {
-        b.classList.toggle("is-current", b.getAttribute("data-goto") === activeId);
+        b.classList.toggle("is-current", b.getAttribute("data-goto") === id);
       });
     }
   }
 
-  /* ---- the detent: one push, one chapter -------------------------
-     The page is a set of stops, not a slide. The camera rests on a
-     chapter and stays there; a wheel gesture, a swipe or an arrow key
-     is one "push" that carries it to the next chapter and no further.
-     A long flick is still one push — the next one needs a fresh
-     gesture, so every stop gets its moment.
+  /* ---- the detent: one push, one chapter; past the ends, the next page ---- */
+  var SNAP_MS = 560, WHEEL_TRIGGER = 42, GESTURE_GAP = 170, REST_MS = 90, SWIPE_TRIGGER = 42, SETTLE_MS = 140;
+  var ARRIVAL_QUIET = 900;   // no leaving the page in the first moment after arriving
+  var loadedAt = performance.now();
+  root.classList.add("snap");
 
-     Native scroll stays the source of truth (the scrollbar, deep links
-     and the rail all still work); we simply take the wheel and the
-     finger, and drive the scroll position ourselves. */
-  var SNAP_MS = 520;          // travel time between two chapters
-  var WHEEL_TRIGGER = 42;     // deltaY that adds up to one push
-  var GESTURE_GAP = 170;      // quiet time that ends a gesture
-  var REST_MS = 90;           // pause on arrival before the next push
-  var SWIPE_TRIGGER = 42;     // px of finger travel that counts as a push
-  var SETTLE_MS = 140;        // quiet time before a stray scroll is tidied
-
-  document.documentElement.classList.add("snap");
-
-  var snapIndex = nearestChapter(window.scrollY);
-  var tween = null;                       // {from, to, start} while travelling
-  var wheelAccum = 0, lastWheel = 0, armed = true, restAt = 0;
-  var touching = false, touchY = 0, touchDy = 0;
-  var settleTimer = null;
-
-  function chapterTop(i) {
-    return Math.round(CHAPTERS[i].p * maxScroll());
-  }
-
+  function chapterTop(i) { return Math.round(CHAPTERS[i].p * maxScroll()); }
   function nearestChapter(y) {
-    var best = 0, bestDist = Infinity;
+    var best = 0, bd = Infinity;
     for (var i = 0; i < CHAPTERS.length; i++) {
       var d = Math.abs(chapterTop(i) - y);
-      if (d < bestDist) { bestDist = d; best = i; }
+      if (d < bd) { bd = d; best = i; }
     }
     return best;
   }
-
-  /* A sheet or the menu owns the scroll while it is open. */
-  function sheetOpen() {
+  function busy() {
     if (overlay && !overlay.hidden) return true;
-    var open = false;
-    document.querySelectorAll(".sheet").forEach(function (el) {
-      if (!el.hidden) open = true;
-    });
-    return open;
+    return gateOpen();
   }
+  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
-  function easeInOut(t) {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
+  var snapIndex = nearestChapter(window.scrollY), tween = null;
+  var wheelAccum = 0, lastWheel = 0, armed = true, restAt = 0;
+  var touching = false, touchY = 0, touchDy = 0, settleTimer = null;
 
   function stepTween(now) {
     if (!tween) return;
     var t = Math.min(1, (now - tween.start) / SNAP_MS);
     window.scrollTo(0, Math.round(tween.from + (tween.to - tween.from) * easeInOut(t)));
-    if (t < 1) {
-      requestAnimationFrame(stepTween);
-    } else {
-      tween = null;
-      restAt = now;
-      wheelAccum = 0;
-    }
+    if (t < 1) requestAnimationFrame(stepTween);
+    else { tween = null; restAt = now; wheelAccum = 0; }
   }
-
-  /* Travel to a chapter by index. `instant` lands without the glide —
-     used for the arrival jump on a fresh page load. */
   function travelTo(i, instant) {
     i = Math.max(0, Math.min(CHAPTERS.length - 1, i));
     snapIndex = i;
     var to = chapterTop(i);
-    if (instant) {
-      tween = null;
-      window.scrollTo(0, to);
-      restAt = performance.now();
-      return;
-    }
-    if (to === Math.round(window.scrollY)) { return; }
+    if (instant) { tween = null; window.scrollTo(0, to); restAt = performance.now(); return; }
+    if (to === Math.round(window.scrollY)) return;
     tween = { from: window.scrollY, to: to, start: performance.now() };
     requestAnimationFrame(stepTween);
   }
-
-  /* One push: the next chapter in that direction, never two. */
   function push(dir) {
-    if (tween || sheetOpen()) return;
-    if (performance.now() - restAt < REST_MS) return;
+    if (tween || busy() || leaving) return;
+    var now = performance.now();
+    if (now - restAt < REST_MS) return;
     var next = snapIndex + dir;
-    if (next < 0 || next >= CHAPTERS.length) return;
+    if (next >= CHAPTERS.length) {
+      if (nextUrl && now - loadedAt > ARRIVAL_QUIET) leave(nextUrl, "forward");
+      return;
+    }
+    if (next < 0) {
+      if (prevUrl && now - loadedAt > ARRIVAL_QUIET) leave(prevUrl, "back");
+      return;
+    }
     travelTo(next);
   }
 
   window.addEventListener("wheel", function (e) {
-    if (sheetOpen()) return;              /* the sheet scrolls itself */
-    e.preventDefault();                   /* free scrolling never runs the flight */
+    if (busy()) return;
+    e.preventDefault();
     var now = performance.now();
-    /* A gap in the events means the hand let go: re-arm for a new push.
-       Trackpad momentum arrives as one unbroken stream, so a long flick
-       stays a single push. */
     if (now - lastWheel > GESTURE_GAP) { wheelAccum = 0; armed = true; }
     lastWheel = now;
     if (tween || !armed) return;
     wheelAccum += e.deltaY * (e.deltaMode === 1 ? 16 : 1);
     if (Math.abs(wheelAccum) >= WHEEL_TRIGGER) {
       var dir = wheelAccum > 0 ? 1 : -1;
-      wheelAccum = 0;
-      armed = false;
+      wheelAccum = 0; armed = false;
       push(dir);
     }
   }, { passive: false });
 
   window.addEventListener("touchstart", function (e) {
-    if (sheetOpen() || e.touches.length !== 1) { touching = false; return; }
-    touching = true;
-    touchY = e.touches[0].clientY;
-    touchDy = 0;
+    if (busy() || e.touches.length !== 1) { touching = false; return; }
+    touching = true; touchY = e.touches[0].clientY; touchDy = 0;
   }, { passive: true });
-
   window.addEventListener("touchmove", function (e) {
     if (!touching) return;
     touchDy = touchY - e.touches[0].clientY;
-    e.preventDefault();                   /* the finger nudges, it does not drag */
+    e.preventDefault();
   }, { passive: false });
-
-  function endTouch() {
+  window.addEventListener("touchend", function () {
     if (!touching) return;
     touching = false;
     if (Math.abs(touchDy) >= SWIPE_TRIGGER) push(touchDy > 0 ? 1 : -1);
-  }
-  window.addEventListener("touchend", endTouch, { passive: true });
+  }, { passive: true });
   window.addEventListener("touchcancel", function () { touching = false; }, { passive: true });
 
   document.addEventListener("keydown", function (e) {
-    if (sheetOpen()) return;
+    if (busy()) return;
     var t = e.target;
-    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA"
-      || t.tagName === "SELECT" || t.isContentEditable)) return;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
     var space = e.key === " " || e.key === "Spacebar";
-    /* Space belongs to a focused button or link, not to the flight. */
     if (space && t && (t.tagName === "BUTTON" || t.tagName === "A")) return;
-
     var dir = 0, jump = -1;
     if (e.key === "ArrowDown" || e.key === "PageDown") dir = 1;
     else if (e.key === "ArrowUp" || e.key === "PageUp") dir = -1;
@@ -537,77 +726,41 @@
     else if (e.key === "Home") jump = 0;
     else if (e.key === "End") jump = CHAPTERS.length - 1;
     else return;
-
     e.preventDefault();
     if (jump >= 0) travelTo(jump); else push(dir);
   });
 
-  /* Anything else that moves the scroll — a scrollbar drag, a browser
-     find, a restored position — is tidied onto the nearest chapter once
-     it goes quiet, so the flight never rests between two stops. */
-  function scheduleSettle() {
+  window.addEventListener("scroll", function () {
     if (tween || touching) return;
-    if (settleTimer) clearTimeout(settleTimer);
+    clearTimeout(settleTimer);
     settleTimer = setTimeout(function () {
-      settleTimer = null;
-      if (tween || touching || sheetOpen()) return;
+      if (tween || touching || busy()) return;
       var i = nearestChapter(window.scrollY);
-      if (Math.abs(chapterTop(i) - window.scrollY) > 2) travelTo(i);
-      else snapIndex = i;
+      if (Math.abs(chapterTop(i) - window.scrollY) > 2) travelTo(i); else snapIndex = i;
     }, SETTLE_MS);
-  }
-  window.addEventListener("scroll", scheduleSettle, { passive: true });
-
-  /* A resize moves every chapter's scroll position — hold the stop.
-     Not while a sheet is open, though: there the resize is usually the
-     phone's keyboard opening under a form, and the flight behind it
-     must stay put. */
+  }, { passive: true });
   window.addEventListener("resize", function () {
-    if (tween || touching || sheetOpen()) return;
+    if (tween || touching || busy()) return;
     travelTo(snapIndex, true);
   });
 
-  /* initial sync + start the smoothing loop */
-  targetP = Math.min(1, Math.max(0, window.scrollY / maxScroll()));
+  document.querySelectorAll("[data-goto]").forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      closeOverlay();
+      for (var i = 0; i < CHAPTERS.length; i++) {
+        if (CHAPTERS[i].id === link.getAttribute("data-goto")) { travelTo(i); break; }
+      }
+    });
+  });
+
+  if (landOn) {
+    for (var li = 0; li < CHAPTERS.length; li++) {
+      if (CHAPTERS[li].id === landOn) { travelTo(li, true); break; }
+    }
+  }
+  targetP = single ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll()));
   currentP = targetP;
   render();
   requestAnimationFrame(frame);
-
-  wireNav();
-  if (landOn) {
-    /* jump, don't glide, on a fresh load */
-    var landIdx = chapterIndexById(landOn);
-    if (landIdx >= 0) travelTo(landIdx, true);
-  }
-
-  /* ---- navigation ---- */
-  function chapterIndexById(id) {
-    for (var i = 0; i < CHAPTERS.length; i++) {
-      if (CHAPTERS[i].id === id) return i;
-    }
-    return -1;
-  }
-
-  function goTo(id) {
-    if (document.documentElement.classList.contains("flat")) {
-      var target = document.getElementById("ch-" + id);
-      if (target) target.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    /* The rail and the menu skip straight to a stop — the detent only
-       governs the wheel, the finger and the arrow keys. */
-    var idx = chapterIndexById(id);
-    if (idx >= 0) travelTo(idx);
-  }
-
-  function wireNav() {
-    document.querySelectorAll("[data-goto]").forEach(function (link) {
-      link.addEventListener("click", function (e) {
-        e.preventDefault();
-        closeOverlay();
-        closeSheets();
-        goTo(link.getAttribute("data-goto"));
-      });
-    });
-  }
 })();

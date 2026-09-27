@@ -1,29 +1,29 @@
-<!-- Blog post template. Copy to /blog/<slug>/index.html, replace every POST-SLUG /
-     POST TITLE / summary placeholder (title, description, canonical, og:url, h1),
-     then add a box for it on /blog/index.html and its URL to /sitemap.xml. -->
+<!-- Project page template. Copy to /projects/<slug>/index.html, replace every
+     PROJECT-SLUG / PROJECT TITLE / summary placeholder, then link a box to it on
+     /projects/index.html and add the URL to /sitemap.xml. -->
 <!DOCTYPE html>
 <html lang="en" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
-<title>POST TITLE — Pillango Productions Blog</title>
-<meta name="description" content="ONE-SENTENCE SUMMARY OF THE POST (120–160 characters).">
-<link rel="canonical" href="https://pillangoprod.com/blog/POST-SLUG">
+<title>PROJECT TITLE — Pillango Productions</title>
+<meta name="description" content="ONE-SENTENCE SUMMARY OF THE PROJECT (120–160 characters).">
+<link rel="canonical" href="https://pillangoprod.com/projects/PROJECT-SLUG">
 <meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
-<meta property="og:title" content="POST TITLE — Pillango Productions Blog">
-<meta property="og:description" content="ONE-SENTENCE SUMMARY OF THE POST (120–160 characters).">
-<meta property="og:url" content="https://pillangoprod.com/blog/POST-SLUG">
+<meta property="og:title" content="PROJECT TITLE — Pillango Productions">
+<meta property="og:description" content="ONE-SENTENCE SUMMARY OF THE PROJECT (120–160 characters).">
+<meta property="og:url" content="https://pillangoprod.com/projects/PROJECT-SLUG">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="POST TITLE — Pillango Productions Blog">
-<meta name="twitter:description" content="ONE-SENTENCE SUMMARY OF THE POST (120–160 characters).">
+<meta name="twitter:title" content="PROJECT TITLE — Pillango Productions">
+<meta name="twitter:description" content="ONE-SENTENCE SUMMARY OF THE PROJECT (120–160 characters).">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
@@ -59,8 +59,8 @@
     <a href="/services">Services</a>
     <a href="/partners">Partners</a>
     <a href="/post-production">Post-production</a>
-    <a href="/blog" aria-current="page">Blog</a>
-    <a href="/projects">Projects</a>
+    <a href="/blog">Blog</a>
+    <a href="/projects" aria-current="page">Projects</a>
     <a href="/book">Book</a>
   </nav>
   <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
@@ -73,14 +73,16 @@
 <div id="page">
 <main class="doc-main" id="main">
   <header class="doc-head">
-    <a class="btn back" href="/blog" data-dir="back">Back to Blog</a>
-    <h1 class="display">POST TITLE</h1>
-    <p class="lede">Standfirst: one or two sentences that set up the post.</p>
+    <a class="btn back" href="/projects" data-dir="back">Back to Projects</a>
+    <h1 class="display">PROJECT TITLE</h1>
+    <p class="lede">Logline: one sentence.</p>
   </header>
+  <div class="box" style="padding:0;margin-bottom:2rem"><div class="frame" style="margin:0"><img src="/projects/PROJECT-SLUG/key-art.jpg" alt="PROJECT TITLE key art"></div></div>
   <article class="prose">
-    <p class="updated" style="margin-top:0">2026-00-00</p>
-    <p>Body copy. Use &lt;h2&gt; for sections.</p>
-    <div class="box" style="padding:0"><div class="frame" style="margin:0"><img src="/blog/POST-SLUG/cover.jpg" alt="Describe the image"></div></div>
+    <h3>Format · Year · Status</h3>
+    <p>Synopsis and the story of the project.</p>
+    <h2>Credits</h2>
+    <dl><dt>Director</dt><dd>Name</dd><dt>Producer</dt><dd>Name</dd></dl>
   </article>
 
 </main>

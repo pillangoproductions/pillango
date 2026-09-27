@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="hu" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
 <title>Impresszum — Pillango Productions Kft.</title>
 <meta name="description" content="Impresszum: a Pillango Productions Kft. cégadatai, elérhetősége és tárhelyszolgáltatója. Company details of Pillango Productions Kft.">
 <link rel="canonical" href="https://pillangoprod.com/impresszum">
-<meta name="theme-color" content="#0B0B0B">
+<meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
@@ -27,8 +28,14 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=3">
-<link rel="stylesheet" href="/css/style.css?v=3">
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/style.css?v=4">
+<noscript><style>
+  .stage{position:relative!important;height:auto!important}
+  .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
+  .nav.at-hero .nav-brand{opacity:1!important}
+  .scroll-space,.rail{display:none!important}
+</style></noscript>
 </head>
 <body class="page">
 <a class="skip" href="#main">Skip to content</a>
@@ -43,19 +50,24 @@
 </header>
 
 <div class="overlay-menu" id="overlay-menu" hidden>
-  <nav class="overlay-links" aria-label="Site">
+  <nav class="overlay-links" aria-label="Menu">
     <a href="/">Home</a>
     <a href="/about">About</a>
     <a href="/services">Services</a>
-    <a href="/post-production">Post-production</a>
-    <a href="/projects">Projects</a>
     <a href="/partners">Partners</a>
-    <a href="/blog">Journal</a>
-    <a href="/#ch-contact">Contact</a>
+    <a href="/post-production">Post-production</a>
+    <a href="/blog">Blog</a>
+    <a href="/projects">Projects</a>
+    <a href="/book">Book</a>
   </nav>
-  <p class="overlay-foot"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a> · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+  <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum" aria-current="page">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
+  <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
 </div>
 
+<canvas class="bokeh" id="bokeh" aria-hidden="true"></canvas>
+<div class="grade" id="grade" aria-hidden="true"></div>
+
+<div id="page">
 <main class="doc-main" id="main">
   <header class="doc-head">
     <h1 class="display">Impresszum</h1>
@@ -91,29 +103,12 @@
   </div>
 
 </main>
-
 <footer class="site-foot">
-  <div class="site-foot-inner">
-    <div>
-      <span class="wm wm-foot"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
-    </div>
-    <div>
-      <h2>Company</h2>
-      <ul><li><a href="/about">About</a></li><li><a href="/services">Services</a></li><li><a href="/post-production">Post-production</a></li><li><a href="/partners">Partners</a></li></ul>
-    </div>
-    <div>
-      <h2>Work</h2>
-      <ul><li><a href="/projects">Projects</a></li><li><a href="/the-book">The Book</a></li><li><a href="/blog">Journal</a></li></ul>
-    </div>
-    <div>
-      <h2>Contact</h2>
-      <ul><li><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></li><li><a href="/impresszum">Impresszum</a></li><li><a href="/privacy">Privacy</a></li><li><a href="/gdpr">GDPR</a></li></ul>
-    </div>
-    <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
-  </div>
+  <span class="wm wm-foot"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
+  <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
 </footer>
-
+</div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=3"></script>
+<script src="/js/main.js?v=4"></script>
 </body>
 </html>

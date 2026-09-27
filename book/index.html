@@ -1,29 +1,26 @@
-<!-- Blog post template. Copy to /blog/<slug>/index.html, replace every POST-SLUG /
-     POST TITLE / summary placeholder (title, description, canonical, og:url, h1),
-     then add a box for it on /blog/index.html and its URL to /sitemap.xml. -->
 <!DOCTYPE html>
 <html lang="en" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
-<title>POST TITLE — Pillango Productions Blog</title>
-<meta name="description" content="ONE-SENTENCE SUMMARY OF THE POST (120–160 characters).">
-<link rel="canonical" href="https://pillangoprod.com/blog/POST-SLUG">
+<title>The Book — Pillango Productions</title>
+<meta name="description" content="The Book from Pillango Productions: cover, synopsis and where to get a copy.">
+<link rel="canonical" href="https://pillangoprod.com/book">
 <meta name="theme-color" content="#0A0A0B">
-<meta property="og:type" content="article">
+<meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
-<meta property="og:title" content="POST TITLE — Pillango Productions Blog">
-<meta property="og:description" content="ONE-SENTENCE SUMMARY OF THE POST (120–160 characters).">
-<meta property="og:url" content="https://pillangoprod.com/blog/POST-SLUG">
+<meta property="og:title" content="The Book — Pillango Productions">
+<meta property="og:description" content="The Book from Pillango Productions: cover, synopsis and where to get a copy.">
+<meta property="og:url" content="https://pillangoprod.com/book">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="POST TITLE — Pillango Productions Blog">
-<meta name="twitter:description" content="ONE-SENTENCE SUMMARY OF THE POST (120–160 characters).">
+<meta name="twitter:title" content="The Book — Pillango Productions">
+<meta name="twitter:description" content="The Book from Pillango Productions: cover, synopsis and where to get a copy.">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
@@ -40,7 +37,7 @@
   .scroll-space,.rail{display:none!important}
 </style></noscript>
 </head>
-<body class="page">
+<body class="flight" data-next="/" data-prev="/projects">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
@@ -59,9 +56,9 @@
     <a href="/services">Services</a>
     <a href="/partners">Partners</a>
     <a href="/post-production">Post-production</a>
-    <a href="/blog" aria-current="page">Blog</a>
+    <a href="/blog">Blog</a>
     <a href="/projects">Projects</a>
-    <a href="/book">Book</a>
+    <a href="/book" aria-current="page">Book</a>
   </nav>
   <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
   <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
@@ -70,25 +67,35 @@
 <canvas class="bokeh" id="bokeh" aria-hidden="true"></canvas>
 <div class="grade" id="grade" aria-hidden="true"></div>
 
-<div id="page">
-<main class="doc-main" id="main">
-  <header class="doc-head">
-    <a class="btn back" href="/blog" data-dir="back">Back to Blog</a>
-    <h1 class="display">POST TITLE</h1>
-    <p class="lede">Standfirst: one or two sentences that set up the post.</p>
-  </header>
-  <article class="prose">
-    <p class="updated" style="margin-top:0">2026-00-00</p>
-    <p>Body copy. Use &lt;h2&gt; for sections.</p>
-    <div class="box" style="padding:0"><div class="frame" style="margin:0"><img src="/blog/POST-SLUG/cover.jpg" alt="Describe the image"></div></div>
-  </article>
+<main class="stage" id="stage" aria-label="Book">
+<div id="main"></div>
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
+    <span class="scroll-cue" aria-hidden="true"></span>
+    <div class="layer-inner narrow">
+      <p class="kicker">Book</p>
+      <h1 class="display intro">The Book</h1>
+      <p class="lede">Cover, synopsis and where to get a copy — coming soon.</p>
+    </div>
+  </section>
 
+  <section class="layer" id="ch-detail" data-chapter="detail" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.7">
+    <div class="layer-inner narrow">
+      <!-- THE BOOK — add the cover as /assets/img/book-cover.jpg (replace the frame label with an <img>),
+           the synopsis, and where to buy / order. -->
+      <div class="box" style="max-width:min(15rem,22vh);margin:0 auto 1.8rem;padding:0"><div class="frame is-portrait" style="margin:0"><span class="frame-label">Cover</span></div></div>
+      <p class="lede">Details are on their way. To be told when it’s out, write to <a class="small" style="font-size:inherit" href="mailto:hello@pillangoprod.com?subject=The%20Book">hello@pillangoprod.com</a>.</p>
+      <div class="btn-row"><a class="btn back" href="/projects" data-dir="back">Back to Projects</a></div>
+      <a class="next-hint" href="/">Back to the start<b>Home</b></a>
+    </div>
+  </section>
 </main>
-<footer class="site-foot">
-  <span class="wm wm-foot"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
-  <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
-</footer>
-</div>
+
+<aside class="rail" id="rail" aria-hidden="true">
+  <div class="rail-line"><div class="rail-fill" id="rail-fill"></div></div>
+  <ol class="rail-stops" id="rail-stops"></ol>
+</aside>
+
+<div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <script src="/js/main.js?v=4"></script>
 </body>

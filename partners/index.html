@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="arriving">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.remove("arriving")},2500);</script>
 <title>Partners — Pécs City Studios, M2 Media Post | Pillango Productions</title>
-<meta name="description" content="Pillango Productions’ partners: Pécs City Studios for post-production, M2 Media Post for post-production financing — and how to co-produce or collaborate with us.">
+<meta name="description" content="Pillango Productions’ partners: Pécs City Studios for post-production and M2 Media Post for post-production financing.">
 <link rel="canonical" href="https://pillangoprod.com/partners">
-<meta name="theme-color" content="#0B0B0B">
+<meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
 <meta property="og:title" content="Partners — Pécs City Studios, M2 Media Post | Pillango Productions">
-<meta property="og:description" content="Pillango Productions’ partners: Pécs City Studios for post-production, M2 Media Post for post-production financing — and how to co-produce or collaborate with us.">
+<meta property="og:description" content="Pillango Productions’ partners: Pécs City Studios for post-production and M2 Media Post for post-production financing.">
 <meta property="og:url" content="https://pillangoprod.com/partners">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -19,7 +20,7 @@
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Partners — Pécs City Studios, M2 Media Post | Pillango Productions">
-<meta name="twitter:description" content="Pillango Productions’ partners: Pécs City Studios for post-production, M2 Media Post for post-production financing — and how to co-produce or collaborate with us.">
+<meta name="twitter:description" content="Pillango Productions’ partners: Pécs City Studios for post-production and M2 Media Post for post-production financing.">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
@@ -27,17 +28,16 @@
 <link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=3">
-<link rel="stylesheet" href="/css/style.css?v=3">
+<link rel="stylesheet" href="/css/fonts.css?v=4">
+<link rel="stylesheet" href="/css/style.css?v=4">
 <noscript><style>
-  .stage{position:static!important;height:auto!important;background:var(--night)!important}
+  .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
-  .bg-film,.grade{position:fixed!important}.grade{background:rgba(5,5,5,.72)!important}
   .nav.at-hero .nav-brand{opacity:1!important}
-  .scroll-space,.dust,.rail{display:none!important}
+  .scroll-space,.rail{display:none!important}
 </style></noscript>
 </head>
-<body>
+<body class="flight" data-next="/post-production" data-prev="/services">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
@@ -50,78 +50,47 @@
 </header>
 
 <div class="overlay-menu" id="overlay-menu" hidden>
-  <nav class="overlay-links" aria-label="Site">
+  <nav class="overlay-links" aria-label="Menu">
     <a href="/">Home</a>
     <a href="/about">About</a>
     <a href="/services">Services</a>
-    <a href="/post-production">Post-production</a>
-    <a href="/projects">Projects</a>
     <a href="/partners" aria-current="page">Partners</a>
-    <a href="/blog">Journal</a>
-    <a href="/#ch-contact">Contact</a>
+    <a href="/post-production">Post-production</a>
+    <a href="/blog">Blog</a>
+    <a href="/projects">Projects</a>
+    <a href="/book">Book</a>
   </nav>
-  <p class="overlay-foot"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a> · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+  <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
+  <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
 </div>
 
-<main class="stage" id="stage" aria-label="Pillango Productions partners">
+<canvas class="bokeh" id="bokeh" aria-hidden="true"></canvas>
+<div class="grade" id="grade" aria-hidden="true"></div>
+
+<main class="stage" id="stage" aria-label="Partners">
 <div id="main"></div>
-  <section class="layer" id="ch-hero" data-chapter="hero" data-sky="#0B0B0B">
-    <div class="hero-light" aria-hidden="true"></div>
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
+    <span class="scroll-cue" aria-hidden="true"></span>
     <div class="layer-inner narrow">
-      <h1 class="display">Partners</h1>
+      <p class="kicker">Partners</p>
+      <h1 class="display intro">Partners</h1>
       <p class="lede">The studios, financiers and collaborators we work with in Hungary and across Europe.</p>
     </div>
-    <span class="scroll-cue" aria-hidden="true"></span>
   </section>
 
-  <section class="layer" id="ch-pecs" data-chapter="pecs" data-gap="1.3" data-sky="#0D0A0D" data-rail="Pécs City Studios">
-    <div class="layer-inner narrow">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="1"/><path d="M9 22v-4h6v4M8 6h.01M12 6h.01M16 6h.01M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg>
-      <h2 class="display display-small">Pécs City Studios</h2>
-      <p class="lede">A studio facility providing comprehensive post production services to the film and television industry, specializing in audio post-production — including a 5.1 mixing stage for theatrical, broadcast and music.</p>
-      <p class="micro-note"><a class="btn" href="/post-production">Post-production</a></p>
-    </div>
-  </section>
-
-  <section class="layer" id="ch-m2" data-chapter="m2" data-gap="1.3" data-sky="#0B0B0B" data-rail="M2 Media Post">
-    <div class="layer-inner narrow">
-      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3M3 4h8"/></svg>
-      <h2 class="display display-small">M2 Media Post</h2>
-      <p class="lede">Our partner for post-production financing: flexible financing solutions for filmmakers.</p>
-    </div>
-  </section>
-
-  <section class="layer" id="ch-ways" data-chapter="ways" data-gap="1.3" data-sky="#0E0E0E" data-rail="Collaborate">
+  <section class="layer" id="ch-logos" data-chapter="logos" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.72">
     <div class="layer-inner wide">
-      <h2 class="display display-small">Work with us</h2>
-      <ul class="card-grid cols-3">
-        <li class="card"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4"/></svg><h3>Co-production</h3><p>A Hungarian partner for European features and series.</p></li>
-        <li class="card"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/></svg><h3>Production in Hungary</h3><p>Local production and strategy, including the Hungarian film incentive.</p></li>
-        <li class="card"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg><h3>Brands &amp; platforms</h3><p>Vertical series, branded content and advertising.</p></li>
+      <!-- Partner boxes: put a logo file in /assets/img/partners/ and use
+           <span class="logo-mark"><img src="/assets/img/partners/name.svg" alt="Name"></span> -->
+      <ul class="box-grid cols-3">
+        <li class="box logo-box"><span class="logo-mark">Pécs City Studios</span><p>Studio facility — post-production and a 5.1 mixing stage.</p></li>
+        <li class="box logo-box"><span class="logo-mark">M2 Media Post</span><p>Post-production financing for filmmakers.</p></li>
+        <li class="box logo-box is-empty"><span class="logo-mark">Partner logo</span><p>One line about the partner.</p></li>
+        <li class="box logo-box is-empty"><span class="logo-mark">Partner logo</span><p>One line about the partner.</p></li>
+        <li class="box logo-box is-empty"><span class="logo-mark">Partner logo</span><p>One line about the partner.</p></li>
+        <li class="box logo-box is-empty"><span class="logo-mark">Partner logo</span><p>One line about the partner.</p></li>
       </ul>
-    </div>
-  </section>
-
-  <section class="layer" id="ch-contact" data-chapter="contact" data-gap="1.15" data-sky="#070707" data-veil="0.8" data-rail="Contact">
-    <div class="layer-inner">
-      <h2 class="display display-small">Become a partner</h2>
-      <p class="chapter-note">Tell us about your project — a feature, a vertical series, a campaign, or a film that needs its sound finished.</p>
-      <div class="btn-row"><a class="btn btn-solid" href="mailto:hello@pillangoprod.com?subject=Project%20enquiry">hello@pillangoprod.com</a></div>
-      <div class="contact-grid">
-        <div>
-          <h3 class="contact-label">Company</h3>
-          <p>Pillango Productions Kft.<br>Hungary</p>
-        </div>
-        <div>
-          <h3 class="contact-label">Explore</h3>
-          <p><a href="/about">About</a><br><a href="/services">Services</a><br><a href="/post-production">Post-production</a></p>
-        </div>
-        <div>
-          <h3 class="contact-label">More</h3>
-          <p><a href="/projects">Projects</a><br><a href="/partners">Partners</a><br><a href="/blog">Journal</a></p>
-        </div>
-      </div>
-      <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft. · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
+      <a class="next-hint" href="/post-production">Next<b>Post-production</b></a>
     </div>
   </section>
 </main>
@@ -133,7 +102,6 @@
 
 <div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-
-<script src="/js/main.js?v=3"></script>
+<script src="/js/main.js?v=4"></script>
 </body>
 </html>
