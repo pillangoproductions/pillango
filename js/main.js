@@ -117,6 +117,7 @@
     if (!canSwap() || reduceMotion || !crossReady) { hardLoad(); return; }
     fetchPage(url).then(function (html) {
       var doc = new DOMParser().parseFromString(html, "text/html");
+      doc.querySelectorAll("[src]").forEach(function (el) { el.setAttribute("src", new URL(el.getAttribute("src"), new URL(url, window.location.href)).href); });
       var next = doc.getElementById("stage");
       if (!next || !next.querySelector("[data-chapter]")) throw new Error("not a flight page");
       crossTo(doc, next, url, dir === "back" || !!landLast, fromHistory);
