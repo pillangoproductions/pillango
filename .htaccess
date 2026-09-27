@@ -1,0 +1,5 @@
+# Étterem weboldal — root .htaccess
+Options -Indexes
+
+# UTF-8 defaults
+AddDefaultCharset UTF-8

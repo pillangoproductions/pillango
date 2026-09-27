@@ -1,0 +1,1139 @@
+/* ============================================================
+   SALONE MEDICI — publikus dizájn
+   Egy este a szalonban: az érkezéstől a búcsúig, a terem
+   színeiben — zsályazöld, gyertyaarany, szilva, éjfekete.
+
+   Betűk: Cormorant Garamond (a szalon hangja) + Jost (a
+   nagybetűs jelzések és az űrlapok). Mindkettő SIL Open Font
+   License alatt, a Google Fontsról töltve — nincs licencgond,
+   nincs betűfájl a projektben. Lásd README → Betűtípusok.
+   ============================================================ */
+
+:root {
+  /* az este színei */
+  --notte:       #14110F;  /* a ház éjszaka */
+  --verde-cupo:  #1B2A22;  /* a szalon mélyzöldje */
+  --verde:       #2C4438;  /* a falak zöldje */
+  --salvia:      #8FA08A;  /* zsálya */
+  --prugna:      #3A2A4A;  /* a fénypark szilvája */
+  --lavagna:     #0D1011;  /* a fotóoldalak palája */
+  --candela:     #EDDCBB;  /* gyertyafény */
+  --crema:       #F6EEDF;  /* a terítő */
+  --oro:         #C8A55B;  /* az aranykeret */
+  --oro-chiaro:  #E3C88A;
+  --brace:       #7A2230;  /* a bor mélyvörösse */
+  --inchiostro:  #221B14;  /* tinta a világos fejezeteken */
+
+  --font-display: "Cormorant Garamond", "Hoefler Text", Garamond, "Times New Roman", serif;
+  --font-caps:    "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
+  --font-body:    "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
+
+  --nav-h: 4.25rem;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: auto; }
+
+/* The detented flight (js/main.js) takes the wheel and the finger itself,
+   so the browser must not also pan the page. Pinch-zoom and horizontal
+   panning stay available; the sheets keep their own vertical scrolling. */
+html.snap,
+html.snap body { touch-action: pan-x pinch-zoom; overscroll-behavior-y: none; }
+html.snap .sheet,
+html.snap .overlay-menu { touch-action: pan-y pinch-zoom; }
+
+body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  background: var(--notte);
+  color: var(--crema);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; }
+
+/* The hidden attribute drives the menu overlay and the sheets, so it
+   has to beat their own display declarations. */
+[hidden] { display: none !important; }
+
+:focus-visible {
+  outline: 2px solid var(--oro);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- scroll driver ---------- */
+/* Height is set by js/main.js from the journey's depth. */
+.scroll-space { height: 1200vh; width: 1px; pointer-events: none; }
+
+/* ---------- 3D stage ---------- */
+.stage {
+  position: fixed;
+  inset: 0;
+  height: 100dvh;
+  perspective: 1000px;
+  perspective-origin: 50% 48%;
+  overflow: hidden;
+  background: var(--notte); /* repainted by JS along the evening */
+}
+
+.layer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* "safe" makes a chapter that is taller than the viewport align to the
+     top instead of overflowing off both edges — the stage clips those. */
+  align-content: safe center;
+  padding: calc(var(--nav-h) + 1rem) clamp(1.25rem, 5vw, 4rem) 3rem;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform-style: flat;
+}
+.layer.is-active { pointer-events: auto; }
+
+.layer-inner {
+  width: min(100%, 46rem);
+  text-align: center;
+}
+.layer-inner.narrow { width: min(100%, 38rem); }
+.layer-inner.wide   { width: min(100%, 66rem); }
+
+.ink-dark  { color: var(--inchiostro); }
+.ink-light { color: var(--crema); }
+
+/* ---------- type ---------- */
+.eyebrow {
+  font-family: var(--font-caps);
+  font-weight: 400;
+  font-size: clamp(0.58rem, 1.4vw, 0.7rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: clamp(0.9rem, 2.5vh, 1.6rem);
+}
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.8rem, 8.5vw, 5.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin-bottom: clamp(0.9rem, 2.5vh, 1.4rem);
+}
+.display em { font-style: italic; color: var(--oro-chiaro); }
+.ink-dark .display em { color: var(--brace); }
+.display-small { font-size: clamp(2.2rem, 6vw, 3.6rem); }
+
+.lede {
+  font-family: var(--font-display);
+  font-size: clamp(1.12rem, 2.4vw, 1.42rem);
+  font-weight: 300;
+  line-height: 1.62;
+  opacity: 0.92;
+}
+
+.chapter-note {
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 2.1vw, 1.2rem);
+  line-height: 1.6;
+  opacity: 0.85;
+  max-width: 40rem;
+  margin: 0 auto clamp(1.4rem, 3.5vh, 2.2rem);
+}
+
+.firma {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  margin-top: clamp(1.1rem, 3vh, 1.8rem);
+  color: var(--oro-chiaro);
+}
+.firma em { font-style: italic; }
+
+.micro-note {
+  font-family: var(--font-caps);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  opacity: 0.6;
+  margin-top: 1.1rem;
+  line-height: 1.6;
+}
+.micro-note a { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- navigation ---------- */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 40;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0 clamp(1rem, 4vw, 2.4rem);
+  color: var(--crema);
+  transition: color 0.5s ease;
+  pointer-events: none;
+}
+.nav > * { pointer-events: auto; }
+.nav.on-light { color: var(--inchiostro); }
+
+.nav-brand {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+.nav-brand-sub {
+  font-family: var(--font-caps);
+  font-size: 0.5rem;
+  letter-spacing: 0.42em;
+  opacity: 0.62;
+  margin-top: 0.15rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: clamp(1rem, 2.4vw, 2rem);
+  font-family: var(--font-caps);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.nav-links a {
+  text-decoration: none;
+  opacity: 0.75;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid transparent;
+  transition: opacity 0.25s, border-color 0.25s;
+}
+.nav-links a:hover { opacity: 1; border-bottom-color: currentColor; }
+
+.nav-right { display: flex; align-items: center; gap: 0.9rem; }
+
+.btn-book {
+  font-family: var(--font-caps);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 0.62rem 1.25rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  transition: background 0.25s, color 0.25s;
+  white-space: nowrap;
+}
+.btn-book:hover { background: var(--oro); border-color: var(--oro); color: var(--notte); }
+
+.nav-burger {
+  display: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.34rem;
+  padding: 0;
+}
+.nav-burger span { display: block; height: 1px; background: currentColor; }
+
+/* ---------- mobile menu overlay ---------- */
+.overlay-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--notte);
+  color: var(--crema);
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 5rem 1.5rem 3rem;
+}
+.overlay-eyebrow {
+  font-family: var(--font-caps);
+  font-size: 0.62rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--oro);
+  margin-bottom: 2.2rem;
+}
+.overlay-links { display: grid; gap: 0.15rem; }
+.overlay-links a {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 6vw, 2.5rem);
+  font-weight: 300;
+  text-decoration: none;
+  padding: 0.35rem 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 1rem;
+}
+.overlay-links a span {
+  font-family: var(--font-caps);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  color: var(--oro);
+  opacity: 0.75;
+  min-width: 2.4rem;
+  text-align: right;
+}
+.overlay-links a:hover { color: var(--oro-chiaro); }
+
+/* ---------- the opening ---------- */
+.hero-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 50% 55%, rgba(20,17,15,0.28) 0%, rgba(20,17,15,0.72) 62%, rgba(20,17,15,0.92) 100%),
+    linear-gradient(to bottom, rgba(20,17,15,0.72) 0%, rgba(20,17,15,0.2) 32%, rgba(20,17,15,0.85) 100%);
+}
+.hero-inner { position: relative; }
+
+.hero-logo { max-width: min(78vw, 26rem); height: auto; display: block; margin: 0 auto; }
+.hero-wordmark {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(3rem, 12vw, 7rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  display: block;
+}
+.hero-logo-wrap { font-weight: inherit; margin-bottom: clamp(1rem, 3vh, 1.6rem); }
+
+.hero-tag {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+  font-style: italic;
+  line-height: 1.55;
+  max-width: 34rem;
+  margin: 0 auto;
+  opacity: 0.92;
+}
+
+.scroll-hint {
+  font-family: var(--font-caps);
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-top: clamp(2.2rem, 7vh, 4rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+.scroll-line {
+  width: 1px;
+  height: 3rem;
+  background: linear-gradient(to bottom, currentColor, transparent);
+}
+
+/* ---------- the space: capacity figures ---------- */
+.capacity {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 3vw, 2.4rem);
+  margin-top: clamp(1rem, 3vh, 2rem);
+}
+.capacity li { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+.cap-num {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 7vw, 4rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--oro-chiaro);
+}
+.cap-label {
+  font-family: var(--font-caps);
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-top: 0.35rem;
+}
+.cap-note {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  line-height: 1.45;
+  opacity: 0.66;
+  max-width: 12rem;
+  margin-top: 0.35rem;
+}
+
+/* ---------- the offer: package cards ---------- */
+.pkg-grid {
+  list-style: none;
+  display: grid;
+  /* Six packages: 19rem keeps it at three columns on a desktop, so the
+     grid closes in two even rows rather than leaving an orphan. */
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: clamp(0.9rem, 2vw, 1.4rem);
+  margin-bottom: clamp(1.6rem, 4vh, 2.4rem);
+  text-align: left;
+}
+.pkg-card {
+  position: relative;
+  border: 1px solid rgba(34,27,20,0.16);
+  border-radius: 3px;
+  padding: 1.1rem 1.2rem 1.2rem;
+  background: rgba(255,255,255,0.22);
+}
+.pkg-roman {
+  position: absolute;
+  top: 0.85rem;
+  right: 1rem;
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  opacity: 0.4;
+}
+.pkg-it {
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 0.35rem;
+}
+.pkg-hu {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 0.3rem;
+}
+.pkg-tag {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  line-height: 1.45;
+  opacity: 0.75;
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- price block ---------- */
+.price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem; }
+.price-pre {
+  font-family: var(--font-caps);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+.price-num {
+  font-family: var(--font-display);
+  font-size: 1.32rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.price-unit {
+  font-family: var(--font-caps);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+.price-note {
+  flex-basis: 100%;
+  font-family: var(--font-caps);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  opacity: 0.62;
+  line-height: 1.5;
+}
+
+/* ---------- buttons ---------- */
+.btn-menu {
+  font-family: var(--font-caps);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: inherit;
+  background: none;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.8rem 1.9rem;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.btn-menu:hover { background: var(--oro); border-color: var(--oro); color: var(--notte); }
+
+.btn-line {
+  font-family: var(--font-caps);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: color 0.25s, border-color 0.25s;
+  white-space: nowrap;
+}
+.btn-line:hover { color: var(--oro); border-color: var(--oro); }
+
+.btn-book-big {
+  font-size: 0.76rem;
+  padding: 0.95rem 2.4rem;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* ---------- the season: what's next ---------- */
+.evt-next {
+  list-style: none;
+  display: grid;
+  gap: 0.15rem;
+  max-width: 40rem;
+  margin: 0 auto clamp(1.6rem, 4vh, 2.4rem);
+  text-align: left;
+}
+.evt-next li {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr;
+  gap: 0.2rem 1.2rem;
+  align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(246,238,223,0.14);
+}
+.evt-next li:last-child { border-bottom: 0; }
+.evt-next-date {
+  font-family: var(--font-caps);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--oro-chiaro);
+  opacity: 0.9;
+}
+.evt-next-title {
+  font-family: var(--font-display);
+  font-size: 1.28rem;
+  line-height: 1.25;
+}
+.evt-next-series {
+  grid-column: 2;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  opacity: 0.62;
+  line-height: 1.4;
+}
+
+/* ---------- enquiry form ---------- */
+.enquiry { max-width: 42rem; margin: 0 auto; text-align: left; }
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem 1.2rem;
+}
+.f { margin: 0; }
+.f.full { grid-column: 1 / -1; margin-top: 0.9rem; text-align: center; }
+.f.full-narrow { grid-column: 1 / -1; }
+.f.full-narrow label, .f.full label { text-align: left; }
+.enquiry label {
+  display: block;
+  font-family: var(--font-caps);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.62;
+  margin-bottom: 0.35rem;
+}
+.enquiry input,
+.enquiry select,
+.enquiry textarea {
+  width: 100%;
+  font: inherit;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: inherit;
+  background: rgba(246,238,223,0.05);
+  border: 0;
+  border-bottom: 1px solid rgba(246,238,223,0.28);
+  border-radius: 0;
+  padding: 0.6rem 0.55rem;
+  transition: border-color 0.25s, background 0.25s;
+}
+.enquiry textarea { resize: vertical; min-height: 6rem; line-height: 1.55; }
+.enquiry input:hover,
+.enquiry select:hover,
+.enquiry textarea:hover { background: rgba(246,238,223,0.09); }
+.enquiry input:focus,
+.enquiry select:focus,
+.enquiry textarea:focus {
+  outline: none;
+  border-bottom-color: var(--oro);
+  background: rgba(246,238,223,0.1);
+}
+.enquiry select option { background: var(--notte); color: var(--crema); }
+.enquiry ::placeholder { color: currentColor; opacity: 0.38; }
+/* The date field's native indicator is invisible on a dark ground. */
+.enquiry input[type=date]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; }
+
+/* Honeypot — off-screen for bots, gone for everyone else. */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.form-ok,
+.form-err {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.2vw, 1.28rem);
+  line-height: 1.55;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 1.1rem 1.4rem;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+}
+.form-ok  { color: var(--oro-chiaro); }
+.form-err { color: #E3948C; margin-bottom: 1.4rem; }
+
+/* ---------- contact ---------- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  margin: clamp(1.4rem, 4vh, 2.4rem) 0;
+  text-align: left;
+}
+.contact-label {
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 0.5rem;
+}
+.contact-grid p {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+.contact-grid a { text-decoration: none; border-bottom: 1px solid rgba(246,238,223,0.28); }
+.contact-grid a:hover { border-bottom-color: var(--oro); color: var(--oro-chiaro); }
+
+.footer-line {
+  font-family: var(--font-caps);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  opacity: 0.45;
+  margin-top: clamp(1.2rem, 3vh, 2rem);
+}
+
+/* ---------- the rail ---------- */
+.rail {
+  position: fixed;
+  right: clamp(1rem, 2.5vw, 2rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  color: var(--crema);
+  transition: color 0.5s ease;
+  pointer-events: none;
+}
+.rail.on-light { color: var(--inchiostro); }
+.rail-line {
+  width: 1px;
+  height: 11rem;
+  background: currentColor;
+  opacity: 0.2;
+  position: relative;
+}
+.rail-fill {
+  position: absolute;
+  inset: 0 0 auto 0;
+  width: 1px;
+  background: var(--oro);
+  height: 0;
+}
+.rail-stops {
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  pointer-events: auto;
+}
+.rail-stops button {
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: none;
+  border: 0;
+  color: inherit;
+  opacity: 0.4;
+  cursor: pointer;
+  padding: 0.1rem 0;
+  transition: opacity 0.25s, color 0.25s;
+}
+.rail-stops button:hover { opacity: 0.85; }
+.rail-stops button.is-current { opacity: 1; color: var(--oro); }
+
+/* ---------- atmosphere ---------- */
+.dust {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--oro-chiaro);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='0.5'/></svg>");
+}
+
+/* ============================================================
+   SHEETS — the offer sheet and the season sheet
+   Full-screen, scrollable pages that open over the flight.
+   ============================================================ */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--notte);
+  color: var(--crema);
+  -webkit-overflow-scrolling: touch;
+}
+.sheet-close {
+  position: fixed;
+  top: 1.1rem;
+  right: clamp(1rem, 4vw, 2.4rem);
+  z-index: 2;
+  width: 2.8rem;
+  height: 2.8rem;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--crema);
+  background: rgba(20,17,15,0.82);
+  border: 1px solid rgba(246,238,223,0.24);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s;
+}
+.sheet-close:hover { color: var(--oro); border-color: var(--oro); }
+
+.sheet-wrap {
+  max-width: 58rem;
+  margin: 0 auto;
+  padding: clamp(3.5rem, 10vh, 6rem) clamp(1.25rem, 5vw, 3rem) clamp(4rem, 12vh, 7rem);
+}
+.sheet-wrap.narrow-sheet { max-width: 40rem; }
+.sheet-head { text-align: center; margin-bottom: clamp(2.4rem, 7vh, 4rem); }
+.sheet-heading {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  line-height: 1.05;
+  margin-bottom: 0.8rem;
+}
+.sheet-lede {
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 2.1vw, 1.2rem);
+  line-height: 1.6;
+  opacity: 0.75;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+.sheet-empty {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  text-align: center;
+  opacity: 0.75;
+  padding: 2.4rem 0;
+}
+.sheet-foot {
+  margin-top: clamp(2.4rem, 7vh, 4rem);
+  padding-top: 1.6rem;
+  border-top: 1px solid rgba(246,238,223,0.16);
+  text-align: center;
+}
+.sheet-foot p:last-child {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  opacity: 0.62;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+/* ---------- one package in the sheet ---------- */
+.offer-entry {
+  padding: clamp(1.8rem, 5vh, 2.8rem) 0;
+  border-top: 1px solid rgba(246,238,223,0.14);
+}
+.offer-entry:first-of-type { border-top: 0; }
+
+.offer-head { position: relative; margin-bottom: 1.4rem; }
+.offer-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+}
+.offer-tag {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.5;
+  opacity: 0.7;
+}
+.offer-roman {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-family: var(--font-caps);
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  color: var(--oro);
+  opacity: 0.7;
+}
+
+.offer-body {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: clamp(1.4rem, 4vw, 3rem);
+  align-items: start;
+}
+.offer-prose p {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.68;
+  opacity: 0.86;
+  margin-bottom: 0.9rem;
+}
+.offer-highlight { color: var(--oro-chiaro); opacity: 1 !important; font-style: italic; }
+.offer-prose .price { margin: 1.1rem 0 0.4rem; }
+.offer-capacity {
+  font-family: var(--font-caps) !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6 !important;
+  margin-bottom: 1.2rem !important;
+}
+
+.offer-features { list-style: none; display: grid; gap: 0.55rem; }
+.offer-features li {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.45;
+  opacity: 0.8;
+  padding-left: 1.1rem;
+  position: relative;
+}
+.offer-features li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.4rem;
+  height: 1px;
+  background: var(--oro);
+  opacity: 0.75;
+}
+
+/* ---------- add-ons ---------- */
+.offer-addons {
+  margin-top: clamp(2rem, 6vh, 3.4rem);
+  padding-top: clamp(1.8rem, 5vh, 2.8rem);
+  border-top: 1px solid rgba(246,238,223,0.14);
+}
+.addon-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: clamp(1.1rem, 3vw, 1.8rem);
+  margin-top: 1.6rem;
+}
+.addon-grid h4 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.18rem;
+  margin-bottom: 0.3rem;
+}
+.addon-grid p {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  opacity: 0.72;
+}
+.addon-price {
+  font-family: var(--font-caps) !important;
+  font-size: 0.76rem !important;
+  letter-spacing: 0.08em;
+  color: var(--oro-chiaro);
+  opacity: 1 !important;
+  margin-top: 0.45rem;
+}
+
+/* ---------- the season sheet ---------- */
+.evt-list { list-style: none; display: grid; gap: 0; }
+.evt-row {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr auto;
+  gap: 1.4rem;
+  align-items: start;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(246,238,223,0.14);
+}
+.evt-row:first-child { border-top: 0; }
+.evt-row.is-soldout { opacity: 0.55; }
+
+.evt-when { display: grid; gap: 0.05rem; text-align: center; }
+.evt-day {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--oro-chiaro);
+}
+.evt-month {
+  font-family: var(--font-caps);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.evt-year {
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  opacity: 0.5;
+}
+
+.evt-series {
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--oro);
+  opacity: 0.8;
+  margin-bottom: 0.35rem;
+}
+.evt-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+}
+.evt-lead {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.55;
+  opacity: 0.75;
+}
+.evt-meta {
+  font-family: var(--font-caps);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  opacity: 0.55;
+  margin-top: 0.5rem;
+}
+.evt-go { padding-top: 0.4rem; }
+.evt-soldout {
+  font-family: var(--font-caps);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* ---------- the recurring formats ---------- */
+.series-block {
+  margin-top: clamp(2.4rem, 7vh, 4rem);
+  padding-top: clamp(1.8rem, 5vh, 2.8rem);
+  border-top: 1px solid rgba(246,238,223,0.14);
+}
+.series-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.2rem, 3vw, 2rem);
+  margin-top: 1.6rem;
+}
+.series-cadence {
+  font-family: var(--font-caps);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--oro);
+  opacity: 0.8;
+  margin-bottom: 0.3rem;
+}
+.series-grid h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  margin-bottom: 0.25rem;
+}
+.series-tag {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  opacity: 0.72;
+  margin-bottom: 0.5rem;
+}
+.series-grid > li > p:last-child {
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  opacity: 0.68;
+}
+
+/* ============================================================
+   FLAT MODE — reduced motion, or a browser without 3D.
+   The evening becomes an ordinary, stacked page.
+   ============================================================ */
+.flat .stage {
+  position: static;
+  height: auto;
+  perspective: none;
+  overflow: visible;
+  background: var(--notte);
+}
+.flat .layer {
+  position: relative;
+  inset: auto;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  min-height: 100svh;
+}
+.flat .layer.ink-dark { background: var(--candela); }
+.flat #viaggio-storia,
+.flat #viaggio-eventi { background: var(--verde-cupo); }
+.flat #viaggio-spazio { background: var(--verde); }
+.flat #viaggio-schermo { background: var(--prugna); }
+.flat .scroll-space,
+.flat .dust,
+.flat .rail { display: none; }
+/* Nothing repaints the nav in flat mode, so it carries its own ground
+   and stays legible over the candlelight chapter. */
+.flat .nav {
+  background: var(--notte);
+  color: var(--crema);
+  border-bottom: 1px solid rgba(246,238,223,0.12);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+  .rail { display: none; }
+  .offer-body { grid-template-columns: 1fr; }
+  .evt-row { grid-template-columns: 4.5rem 1fr; }
+  .evt-go { grid-column: 2; padding-top: 0.8rem; }
+  .evt-day { font-size: 1.9rem; }
+}
+
+@media (max-width: 760px) {
+  .nav-links { display: none; }
+  .nav-burger { display: flex; }
+  .fields { grid-template-columns: 1fr; }
+  .evt-next li { grid-template-columns: 1fr; gap: 0.15rem; }
+  .evt-next-series { grid-column: 1; }
+  .layer { padding-top: calc(var(--nav-h) + 0.5rem); }
+
+  /* The capacity figures stay side by side — stacked they push the
+     chapter past the bottom of a phone screen. */
+  .capacity { grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+  .cap-num { font-size: clamp(1.9rem, 9vw, 2.6rem); }
+  .cap-label { font-size: 0.56rem; letter-spacing: 0.16em; }
+  .cap-note { font-size: 0.82rem; max-width: none; }
+
+  /* Six packages in two columns, trimmed to name and price: the full
+     wording lives one tap away in the offer sheet. */
+  .pkg-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .pkg-card { padding: 0.8rem 0.85rem 0.9rem; }
+  .pkg-hu { font-size: 1.15rem; }
+  .pkg-tag, .pkg-roman, .price-note { display: none; }
+  .price-num { font-size: 1.1rem; }
+
+  /* Only the next three evenings preview here; the season sheet has all. */
+  .evt-next li:nth-child(n+4) { display: none; }
+
+  .contact-grid { grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+  .contact-grid p { font-size: 0.95rem; line-height: 1.5; }
+}
+
+/* The two content-heavy chapters lose their intro line on a phone —
+   the sheet behind the button opens with the same wording. */
+@media (max-width: 760px) {
+  #viaggio-offerta .chapter-note,
+  #viaggio-eventi .micro-note { display: none; }
+}
+
+/* A short viewport (a small phone, or a landscape one) gets tighter
+   rhythm so every chapter still fits inside one screen: a flight
+   chapter cannot scroll, so anything taller would be clipped. */
+@media (max-height: 720px) {
+  .display { font-size: clamp(2rem, 6.5vw, 3.4rem); }
+  .display-small { font-size: clamp(1.8rem, 5.5vw, 2.8rem); }
+  .layer { padding-top: calc(var(--nav-h) + 0.25rem); padding-bottom: 1.5rem; }
+  .eyebrow { margin-bottom: 0.7rem; }
+  .chapter-note { margin-bottom: 1rem; font-size: 0.98rem; }
+  .lede { font-size: 1.05rem; line-height: 1.5; }
+  .capacity { gap: 0.6rem; }
+  .cap-num { font-size: clamp(1.7rem, 7vw, 2.2rem); }
+  .contact-grid { margin: 1rem 0; }
+  .footer-line { margin-top: 0.9rem; }
+  .hero-wordmark { font-size: clamp(2.6rem, 10vw, 5rem); }
+  .scroll-hint { margin-top: 1.6rem; }
+  .scroll-line { height: 2rem; }
+}
+
+@media (max-width: 420px) {
+  .btn-book { padding: 0.5rem 0.9rem; font-size: 0.62rem; }
+  .nav-brand { font-size: 1.25rem; }
+  .cap-note { display: none; }
+}
+
+/* A visitor who asked for less motion gets no drifting dust and no
+   transitions, even before the flat-mode switch above kicks in. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  .dust { display: none; }
+}

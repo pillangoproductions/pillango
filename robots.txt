@@ -1,0 +1,18 @@
+# ⚠️ TESZT/STAGING BEÁLLÍTÁS — a teljes oldal ki van zárva a keresőkből.
+#
+# Amíg az oldal nem a saját domainjén (salonemedici.hu) él, ez maradjon így:
+# egy tesztdomainre feltöltött ügyfél-oldal ne kerüljön be a Google-be,
+# mert az ügyfél valódi árait és elérhetőségeit tartalmazza, és
+# ráadásul duplikált tartalomként versenyezne az éles oldallal.
+#
+# ÉLESÍTÉSKOR: töröld az alábbi két sort, és vedd ki a kommentjelet a
+# lenti "éles" blokkból.
+
+User-agent: *
+Disallow: /
+
+# ---- ÉLES VÁLTOZAT (élesítéskor ez maradjon aktív) ----
+# User-agent: *
+# Disallow: /admin/
+# Disallow: /api/
+# Allow: /
