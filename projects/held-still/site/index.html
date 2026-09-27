@@ -1,42 +1,219 @@
 <!DOCTYPE html>
-<!-- HELD STILL — placeholder for the Held Still website.
-     Replace everything in this folder (projects/held-still/site/) with the
-     existing Held Still site: index.html plus its assets. Use relative paths
-     (e.g. "assets/still.jpg"), or absolute ones starting /projects/held-still/.
-     Every file here is only served after the password. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
-<title>Held Still</title>
-<style>
-  :root { color-scheme: dark; }
-  * { margin: 0; box-sizing: border-box; }
-  body {
-    min-height: 100vh;
-    display: grid;
-    place-items: center;
-    padding: 2rem;
-    background: radial-gradient(ellipse at 50% 40%, #2a1a14 0%, #0b0908 60%, #050505 100%);
-    color: #e9e3da;
-    font: 300 15px/1.7 Georgia, "Times New Roman", serif;
-    text-align: center;
-    animation: in 1.6s ease both;
-  }
-  @keyframes in { from { opacity: 0; filter: blur(12px); } to { opacity: 1; filter: none; } }
-  h1 { font-weight: 400; font-style: italic; font-size: clamp(2.6rem, 8vw, 5rem); letter-spacing: 0.02em; }
-  p { max-width: 30rem; margin: 1rem auto 0; color: #a79f95; }
-  nav { margin-top: 2.4rem; font: 400 11px/1 Arial, sans-serif; letter-spacing: 0.24em; text-transform: uppercase; }
-  a { color: #ee8a2b; text-decoration: none; margin: 0 0.8rem; }
-  a:hover { color: #f6a452; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Held Still — Pillango Productions</title>
+<link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="preload" href="fonts/bebas-neue-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="hs.css?v=1">
 </head>
 <body>
-  <main>
-    <h1>Held Still</h1>
-    <p>The Held Still site goes here — story, stills, credits and screener.</p>
-    <nav><a href="/projects">Back to Pillango</a><a href="/projects/held-still/gate.php?action=logout">Sign out</a></nav>
-  </main>
+<a class="skip" href="#comparable-titles">Skip to content</a>
+<audio id="hs-audio" src="media/held-still-theme.mp3" loop preload="none"></audio>
+
+<div class="sound-ask" id="sound-ask" role="dialog" aria-modal="true" aria-labelledby="sound-ask-h">
+  <div class="sound-box">
+    <p class="kicker">Pillango Productions</p>
+    <h2 id="sound-ask-h">Enable soundtrack?</h2>
+    <p>Would you like to experience the teaser with background music?</p>
+    <div class="sound-btns"><button type="button" class="btn-light" data-sound="on">Audio on</button><button type="button" class="btn-ghost" data-sound="off">Audio off</button></div>
+  </div>
+</div>
+<button class="sound-toggle" id="sound-toggle" type="button" aria-label="Play soundtrack"><svg class="on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><svg class="off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="m16.5 9.5 5 5m0-5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+
+<header class="top" id="top">
+  <a class="brand" href="/projects" aria-label="Back to Pillango Productions"><img src="/assets/img/pillango-logo-900.webp" alt="Pillango Productions" width="900" height="209"></a>
+  <nav class="top-links" aria-label="Held Still">
+    <a href="#hero" class="is-current">Home</a>
+    <a href="#comparable-titles">Comparable Titles</a>
+    <a href="#episodes">Episodes</a>
+    <a href="#development-documents">Development Documents</a>
+    <a href="#cast">Cast</a>
+    <a href="#about-held-still">About Held Still</a>
+  </nav>
+  <div class="top-right">
+    <a href="/projects">Back to Pillango</a>
+    <a href="/projects/held-still/gate.php?action=logout">Sign out</a>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <video class="hero-video" src="media/teaser-bg.mp4" poster="img/hero.jpg" autoplay loop muted playsinline preload="auto"></video>
+  <div class="hero-shade"></div>
+  <div class="hero-copy">
+    <h1><img class="title-art" src="img/title.png" alt="Held Still" width="2000" height="2000"></h1>
+    <p class="tagline">“He didn’t take them to hurt them. He took them to keep them.”</p>
+    <p class="logline">A thirteen-year-old boy discovers he was adopted — and begins taking people from his town, keeping them alive in a basement.</p>
+    <div class="hero-btns">
+      <button class="btn-play" type="button" data-open="doc" data-i="0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg><span>Play</span></button>
+      <button class="btn-info" type="button" data-open="about" data-i="0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>More Info</span></button>
+    </div>
+  </div>
+</section>
+
+<main class="rows">
+
+  <section class="row first" id="comparable-titles" aria-labelledby="comparable-titles-h">
+    <h2 class="row-title" id="comparable-titles-h">Comparable Titles</h2>
+    <div class="row-wrap">
+      <button class="row-arrow prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <div class="row-track">
+        <div class="card comp"><img src="img/comp/adolescence.jpg" alt="Adolescence" loading="lazy"></div>
+        <div class="card comp"><img src="img/comp/breaking-bad.jpg" alt="Breaking Bad" loading="lazy"></div>
+        <div class="card comp"><img src="img/comp/dexter.jpg" alt="Dexter" loading="lazy"></div>
+        <div class="card comp"><img src="img/comp/ozark.jpg" alt="Ozark" loading="lazy"></div>
+        <div class="card comp"><img src="img/comp/you.jpg" alt="You" loading="lazy"></div>
+        <div class="card comp"><img src="img/comp/monster.jpg" alt="Monster: The Ed Gein Story" loading="lazy"></div>
+      </div>
+      <button class="row-arrow next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </section>
+
+  <section class="row row-episodes" id="episodes" aria-labelledby="episodes-h">
+    <h2 class="row-title" id="episodes-h">Episodes<span class="row-note">Season 1 · 8 Episodes</span></h2>
+    <div class="row-wrap">
+      <button class="row-arrow prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <div class="row-track">
+        <button class="card ep" type="button" data-open="episode" data-i="0">
+          <span class="thumb"><img src="img/ep/ep-01.jpg" alt="" loading="lazy"><span class="badge">Ep 01</span><span class="runtime">60 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 1</span><span class="name">Deep Roots</span><span class="syn">A baby placed in a darkened garbage container. Ten years later, a padlocked farmhouse and a sound from somewhere below the floor.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="1">
+          <span class="thumb"><img src="img/ep/ep-02.jpg" alt="" loading="lazy"><span class="badge">Ep 02</span><span class="runtime">54 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 2</span><span class="name">First Light</span><span class="syn">Dawn over Sallow Creek. The town learns what it does not yet know how to feel about. Beneath a farmhouse floor, Jessica wakes.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="2">
+          <span class="thumb"><img src="img/ep/ep-03.jpg" alt="" loading="lazy"><span class="badge">Ep 03</span><span class="runtime">56 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 3</span><span class="name">Adjustments</span><span class="syn">Three weeks in. Robi is correcting dosages by small margins. The first blink exchange — yes, no — becomes the architecture of six years.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="3">
+          <span class="thumb"><img src="img/ep/ep-04.jpg" alt="" loading="lazy"><span class="badge">Ep 04</span><span class="runtime">55 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 4</span><span class="name">Drift</span><span class="syn">Months pass. Grief settles. Eleanor pauses over an inventory sheet she has filled in by hand for twenty years. The number is wrong by very little.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="4">
+          <span class="thumb"><img src="img/ep/ep-05.jpg" alt="" loading="lazy"><span class="badge">Ep 05</span><span class="runtime">57 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 5</span><span class="name">Method</span><span class="syn">Robi befriends Derek Paulson — outside school, where it would be witnessed. Deputy Ryan Cole begins re-reading a file the Sheriff has closed.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="5">
+          <span class="thumb"><img src="img/ep/ep-06.jpg" alt="" loading="lazy"><span class="badge">Ep 06</span><span class="runtime">59 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 6</span><span class="name">Through the Wall</span><span class="syn">Six months after Jessica. The basement acquires its first internal partition. Jessica wakes in the night and hears someone breathing on the other side.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="6">
+          <span class="thumb"><img src="img/ep/ep-07.jpg" alt="" loading="lazy"><span class="badge">Ep 07</span><span class="runtime">56 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 7</span><span class="name">Inventory</span><span class="syn">Eleanor is too good a doctor not to notice. The numbers on her cabinet inventory have been wrong, by very little, for months.</span></span>
+        </button>
+        <button class="card ep" type="button" data-open="episode" data-i="7">
+          <span class="thumb"><img src="img/ep/ep-08.jpg" alt="" loading="lazy"><span class="badge">Ep 08</span><span class="runtime">62 min</span></span>
+          <span class="ep-more"><span class="eyebrow">Episode 8</span><span class="name">The Quiet House</span><span class="syn">What Robi does, he does cleanly. The season&#x27;s final scene: Robi in his kitchen at dawn, fitting a new lock to the front door.</span></span>
+        </button>
+      </div>
+      <button class="row-arrow next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </section>
+
+  <section class="row row-docs" id="development-documents" aria-labelledby="development-documents-h">
+    <h2 class="row-title" id="development-documents-h">Development Documents</h2>
+    <div class="row-wrap">
+      <button class="row-arrow prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <div class="row-track">
+        <button class="card doc" type="button" data-open="doc" data-i="0">
+          <span class="thumb"><img src="img/doc/pilot.jpg" alt="" loading="lazy"><span class="progress"><i style="width:100%"></i></span></span>
+          <span class="name">Pilot Episode — Deep Roots</span>
+        </button>
+        <button class="card doc" type="button" data-open="doc" data-i="1">
+          <span class="thumb"><img src="img/doc/bible.jpg" alt="" loading="lazy"><span class="progress"><i style="width:62%"></i></span></span>
+          <span class="name">Series Bible</span>
+        </button>
+        <button class="card doc" type="button" data-open="doc" data-i="2">
+          <span class="thumb"><img src="img/doc/writers.jpg" alt="" loading="lazy"><span class="progress"><i style="width:18%"></i></span></span>
+          <span class="name">Writers&#x27; Guide</span>
+        </button>
+        <button class="card doc" type="button" data-open="doc" data-i="3">
+          <span class="thumb"><img src="img/doc/deck.jpg" alt="" loading="lazy"><span class="progress"><i style="width:100%"></i></span></span>
+          <span class="name">Pitch Deck</span>
+        </button>
+      </div>
+      <button class="row-arrow next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </section>
+
+  <section class="row " id="cast" aria-labelledby="cast-h">
+    <h2 class="row-title" id="cast-h">Cast</h2>
+    <div class="row-wrap">
+      <button class="row-arrow prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <div class="row-track">
+        <button class="card cast" type="button" data-open="cast" data-i="0">
+          <span class="thumb"><img src="img/cast/owen-cooper.jpg" alt="" loading="lazy"><span class="cast-desc">A quiet 14-year-old whose ordinariness is the most terrifying thing about him. Older Robi — colder, more practiced, and entirely unrepentant.</span></span>
+          <span class="name">Owen Cooper</span><span class="sub">Robi Marsh</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="1">
+          <span class="thumb"><img src="img/cast/carrie-coon.jpg" alt="" loading="lazy"><span class="alt-badge">+4 alt</span><span class="cast-desc">A rural GP who chooses, every day, not to see what&#x27;s underneath her own house.</span></span>
+          <span class="name">Carrie Coon</span><span class="sub">Eleanor Marsh</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="2">
+          <span class="thumb"><img src="img/cast/george-robinson.jpg" alt="" loading="lazy"><span class="alt-badge">+1 alt</span><span class="cast-desc">Robi&#x27;s adoptive father. A wheelchair user with quiet warmth and something carefully withheld.</span></span>
+          <span class="name">George Robinson</span><span class="sub">Thomas Marsh</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="3">
+          <span class="thumb"><img src="img/cast/niamh-algar.jpg" alt="" loading="lazy"><span class="alt-badge">+2 alt</span><span class="cast-desc">A journalist who arrives in Sallow Creek looking for one story and finds another.</span></span>
+          <span class="name">Niamh Algar</span><span class="sub">Claire Morrow</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="4">
+          <span class="thumb"><img src="img/cast/shea-whigham.jpg" alt="" loading="lazy"><span class="alt-badge">+3 alt</span><span class="cast-desc">Nineteen years in office, vain, funny, and slowly catching up to the truth.</span></span>
+          <span class="name">Shea Whigham</span><span class="sub">Sheriff Dale Pruitt</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="5">
+          <span class="thumb"><img src="img/cast/harry-lawtey.jpg" alt="" loading="lazy"><span class="alt-badge">+1 alt</span><span class="cast-desc">Jessica&#x27;s older brother — loyal, methodical, and the wrong man to underestimate.</span></span>
+          <span class="name">Harry Lawtey</span><span class="sub">Deputy Ryan Cole</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="6">
+          <span class="thumb"><img src="img/cast/maxine-peake.jpg" alt="" loading="lazy"><span class="alt-badge">+4 alt</span><span class="cast-desc">A patient whose name on the wrong file changes everything. Robi&#x27;s biological mother — surface composure over deep damage.</span></span>
+          <span class="name">Maxine Peake</span><span class="sub">Diane</span>
+        </button>
+        <button class="card cast" type="button" data-open="cast" data-i="7">
+          <span class="thumb"><img src="img/cast/jessica-cole.jpg" alt="" loading="lazy"><span class="cast-desc">Robi&#x27;s first friend and his first impossible problem.</span></span>
+          <span class="name">TBD</span><span class="sub">Jessica Cole</span>
+        </button>
+      </div>
+      <button class="row-arrow next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </section>
+
+  <section class="row " id="about-held-still" aria-labelledby="about-held-still-h">
+    <h2 class="row-title" id="about-held-still-h">About Held Still</h2>
+    <div class="row-wrap">
+      <button class="row-arrow prev" type="button" aria-label="Scroll left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+      <div class="row-track">
+        <button class="card about" type="button" data-open="about" data-i="0">
+          <span class="about-top"><span class="eyebrow">Chapter 01</span><span class="about-title">The Premise</span><span class="rule"></span></span>
+          <span class="about-bottom"><span class="blurb">A boy. A basement. A town that never asked the right question.</span><span class="more">Read more <b>→</b></span></span>
+        </button>
+        <button class="card about" type="button" data-open="about" data-i="1">
+          <span class="about-top"><span class="eyebrow">Chapter 02</span><span class="about-title">The Creators</span><span class="rule"></span></span>
+          <span class="about-bottom"><span class="blurb">The team behind the show — and the room it will be written in.</span><span class="more">Read more <b>→</b></span></span>
+        </button>
+        <button class="card about" type="button" data-open="about" data-i="2">
+          <span class="about-top"><span class="eyebrow">Chapter 03</span><span class="about-title">The Vision</span><span class="rule"></span></span>
+          <span class="about-bottom"><span class="more">Read more <b>→</b></span></span>
+        </button>
+      </div>
+      <button class="row-arrow next" type="button" aria-label="Scroll right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+    </div>
+  </section>
+</main>
+
+<footer class="foot"><p>© Pillango Productions — Confidential pitch material. Do not distribute.</p></footer>
+
+<div class="modal" id="modal" hidden>
+  <button class="modal-arrow prev" type="button" aria-label="Previous"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="Details" tabindex="-1"></div>
+  <button class="modal-arrow next" type="button" aria-label="Next"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+</div>
+
+<script type="application/json" id="hs-data">{"cast": [{"actor": "Owen Cooper", "character": "Robi Marsh", "image": "img/cast/owen-cooper.jpg", "description": "A quiet 14-year-old whose ordinariness is the most terrifying thing about him. Older Robi — colder, more practiced, and entirely unrepentant.", "alternates": []}, {"actor": "Carrie Coon", "character": "Eleanor Marsh", "image": "img/cast/carrie-coon.jpg", "description": "A rural GP who chooses, every day, not to see what's underneath her own house.", "alternates": [{"actor": "Monica Dolan", "image": "img/alt/monica-dolan.jpg", "region": "UK", "note": "Strongest UK fit. Humane and credible with grief that lands quietly. Specialises in characters whose blind spots are indistinguishable from love."}, {"actor": "Suranne Jones", "image": "img/alt/suranne-jones.jpg", "region": "UK", "note": "Strong GP-register authority and warmth. Works best if Eleanor reads more efficient than nurturing."}, {"actor": "Anna Maxwell Martin", "image": "img/alt/anna-maxwell-martin.jpg", "region": "UK", "note": "Brilliant at intelligence with blind spots — best if Eleanor reads as driven and efficient first, warm second."}, {"actor": "Amy Brenneman", "image": "img/alt/amy-brenneman.jpg", "region": "US", "note": "Strong alt US option. Her Leftovers work is tonally very close to what Eleanor needs — a woman maintaining normality over total interior collapse."}]}, {"actor": "George Robinson", "character": "Thomas Marsh", "image": "img/cast/george-robinson.jpg", "description": "Robi's adoptive father. A wheelchair user with quiet warmth and something carefully withheld.", "alternates": [{"actor": "Tom Goodman-Hill", "image": "img/alt/tom-goodman-hill.jpg", "region": "UK", "note": "Top non-disabled UK option. Very good at warmth with something quietly withheld underneath."}]}, {"actor": "Niamh Algar", "character": "Claire Morrow", "image": "img/cast/niamh-algar.jpg", "description": "A journalist who arrives in Sallow Creek looking for one story and finds another.", "alternates": [{"actor": "Odessa A'zion", "image": "img/alt/odessa-azion.jpg", "region": "US", "note": "Rising US option. Marty Supreme shows exactly the right quality of edgy intelligence and coiled restraint. A watchful, archival journalist instinct."}, {"actor": "Nat Wolff", "image": "img/alt/nat-wolff.jpg", "region": "US", "note": "Gender-swap option (Colin Morrow). True Detective S3 demonstrates the right register — a person unravelling slowly under sustained pressure in a rural American setting."}]}, {"actor": "Shea Whigham", "character": "Sheriff Dale Pruitt", "image": "img/cast/shea-whigham.jpg", "description": "Nineteen years in office, vain, funny, and slowly catching up to the truth.", "alternates": [{"actor": "David Morrissey", "image": "img/alt/david-morrissey.jpg", "region": "UK", "note": "Top UK choice. Authority and ego in exactly the right proportion. Has played American characters convincingly across a decade."}, {"actor": "Scoot McNairy", "image": "img/alt/scoot-mcnairy.jpg", "region": "US", "note": "Better suited as Deputy Ryan Cole, but could work as a younger-reading Dale if the character is played with more intellectual vanity than physical authority."}, {"actor": "Conleth Hill", "image": "img/alt/conleth-hill.jpg", "region": "UK", "note": "UK / Ireland alt — works if Dale skews more wryly comic. Self-important men who are also surprisingly charming is his signature."}]}, {"actor": "Harry Lawtey", "character": "Deputy Ryan Cole", "image": "img/cast/harry-lawtey.jpg", "description": "Jessica's older brother — loyal, methodical, and the wrong man to underestimate.", "alternates": [{"actor": "Sion Daniel Young", "image": "img/alt/sion-daniel-young.jpg", "region": "UK", "note": "Already in the Adolescence ecosystem — brings tonal continuity that resonates in Netflix pitch conversations. DS Bascombe is functionally the same archetype as Ryan Cole."}]}, {"actor": "Maxine Peake", "character": "Diane", "image": "img/cast/maxine-peake.jpg", "description": "A patient whose name on the wrong file changes everything. Robi's biological mother — surface composure over deep damage.", "alternates": [{"actor": "Keeley Hawes", "image": "img/alt/keeley-hawes.jpg", "region": "UK", "note": "Top UK choice. Surface composure over deep damage is her defining quality. The diner scene needs silence to feel expensive — Hawes delivers that."}, {"actor": "Sheridan Smith", "image": "img/alt/sheridan-smith.jpg", "region": "UK", "note": "Arrives already half-broken. Guilt carried not as tragedy but as something structural, part of how she moves through the world."}, {"actor": "Carrie Coon", "image": "img/alt/carrie-coon.jpg", "region": "US", "note": "US option for Diane. If Eleanor is cast as UK, having Diane be American adds tonal contrast underlining Robi's split origins."}, {"actor": "Amy Brenneman", "image": "img/alt/amy-brenneman.jpg", "region": "US", "note": "Alt US Diane — her Leftovers work already placed her in the exact emotional register this role needs. A woman maintaining function over private devastation across years."}]}, {"actor": "TBD", "character": "Jessica Cole", "image": "img/cast/jessica-cole.jpg", "description": "Robi's first friend and his first impossible problem.", "alternates": []}], "episodes": [{"number": 1, "title": "Deep Roots", "still": "img/ep/ep-01.jpg", "runtime": "60 min", "synopsis": "A baby placed in a darkened garbage container. Ten years later, a padlocked farmhouse and a sound from somewhere below the floor.", "outline": ["A baby placed in a darkened garbage container. Fragments of the institution that received him. Title card. Ten years later, a padlocked farmhouse and a sound from somewhere below the floor. Robi Marsh is thirteen — quiet, exceptionally bright, the only child of a small-town GP. On the night of his birthday dinner he overhears something he was not supposed to hear, and his parents tell him the truth: he is adopted, found as a newborn in a place no parent should leave a child. The pilot follows him through the weeks that follow with deliberate restraint — a paper route past an abandoned farmhouse, a slow dial-up screen, an almost-kiss with Ashley Cole, and a quiet afternoon when her twin sister Jessica accepts a glass of Coke. It ends on two dinner tables: an empty place at the Coles', and Robi at home, answering his father's questions about his day. Jessica Cole helped me with it."]}, {"number": 2, "title": "First Light", "still": "img/ep/ep-02.jpg", "runtime": "54 min", "synopsis": "Dawn over Sallow Creek. The town learns what it does not yet know how to feel about. Beneath a farmhouse floor, Jessica wakes.", "outline": ["Dawn over Sallow Creek. The Cole house is awake — phones, cars, a sister who has not slept. The town learns what it does not yet know how to feel about. Sheriff Pruitt interviews Robi on his front porch and gets the polite, frightened answers of a thirteen-year-old who liked her too. Beneath the floor of an abandoned farmhouse forty minutes away, Jessica wakes for the first time. She cannot move. She cannot speak. She can think. Her first voiceover is a study in inventory: walls, dosage, smell of damp, hours until the next visit. She decides, on her first morning, that what she has left is her mind, and that she is going to keep it."]}, {"number": 3, "title": "Adjustments", "still": "img/ep/ep-03.jpg", "runtime": "56 min", "synopsis": "Three weeks in. Robi is correcting dosages by small margins. The first blink exchange — yes, no — becomes the architecture of six years.", "outline": ["Robi is running a system that has been live for three weeks. The drugs are wrong by small margins he is correcting. The IV gets pulled twice. A near-disaster he learns from. He visits the farmhouse before dawn, before school, before anyone can wonder where he goes. Jessica decides early: he must believe she is grateful to be kept alive. The first blink exchange — yes, no — is the smallest possible architecture of communication, and it is also the moment she becomes the person she will have to be for six years. Above ground, the town searches the woods for a body it will never find. Ashley begins to grieve, and Robi sits beside her, present and pretending nothing about that presence is impossible."]}, {"number": 4, "title": "Drift", "still": "img/ep/ep-04.jpg", "runtime": "55 min", "synopsis": "Months pass. Grief settles. Eleanor pauses over an inventory sheet she has filled in by hand for twenty years. The number is wrong by very little.", "outline": ["Months pass. Jessica's parents stop hoping the way they used to. Ashley's grief settles into something quieter and harder to name. Robi and Ashley grow closer — not toward what was almost in his bedroom three weeks before the abduction, but toward something more careful, two people who lost the same girl in different ways. In the basement, Jessica's voiceover counts the days through changes in Robi's clothes, the smell of the season, the tone of his small talk. Eleanor refills her medicine cabinet on a Tuesday and pauses, briefly, over an inventory sheet she has filled in by hand for twenty years. The number is wrong by very little. She doesn't say anything. She refills the cabinet."]}, {"number": 5, "title": "Method", "still": "img/ep/ep-05.jpg", "runtime": "57 min", "synopsis": "Robi befriends Derek Paulson — outside school, where it would be witnessed. Deputy Ryan Cole begins re-reading a file the Sheriff has closed.", "outline": ["Robi befriends Derek Paulson. Not at school, where it would be witnessed — outside it. A bicycle that needs repair. A music recommendation. A quad bike Derek's father lets him take out on weekends. Robi makes himself useful, then interesting, then necessary. Derek does not understand what is happening, only that the quiet boy from school turns out to be more than he expected. Below ground, Jessica registers the change in Robi's manner — distracted, focused on something — and her voiceover composes hypotheses she cannot test. Above ground, Deputy Ryan Cole — Jessica's cousin, who has started re-reading the case file alone in the evenings — begins making notes on lines Sheriff Pruitt has decided are closed."]}, {"number": 6, "title": "Through the Wall", "still": "img/ep/ep-06.jpg", "runtime": "59 min", "synopsis": "Six months after Jessica. The basement acquires its first internal partition. Jessica wakes in the night and hears someone breathing on the other side.", "outline": ["Six months after Jessica. A chocolate bar with a dissolved sedative. A quad bike with a trailer. A back route to a farmhouse Derek has never seen. The basement acquires its first internal partition. Jessica wakes in the night and hears something on the other side of a wall — not Robi, not the pipes — a person, breathing, alive, terrified. She does not let Robi know she has heard. Her voiceover for the rest of the episode is the most complex she has yet had: every consideration of who, why, what it means for her, what to reveal and what to withhold. She decides nothing yet. She files. Above, the town opens a second missing-persons folder and does not know to connect them."]}, {"number": 7, "title": "Inventory", "still": "img/ep/ep-07.jpg", "runtime": "56 min", "synopsis": "Eleanor is too good a doctor not to notice. The numbers on her cabinet inventory have been wrong, by very little, for months.", "outline": ["Eleanor is too good a doctor not to notice. The numbers on her cabinet inventory have been wrong, by very little, for months. She tells herself it is Thomas's confusion, her own oversight, a pharmacist's miscount. She tells herself this for two weeks before she sits down at the kitchen table and counts everything herself. She does not tell Thomas. She does not tell Robi. Robi watches her not telling him, and understands. The week the doubt becomes a question, she walks into her practice and her son is at her desk, doing the filing he has done since he was nine. They smile at each other. Neither of them says anything. The next morning she calls a pharmacist friend in another county."]}, {"number": 8, "title": "The Quiet House", "still": "img/ep/ep-08.jpg", "runtime": "62 min", "synopsis": "What Robi does, he does cleanly. The season's final scene: Robi in his kitchen at dawn, fitting a new lock to the front door.", "outline": ["What Robi does, he does cleanly. Eleanor and Thomas, who never travel, are reported by their son to be visiting family out of state — emails confirm it, a brief note to the pharmacist, a vacation message on the practice machine. Nobody in a small American town looks closer at a polite teenage boy helping run his father's affairs. The season's final scene is Robi in his kitchen at dawn, fitting a new lock to the front door. Not far away, Jessica's voiceover registers the change — shorter visits, a different quality of silence, something in his voice she will spend the next year trying to name. The audience knows. Jessica knows. The town does not."]}], "docs": [{"src": "img/doc/pilot.jpg", "title": "Pilot Episode — Deep Roots", "progress": 100, "available": true, "pages": ["img/pilot/pg1.jpg", "img/pilot/pg2.jpg", "img/pilot/pg3.jpg", "img/pilot/pg4.jpg"], "body": "HELD STILL\nPilot Episode — \"Deep Roots\"\n60 minutes · Season 1, Episode 1 · Rural America, early 2000s\n\nA darkened garbage container in the rain. A lid opens. Something is placed inside. The lid closes. After a moment, the sound of a newborn beginning to cry. Then a brief, abstract sequence from a baby's point of view: peeling paint on a ceiling, light flashes, voices passing without stopping, the cot, complete darkness. Title: Held Still. Ten years later. A two-lane road at dawn. An isolated farmhouse with a new padlock on a forgotten door, a single light beneath it, a sound from somewhere below the floor. The pilot has shown us what happened to Robi Marsh before he could remember it. Now we will spend an hour with the boy he became.\n\nRobi is thirteen — quiet, exceptionally bright, the only child of Eleanor (a small-town GP with a home practice) and Thomas (her husband, in a wheelchair, cared-for). He helps in the surgery, walks home from school with Ashley Cole, runs a paper route in the hour before light. On the night of his birthday dinner he overhears a conversation between his mother and a patient that he was not supposed to hear. He confronts his parents at the table. They tell him the truth: he is adopted, taken in at two and a half from an institution he cannot remember, left as a newborn in a place no parent should leave a child. The boy who hears this is not the boy who sat down forty seconds earlier. The pilot follows him through the weeks that follow with deliberate restraint.\n\nThe pages that follow are scenes from the closing minutes of the pilot — two dining rooms, intercut.\n\nCreated by Zoltan Deak · Written by Zoltan Deak & Victor Huizar\nHeld Still · Confidential development material"}, {"src": "img/doc/bible.jpg", "title": "Series Bible", "progress": 62, "available": true, "pdfUrl": "media/Series_Bible.pdf", "body": "HELD STILL — SERIES BIBLE\n\nA television series created by Zoltan Deak. 3 seasons · 8–10 episodes per season · 60 minutes per episode. Rural America, early 2000s. Psychological thriller / crime drama.\n\nProposed lead: Owen Cooper.\n\nThe title works on three levels. Medical: it names what Robi's sedation regime does to his captives — they are held still by chemistry, by design, by him. Psychological: it describes what Robi himself is trying to achieve — his deepest terror is of people leaving, and holding them still is his solution. Grammatical: the passive construction is deliberate. Held still is not something you choose. Something is done to you.\n\nThe two-word structure places the show in the company of Breaking Bad, Killing Eve, Sharp Objects, and Peaky Blinders — titles that carry double meaning without announcing it.\n\nIn March 2025, Netflix released Adolescence. The series became the most-watched show on Netflix in the first half of 2025, accumulating 145 million views. At the centre of that conversation was Owen Cooper. Held Still is the role he was born to play next."}, {"src": "img/doc/writers.jpg", "title": "Writers' Guide", "progress": 18, "available": true, "pdfUrl": "media/Writers_Guide.pdf", "body": "HELD STILL — WRITERS' GUIDE\n\nThis is the rulebook for writing Held Still. It defines the show's tone, visual language, character voices, and the boundaries within which every episode must operate.\n\nTHE GOVERNING PRINCIPLE: This show trusts the audience. It never holds their hand. It never points at something and says 'this is the scary bit.' It presents Robi's life as he lives it — and lets the audience feel the horror of how ordinary it all seems to him.\n\nTHE THREE PROHIBITIONS\n1. No horror signaling. When Robi goes to the basement, it should feel like a boy going to check on a sick family member.\n2. No lingering shots. The camera behaves normally. If Robi says something chilling, the scene moves on — the way life moves on.\n3. No score cues telegraphing danger. The show's sound design is built around isolated mundane audio — a kettle boiling, a clock ticking, a spoon against a bowl.\n\nWhat you don't see is always more frightening than what you see."}, {"src": "img/doc/deck.jpg", "title": "Pitch Deck", "progress": 100, "available": true, "pages": ["img/deck/pg-01.jpg", "img/deck/pg-02.jpg", "img/deck/pg-03.jpg", "img/deck/pg-04.jpg", "img/deck/pg-05.jpg", "img/deck/pg-06.jpg", "img/deck/pg-07.jpg", "img/deck/pg-08.jpg", "img/deck/pg-09.jpg", "img/deck/pg-10.jpg", "img/deck/pg-11.jpg", "img/deck/pg-12.jpg", "img/deck/pg-13.jpg", "img/deck/pg-14.jpg"], "pdfUrl": "media/HELD_STILL_Pitch_Deck.pdf", "body": "HELD STILL — PITCH DECK\n\nThe complete visual pitch for Held Still. Tone, casting, world, and the case for why this story needs to be made now."}], "about": [{"id": "premise", "eyebrow": "Chapter 01", "title": "The Premise", "blurb": "A boy. A basement. A town that never asked the right question.", "body": "LOGLINE\n\nIn a quiet stretch of rural Arkansas, thirteen-year-old Robi Marsh keeps people sedated in the basement of an abandoned house. By day, he's the quiet, well-mannered boy at the back of the class. He doesn't think of himself as a kidnapper. He thinks of himself as the only person who has ever truly kept anyone.\n\nHeld Still is a three-season psychological thriller about the boy nobody noticed, the captives he believes he is saving, and the slow-motion unravelling of a town that mistook silence for safety.\n\nTHE TRIPLE MEANING OF THE TITLE\n\n1. Medical. Robi's captives are held still — chemically, by the sedation regime he has built around them. Stillness is something done to them.\n\n2. Psychological. Robi himself is trying to be held still. His deepest terror is of people leaving. Holding the others still is his answer to a wound he cannot name.\n\n3. Grammatical. Held still is a passive construction. It is not something you choose. It is something done to you. The title is the show in two words."}, {"id": "creators", "eyebrow": "Chapter 02", "title": "The Creators", "blurb": "The team behind the show — and the room it will be written in.", "body": "CREATED BY · ZOLTAN DEAK\n\nZoltan Deak is a film producer and creative entrepreneur with over twenty years of experience across independent cinema, branded content, and multi-platform production. After two decades working in Australia, he relocated to Hungary, where he founded Pillango Productions and co-founded Pécs City Studios.\n\nHis most recent producing credit is the feature 12 Toys of Christmas (2025), released through US distribution and currently streaming on Amazon Prime Video and Apple TV. He has held executive producer credits across multiple development-stage projects, contributing creative expertise and development capital, and has spent the past five years developing an original drama series for the international market.\n\nHis producing work has been driven by a long-standing interest in the architecture of stories — how a creative idea becomes a real project, how a production sustains itself under pressure, and how restraint, when it is intentional, becomes its own kind of intensity.\n\nHeld Still is the first long-form scripted television series he has created, and his first move into the psychological thriller space. He is developing the show in close collaboration with co-writer Victor Huizar.\n\nCO-WRITER · VICTOR HUIZAR\n\nVictor Huizar is a Mexico-based screenwriter and series developer whose work spans Netflix, Amazon Prime, Apple TV+, and VIX+. He is best known for Enemigo Íntimo (Close Enemy), the Telemundo / Universal NBC / Argos Televisión action drama (2018–2020) that reached Netflix's Top 10 in early 2021.\n\nHe co-wrote both seasons of Pacto de Sangre (Blood Pact) for VIX+, currently streaming on Amazon Prime and Apple TV+, and developed the series bible for Monstruos Perfectos, winner of the IMCINE–CANNESERIES development fund. His feature Tiempos Futuros (The Shape of Things to Come), produced by Bertha Navarro, took the Jury Prize at Beijing and screened at Locarno and Málaga.\n\nVictor is co-writer on the Held Still pilot."}, {"id": "vision", "eyebrow": "Chapter 03", "title": "The Vision", "blurb": "", "body": "Held Still began with a question I couldn't shake: how do quiet places hide what they hide? The show is set in rural Arkansas in 2001, but it could be any small place at any time — what matters is the silence, and what people choose not to ask.\n\nThe question is one I have been asking, in one form or another, for most of my life. Every writer pours something of themselves into the work; I am no exception. This is not autobiography. But the question that drives the show — what does silence cost a child? — is one I know from inside. There is nothing dramatic in what I mean by that. No abuse. No tragedy. Just the ordinary, formative loneliness of a child who is not quite seen, even when nothing is wrong. Held Still could not have been written by someone who had not lived, somewhere, inside that particular kind of silence.\n\nAt its core, this is a story about a child. Robi Marsh is thirteen when the series begins — bright, polite, the kind of boy adults stop noticing precisely because he gives them no reason to look closer. He is also, by the end of the pilot, doing things no thirteen-year-old should be doing. The moral terror of the show is not that there is a monster in the basement. It is that the monster is at the back of the classroom, has perfect grades, and goes home for dinner.\n\nI wrote Held Still now because the window to cast it correctly is closing. The role of Robi requires a young actor with the unteachable quality of a child whose interior life is louder than his speech. Owen Cooper, in Adolescence, demonstrated that quality with a clarity that comes along once in a generation. His talent will only deepen — but the child he is now, the boy whose face the audience reads as a child's face, is a temporary artefact. After he turns 19 or 20, that specific gravity is gone. The show is built around a casting window that is shorter than its own development cycle, and that urgency is part of why it had to be written now.\n\nTonally, Held Still resists the language of horror. There are no lingering shots, no meaningful pauses, no score cues at the worst moments. Each scene chooses one ordinary sound — a screen door, a basement strip light, a cicada outside the window — and lets that sound do the work that music would do in another show. Silence here is not restraint for its own sake. It is the texture of how this kind of harm actually happens: in plain hearing, in plain sight, in places that have agreed not to look.\n\nAcross three seasons, the show tracks Robi from thirteen to nineteen. It tracks Jessica Cole, who survives in the basement using only blinks for yes and no, and who turns that survival into something stranger and more powerful than her captor anticipates. It tracks Sheriff Dale Pruitt, investigating a case he does not yet know contains his own son. And it tracks the town of Sallow Creek as it learns, far too late, what it had been holding still.\n\nThe show I want to make is one a viewer cannot stop thinking about — not because it shocks them, but because it refuses to perform horror in the way they have been trained to expect. The stillness is the point."}]}</script>
+<script src="hs.js?v=1"></script>
 </body>
 </html>

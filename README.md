@@ -105,12 +105,17 @@ the password, repeat with a new one. `config.php` is git-ignored, so the hash
 never lands in the repository. Until it exists, the box answers "Access isn't
 set up yet" and nothing is served.
 
-**Drop in the Held Still site:** replace everything in
-`projects/held-still/site/` with the site (`index.html` plus its assets). Use
-relative paths (`assets/still.jpg`) or absolute ones starting
-`/projects/held-still/`. To send people to a Held Still site hosted somewhere
-else instead, set `'redirect'` in `config.php` to its URL (that site is then
-not protected by this gate).
+**The Held Still site** (`projects/held-still/site/`) is the private pitch:
+a teaser video behind the title, then rows — comparable titles, the eight
+episodes, the development documents (pilot pages, series bible, writers' guide,
+pitch deck with PDFs), the cast with casting alternates, and About Held Still.
+Every card opens a detail window (← → to step through, Esc to close); a
+soundtrack is offered on arrival. It is plain HTML/CSS/JS: the content is the
+JSON block at the bottom of `index.html` (`hs-data`), styles in `hs.css`,
+behaviour in `hs.js`; images in `img/`, video, music and PDFs in `media/`.
+All of it is only served after the password. To send people to a Held Still
+site hosted somewhere else instead, set `'redirect'` in `config.php` to its URL
+(that site is then not protected by this gate).
 
 ## Contact form
 
