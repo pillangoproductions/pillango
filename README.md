@@ -17,17 +17,15 @@ The menu (top right, on every page) is the only navigation:
 and, smaller, **Privacy · Impresszum · GDPR**.
 
 The flight follows the same order. Scrolling (wheel, trackpad, swipe, arrow
-keys) moves exactly one chapter per gesture, with a one-second glide. To leave
-a page you must first come to rest on its last chapter and then push again —
-the first push only lights up "Next · … · Scroll again to continue". On a new
-page all input waits until the old gesture (trackpad momentum included) has
-died away, so a long flick never carries you more than one page. Pushing back
-at the top of a page returns to the previous one, landing on its last chapter.
+keys) moves exactly one chapter per gesture, with a one-second glide. Moving
+from one page to the next is the very same glide: from a page's last chapter,
+one more gesture flies on to the next page's intro. Pushing back at the top of
+a page returns to the previous one, landing on its last chapter.
 Book loops back to Home. Trackpad swipes are read the way a trackpad sends them: the faint momentum
 tail never counts, and a new swipe is recognised even while the last one's
 momentum is still dying away. Keeping a wheel rolling carries on chapter by
-chapter within a page, but never out of it. Timings are at the top of section 7 in
-`js/main.js` (`SNAP_MS`, `EDGE_HOLD`, `ARRIVAL_QUIET`…).
+chapter. Timings are at the top of section 7 in
+`js/main.js` (`SNAP_MS`, `ARRIVAL_QUIET`…).
 
 Performance: everything that moves during a glide is a transform or an
 opacity; the bokeh lights are animated by the compositor, not redrawn;
@@ -36,18 +34,13 @@ whole screen; and nothing blends or blurs live over the moving background.
 Keep it that way when adding effects.
 
 Pages change without reloading: the next and previous pages are fetched
-ahead of time, and flying on swaps the new page's chapters into the stage
-while the title card is up, so the light, menu and cursor never blink. The
+ahead of time, and flying on glides the new page's first chapter in exactly
+like any other chapter, so the light, menu and cursor never blink. The
 address bar, title, canonical link, rail and menu all update, and the
 browser's Back/Forward buttons work. Each page is still a complete page at
 its own address (search engines, shared links); legal pages and
 reduced-motion visitors load normally. The page settings (`data-next`,
 `data-prev`, labels) are on `<main id="stage">`.
-
-Between pages the old page drifts past the camera and out of focus while the
-bokeh swells, the name of the next page settles in the middle of the screen
-over a short amber line, and the new page pulls into focus beneath it as the
-name fades.
 
 On the right (wider screens), the rail names every page: the current one in
 amber with its chapters as dots beneath it, the next one a little brighter.
