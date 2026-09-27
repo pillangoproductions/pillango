@@ -56,8 +56,8 @@
      ============================================================ */
   var arrive = store("pillango-arrive");
   store("pillango-transit");
-  var TRANSIT_OUT = 1100;   // the title card fading on arrival
-  var LEAVE_MS = 950;       // the old page dissolving before the new one comes in
+  var TITLE_HOLD = 90;      // the title card stays a beat after the swap, then fades
+  var LEAVE_MS = 800;       // the old page dissolving before the new one comes in
   var leaving = false;
 
   /* Arrival after a normal page load: the head script already put the
@@ -65,11 +65,15 @@
   function settleArrival() {
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        root.classList.remove("arriving", "arriving-back");
-        if (root.classList.contains("transit-in")) {
-          setTimeout(function () { root.classList.remove("transit-in"); }, 180);
-          setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, 180 + TRANSIT_OUT);
+        if (!root.classList.contains("transit-in")) {
+          root.classList.remove("arriving", "arriving-back");
+          return;
         }
+        /* the title goes first, the page follows: no two headings on
+           screen at once */
+        setTimeout(function () { root.classList.remove("transit-in"); }, TITLE_HOLD);
+        setTimeout(function () { root.classList.remove("arriving", "arriving-back"); }, TITLE_HOLD + 240);
+        setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, TITLE_HOLD + 800);
       });
     });
   }
@@ -538,7 +542,7 @@
   var GESTURE_GAP = 280;       // quiet time that ends a gesture
   var REST_MS = 260;           // pause on arriving at a chapter
   var EDGE_HOLD = 650;         // rest on the last chapter before the page can be left
-  var ARRIVAL_QUIET = 1400;    // nothing moves until a new page has settled
+  var ARRIVAL_QUIET = 1700;    // nothing moves until a new page has settled
   var SWIPE_TRIGGER = 50, SETTLE_MS = 160;
 
   var scrollSpace = document.getElementById("scroll-space");
