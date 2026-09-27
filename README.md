@@ -23,13 +23,15 @@ the first push only lights up "Next · … · Scroll again to continue". On a ne
 page all input waits until the old gesture (trackpad momentum included) has
 died away, so a long flick never carries you more than one page. Pushing back
 at the top of a page returns to the previous one, landing on its last chapter.
-Book loops back to Home. Keeping a wheel rolling (or fingers moving) carries on chapter by chapter
-within a page, but never out of it. Timings are at the top of section 7 in
+Book loops back to Home. Trackpad swipes are read the way a trackpad sends them: the faint momentum
+tail never counts, and a new swipe is recognised even while the last one's
+momentum is still dying away. Keeping a wheel rolling carries on chapter by
+chapter within a page, but never out of it. Timings are at the top of section 7 in
 `js/main.js` (`SNAP_MS`, `EDGE_HOLD`, `ARRIVAL_QUIET`…).
 
 Performance: everything that moves during a glide is a transform or an
-opacity; the bokeh canvas is capped at 1.6 million pixels (soft light needs
-no retina detail); focus blurs apply only to the content block, never the
+opacity; the bokeh lights are animated by the compositor, not redrawn;
+the flight only redraws when the camera moves; focus blurs apply only to the content block, never the
 whole screen; and nothing blends or blurs live over the moving background.
 Keep it that way when adding effects.
 
@@ -144,12 +146,12 @@ underneath. Make one a link with `<a class="box" href="…">`.
 
 ## The background, the cursor, the ripples
 
-- **Bokeh** (every page): drawn live on a canvas at screen resolution in
-  `js/main.js` (section 3), after the hero of the current site — rose and red
+- **Bokeh** (every page): each light is its own element drifting on a CSS
+  animation run by the graphics chip (`js/main.js` section 3, `.bk` in the CSS), after the hero of the current site — rose and red
   to the left, magenta and violet across the top, fading to blue-black, with a
   few warm sparks. Three depths drift at different speeds and slide apart as
   you fly. Colours, sizes and counts are at the top of that section
-  (`WARM`, `COOL`, `LAYERS`). Reduced-motion visitors get a still frame.
+  (`WARM`, `COOL`, `LAYERS`). Reduced-motion visitors get still lights.
 - **Cursor:** a tiny ⅃L (`assets/img/cursor-normal.svg`, `cursor-hover.svg`,
   PNG fallbacks) with a pool of orange light beneath it that follows the
   pointer and swells over anything clickable. Mouse and trackpad only.

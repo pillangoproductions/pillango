@@ -136,154 +136,79 @@
   }
 
   /* ============================================================
-     3. The bokeh — drawn live at screen resolution
-     Out-of-focus lights after the hero of the current site: rose and
-     red to the left, magenta and violet across the top, falling away
-     to blue-black at the lower right, with a few warm sparks. Three
-     depths drift at different speeds and slide apart as you fly.
+     3. The bokeh — out-of-focus lights after the hero of the current
+     site: rose and red to the left, magenta and violet across the top,
+     falling away to blue-black at the lower right, with a few warm
+     sparks. Each light is its own element, drifting on a CSS animation
+     that the graphics chip runs by itself: the lights cost the page
+     nothing while it flies. Three depths slide apart as you move.
      ============================================================ */
+  var bokehLayers = [];
   var bokehShift = 0;
+  function setBokehShift(p) {
+    for (var i = 0; i < bokehLayers.length; i++) {
+      bokehLayers[i].el.style.transform = "translate3d(0," + (-p * bokehLayers[i].depth * 22).toFixed(2) + "vh,0)";
+    }
+  }
   (function bokeh() {
-    var canvas = document.getElementById("bokeh");
-    if (!canvas || !canvas.getContext) return;
-    var ctx = canvas.getContext("2d");
+    var host = document.getElementById("bokeh");
+    if (!host) return;
     var seed = 11;
     function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
-
     var WARM = [[232, 96, 124], [214, 80, 104], [240, 128, 150], [200, 72, 98]];
     var COOL = [[182, 88, 158], [156, 82, 170], [128, 72, 160], [104, 64, 146], [205, 106, 168]];
     var LAYERS = [
-      { n: 14, r: [0.035, 0.06], a: [0.22, 0.40], soft: 0.30, speed: 0.35, depth: 0.25 },
-      { n: 32, r: [0.07, 0.12],  a: [0.24, 0.40], soft: 0.42, speed: 0.6,  depth: 0.55 },
-      { n: 16, r: [0.13, 0.21],  a: [0.09, 0.17], soft: 0.65, speed: 0.9,  depth: 1.0 }
+      { n: 14, r: [3.5, 6],  a: [0.22, 0.40], soft: 0.30, depth: 0.25, dur: [26, 40] },
+      { n: 32, r: [7, 12],   a: [0.24, 0.40], soft: 0.42, depth: 0.55, dur: [30, 48] },
+      { n: 16, r: [13, 21],  a: [0.09, 0.17], soft: 0.65, depth: 1.0,  dur: [38, 60] }
     ];
-    var discs = [];
+    function rgba(c, a) { return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")"; }
+    var frag = document.createDocumentFragment();
     LAYERS.forEach(function (L) {
+      var layer = document.createElement("div");
+      layer.className = "bk-layer";
       for (var i = 0; i < L.n; i++) {
         var x = Math.pow(rnd(), 1.35) * 1.12 - 0.08;
-        var y = Math.pow(rnd(), 1.9) * 1.05 - 0.08;                   // massed along the top
+        var y = Math.pow(rnd(), 1.9) * 1.05 - 0.08;                    // massed along the top
         var fall = 1 - 0.75 * Math.min(1, (x * 0.55 + y * 1.0) / 1.15); // dimmer toward lower right
-        var pal = x < 0.3 && rnd() < 0.75 ? WARM : COOL;
-        discs.push({
-          x: x, y: y,
-          rn: L.r[0] + rnd() * (L.r[1] - L.r[0]),
-          a: (L.a[0] + rnd() * (L.a[1] - L.a[0])) * fall,
-          col: pal[Math.floor(rnd() * pal.length)],
-          soft: L.soft,
-          vx: (rnd() - 0.6) * 0.006 * L.speed,
-          vy: -(0.002 + rnd() * 0.006) * L.speed,
-          sw: 0.006 + rnd() * 0.016, sf: 0.04 + rnd() * 0.1, ph: rnd() * 6.283,
-          depth: L.depth
-        });
+        var col = (x < 0.3 && rnd() < 0.75 ? WARM : COOL);
+        col = col[Math.floor(rnd() * col.length)];
+        var a = (L.a[0] + rnd() * (L.a[1] - L.a[0])) * fall;
+        var r = L.r[0] + rnd() * (L.r[1] - L.r[0]);                    // radius in vmin
+        var rim = Math.max(66, 100 - L.soft * 30), edge = Math.max(80, 100 - L.soft * 8);
+        var d = document.createElement("i");
+        d.className = "bk";
+        d.style.cssText =
+          "left:" + (x * 100).toFixed(2) + "%;top:" + (y * 100).toFixed(2) + "%;" +
+          "width:" + (r * 2).toFixed(2) + "vmin;height:" + (r * 2).toFixed(2) + "vmin;" +
+          "margin:" + (-r).toFixed(2) + "vmin 0 0 " + (-r).toFixed(2) + "vmin;" +
+          "background:radial-gradient(circle closest-side," + rgba(col, a * 0.7) + " 0%," + rgba(col, a * 0.8) + " 60%," +
+            rgba(col, a * 0.95) + " " + rim + "%," + rgba(col, a * 0.45) + " " + edge + "%,rgba(0,0,0,0) 100%);" +
+          "--dx:" + ((rnd() - 0.5) * 9).toFixed(2) + "vw;--dy:" + (-(1 + rnd() * 5)).toFixed(2) + "vh;" +
+          "animation-duration:" + (L.dur[0] + rnd() * (L.dur[1] - L.dur[0])).toFixed(1) + "s," + (6 + rnd() * 8).toFixed(1) + "s;" +
+          "animation-delay:-" + (rnd() * 40).toFixed(1) + "s,-" + (rnd() * 10).toFixed(1) + "s;";
+        layer.appendChild(d);
       }
+      bokehLayers.push({ el: layer, depth: L.depth });
+      frag.appendChild(layer);
     });
-    var sparks = [];
+    var sparkLayer = document.createElement("div");
+    sparkLayer.className = "bk-layer";
     for (var s = 0; s < 8; s++) {
-      sparks.push({
-        x: rnd(), y: 0.25 + rnd() * 0.72, rn: 0.005 + rnd() * 0.006,
-        a: 0.55 + rnd() * 0.45, tw: 0.3 + rnd() * 0.7, ph: rnd() * 6.283,
-        vx: (rnd() - 0.5) * 0.004, vy: -(0.001 + rnd() * 0.003)
-      });
+      var sp = document.createElement("i");
+      sp.className = "bk spark";
+      var sr = 0.5 + rnd() * 0.6;
+      sp.style.cssText =
+        "left:" + (rnd() * 100).toFixed(2) + "%;top:" + (25 + rnd() * 72).toFixed(2) + "%;" +
+        "width:" + (sr * 6).toFixed(2) + "vmin;height:" + (sr * 6).toFixed(2) + "vmin;margin:" + (-sr * 3).toFixed(2) + "vmin 0 0 " + (-sr * 3).toFixed(2) + "vmin;" +
+        "--dx:" + ((rnd() - 0.5) * 4).toFixed(2) + "vw;--dy:" + (-(1 + rnd() * 3)).toFixed(2) + "vh;" +
+        "animation-duration:" + (20 + rnd() * 20).toFixed(1) + "s," + (2 + rnd() * 4).toFixed(1) + "s;" +
+        "animation-delay:-" + (rnd() * 30).toFixed(1) + "s,-" + (rnd() * 6).toFixed(1) + "s;";
+      sparkLayer.appendChild(sp);
     }
-
-    var W = 0, H = 0, bg = null, sparkSprite = null;
-    function sprite(r, col, a, soft) {
-      var size = Math.ceil(r * 2 + 4), c = document.createElement("canvas");
-      c.width = c.height = size;
-      var g = c.getContext("2d"), m = size / 2;
-      var gr = g.createRadialGradient(m, m, 0, m, m, r);
-      var rgb = col[0] + "," + col[1] + "," + col[2];
-      gr.addColorStop(0, "rgba(" + rgb + "," + (a * 0.7) + ")");
-      gr.addColorStop(0.6, "rgba(" + rgb + "," + (a * 0.8) + ")");
-      gr.addColorStop(Math.max(0.66, 1 - soft * 0.3), "rgba(" + rgb + "," + (a * 0.95) + ")");  // a soft rim
-      gr.addColorStop(Math.max(0.8, 1 - soft * 0.08), "rgba(" + rgb + "," + (a * 0.45) + ")");
-      gr.addColorStop(1, "rgba(" + rgb + ",0)");
-      g.fillStyle = gr;
-      g.beginPath(); g.arc(m, m, r, 0, 6.2832); g.fill();
-      return c;
-    }
-    function glow(g, x, y, r, css) {
-      var gr = g.createRadialGradient(x, y, 0, x, y, r);
-      gr.addColorStop(0, css); gr.addColorStop(1, "rgba(0,0,0,0)");
-      g.fillStyle = gr; g.fillRect(0, 0, W, H);
-    }
-    function build() {
-      /* Out-of-focus light has no fine detail, so the canvas is drawn at
-         (at most) 1.6 million pixels and scaled up by the browser: it
-         looks the same and costs a fraction of a retina-sized redraw. */
-      var dpr = 1;
-      /* the canvas overhangs the screen a little (css/style.css), so the
-         water ripple has real light to pull in at the edges */
-      var cw = canvas.clientWidth || window.innerWidth, ch = canvas.clientHeight || window.innerHeight;
-      if (cw * ch > 1.6e6) dpr = Math.sqrt(1.6e6 / (cw * ch));
-      W = canvas.width = Math.round(cw * dpr);
-      H = canvas.height = Math.round(ch * dpr);
-      bg = document.createElement("canvas");
-      bg.width = W; bg.height = H;
-      var g = bg.getContext("2d");
-      var lg = g.createLinearGradient(0, 0, W, H);
-      lg.addColorStop(0, "#2d1524");
-      lg.addColorStop(0.42, "#1e1423");
-      lg.addColorStop(0.75, "#0f1119");
-      lg.addColorStop(1, "#05090d");
-      g.fillStyle = lg; g.fillRect(0, 0, W, H);
-      glow(g, W * 0.0, H * 0.4, Math.max(W, H) * 0.45, "rgba(196,70,98,0.5)");
-      glow(g, W * 0.38, H * 0.0, Math.max(W, H) * 0.55, "rgba(128,56,140,0.42)");
-      glow(g, W * 0.95, H * 0.95, Math.max(W, H) * 0.5, "rgba(4,12,18,0.6)");
-      var unit = Math.min(W, H) * 1.05;
-      discs.forEach(function (d) { d.r = d.rn * unit; d.img = sprite(d.r, d.col, d.a, d.soft); });
-      var sr = unit * 0.02;
-      sparkSprite = document.createElement("canvas");
-      sparkSprite.width = sparkSprite.height = Math.ceil(sr * 2);
-      var sg = sparkSprite.getContext("2d"), m = sr;
-      var gr = sg.createRadialGradient(m, m, 0, m, m, sr);
-      gr.addColorStop(0, "rgba(255,238,210,1)");
-      gr.addColorStop(0.12, "rgba(255,196,140,0.9)");
-      gr.addColorStop(0.35, "rgba(255,150,80,0.28)");
-      gr.addColorStop(1, "rgba(255,130,60,0)");
-      sg.fillStyle = gr; sg.fillRect(0, 0, sr * 2, sr * 2);
-      sparks.forEach(function (p) { p.r = p.rn * unit; });
-    }
-    function wrap(v) { return ((v + 0.15) % 1.3 + 1.3) % 1.3 - 0.15; }
-    function draw(t) {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.globalAlpha = 1;
-      ctx.drawImage(bg, 0, 0);
-      ctx.globalCompositeOperation = "lighter";
-      for (var i = 0; i < discs.length; i++) {
-        var d = discs[i];
-        var x = wrap(d.x + d.vx * t + Math.sin(t * d.sf + d.ph) * d.sw) * W;
-        var y = wrap(d.y + d.vy * t + Math.cos(t * d.sf * 0.8 + d.ph) * d.sw * 0.6 - bokehShift * d.depth * 0.22) * H;
-        ctx.globalAlpha = 0.82 + 0.18 * Math.sin(t * d.sf * 2 + d.ph);
-        ctx.drawImage(d.img, x - d.img.width / 2, y - d.img.height / 2);
-      }
-      for (var j = 0; j < sparks.length; j++) {
-        var p = sparks[j];
-        var sx = wrap(p.x + p.vx * t) * W, sy = wrap(p.y + p.vy * t - bokehShift * 0.3) * H;
-        ctx.globalAlpha = p.a * (0.55 + 0.45 * Math.sin(t * p.tw * 2 + p.ph));
-        var k = p.r * 6 / sparkSprite.width;
-        ctx.drawImage(sparkSprite, sx - p.r * 3, sy - p.r * 3, sparkSprite.width * k, sparkSprite.height * k);
-      }
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-    }
-    build();
-    var t0 = performance.now(), last = 0;
-    draw(12);
-    if (!reduceMotion) {
-      (function loop(now) {
-        if (now - last > 32) {       // ~30 fps is plenty for drifting light
-          last = now;
-          draw(12 + (now - t0) / 1000);
-        }
-        requestAnimationFrame(loop);
-      })(t0);
-    }
-    var rs;
-    window.addEventListener("resize", function () {
-      clearTimeout(rs);
-      rs = setTimeout(function () { build(); draw(12 + (performance.now() - t0) / 1000); }, 150);
-    });
+    bokehLayers.push({ el: sparkLayer, depth: 0.3 });
+    frag.appendChild(sparkLayer);
+    host.appendChild(frag);
   })();
 
   /* ============================================================
@@ -306,12 +231,17 @@
       glowEl.classList.toggle("is-hot", !!hot);
     }, { passive: true });
     document.addEventListener("pointerleave", function () { glowOn = false; glowEl.classList.remove("is-on"); });
-    (function follow() {
+    var following = false;
+    var follow = function () {
       gx += (tx - gx) * (reduceMotion ? 1 : 0.22);
       gy += (ty - gy) * (reduceMotion ? 1 : 0.22);
+      if (Math.abs(tx - gx) < 0.3 && Math.abs(ty - gy) < 0.3) { gx = tx; gy = ty; following = false; }
       glowEl.style.transform = "translate3d(" + gx.toFixed(1) + "px," + gy.toFixed(1) + "px,0)";
-      requestAnimationFrame(follow);
-    })();
+      if (following) requestAnimationFrame(follow);
+    };
+    document.addEventListener("pointermove", function () {
+      if (!following) { following = true; requestAnimationFrame(follow); }
+    }, { passive: true });
   }
 
   /* ============================================================
@@ -604,7 +534,7 @@
     if (document.hidden || performance.now() - lastFrame > 250) { currentP = targetP; render(); }
   }
   window.addEventListener("scroll", readScroll, { passive: true });
-  window.addEventListener("resize", readScroll);
+  window.addEventListener("resize", function () { renderedP = -1; readScroll(); });
 
   function frame(now) {
     lastFrame = now || performance.now();
@@ -612,14 +542,17 @@
     if (tween) currentP = targetP;             // the glide already eases
     else currentP += (targetP - currentP) * 0.12;
     if (Math.abs(targetP - currentP) < 0.00004) currentP = targetP;
-    render();
+    /* nothing moved, nothing to draw: a resting page costs nothing */
+    if (currentP !== renderedP) render();
     requestAnimationFrame(frame);
   }
 
+  var renderedP = -1;
   function render() {
+    renderedP = currentP;
     var camZ = currentP * TOTAL_DEPTH;
     paintGrade(currentP);
-    bokehShift = currentP;
+    setBokehShift(currentP);
 
     var activeIdx = -1, bestDist = Infinity;
     layers.forEach(function (layer, idx) {
@@ -693,6 +626,7 @@
   /* start disarmed: a gesture still running from the previous page is ignored */
   var wheelAccum = 0, lastWheel = performance.now(), armed = false, restAt = performance.now();
   var fresh = false, recent = [];
+  var lastSig = performance.now(), prevAd = 0, decaying = false;
   var touching = false, touchY = 0, touchDy = 0, settleTimer = null;
 
   function stepTween(now) {
@@ -741,25 +675,42 @@
     /* Anything that arrives in the first moment on a page is the tail of
        the gesture that brought us here: it keeps the wheel locked, so
        only a fresh gesture after a pause can move on. */
-    if (now - loadedAt < ARRIVAL_QUIET) { lastWheel = now; armed = false; wheelAccum = 0; recent = []; return; }
     var ad = Math.abs(dy);
-    if (now - lastWheel > GESTURE_GAP) { wheelAccum = 0; armed = true; fresh = true; recent = []; }
+    /* How a trackpad really scrolls: a swipe rises for a few events, then
+       its momentum dies away in a long tail of tiny events that can go on
+       for seconds. So:
+       - the faint tail (under 4 px) never counts as scrolling, and never
+         hides the start of the next swipe;
+       - a new swipe is either one that follows a real pause, or one that
+         rises again out of a dying stream (fingers back on the pad);
+       - a mouse wheel kept rolling is a steady stream: it carries on
+         chapter by chapter, but can't leave the page on its own. */
+    if (now - loadedAt < ARRIVAL_QUIET) {
+      lastSig = now; prevAd = ad; armed = false; decaying = false; wheelAccum = 0; recent = [];
+      return;
+    }
+    var sig = ad >= 4;
+    var gap = now - lastSig > GESTURE_GAP;
+    var rising = decaying && ad >= 5 && ad > prevAd * 1.5 + 1;
+    if (sig && (gap || rising)) { armed = true; fresh = true; wheelAccum = 0; recent = []; decaying = false; }
+    if (ad < prevAd) decaying = true;
+    prevAd = ad;
+    if (sig) {
+      lastSig = now;
+      recent.push(ad);
+      if (recent.length > 8) recent.shift();
+    }
     lastWheel = now;
-    recent.push(ad);
-    if (recent.length > 8) recent.shift();
-    if (tween || leaving) return;
-    /* Still scrolling after the last glide ended? Carry on — unless the
-       stream is dying away (trackpad momentum), which never counts. */
+    if (tween || leaving || !sig) return;
     if (!armed && now - restAt > 380 && recent.length >= 6 && ad >= 8 &&
-        recent[recent.length - 1] >= recent[0] * 0.95) {
+        recent[recent.length - 1] >= recent[0] * 0.95 && !decaying) {
       armed = true; fresh = false; wheelAccum = 0;
     }
     if (!armed) return;
-    if (ad < 4) return;                      // the faint tail of momentum never counts
     wheelAccum += dy;
     if (Math.abs(wheelAccum) >= WHEEL_TRIGGER) {
       var dir = wheelAccum > 0 ? 1 : -1;
-      wheelAccum = 0; armed = false; recent = [];
+      wheelAccum = 0; armed = false; recent = []; decaying = false;
       push(dir, !fresh);                     // only a fresh gesture may leave the page
     }
   }, { passive: false });

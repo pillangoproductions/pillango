@@ -91,9 +91,34 @@ img { max-width: 100%; height: auto; }
   width: calc(100% + 96px);
   height: calc(100% + 96px);   /* overhangs the screen, see the water ripple */
   z-index: 0;
-  display: block;
-  background: #1b1320;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 0% 40%, rgba(196, 70, 98, 0.5), rgba(196, 70, 98, 0) 46vmax),
+    radial-gradient(circle at 38% 0%, rgba(128, 56, 140, 0.42), rgba(128, 56, 140, 0) 55vmax),
+    radial-gradient(circle at 95% 95%, rgba(4, 12, 18, 0.6), rgba(4, 12, 18, 0) 50vmax),
+    linear-gradient(to bottom right, #2d1524 0%, #1e1423 42%, #0f1119 75%, #05090d 100%);
 }
+/* the three depths (and the sparks) slide apart as the flight moves */
+.bk-layer { position: absolute; inset: 0; will-change: transform; }
+/* one light: painted once, then only moved and faded by the compositor */
+.bk {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform, opacity;
+  animation-name: bk-drift, bk-breathe;
+  animation-timing-function: ease-in-out, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-direction: alternate, alternate;
+}
+.bk.spark {
+  background: radial-gradient(circle closest-side, rgba(255, 238, 210, 1) 0%, rgba(255, 196, 140, 0.9) 12%, rgba(255, 150, 80, 0.28) 35%, rgba(255, 130, 60, 0) 100%);
+  animation-name: bk-drift, bk-twinkle;
+}
+@keyframes bk-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--dx), var(--dy), 0); } }
+@keyframes bk-breathe { from { opacity: 1; } to { opacity: 0.68; } }
+@keyframes bk-twinkle { from { opacity: 0.95; } to { opacity: 0.2; } }
+
 .grade {
   position: fixed;
   inset: 0;
@@ -1007,6 +1032,7 @@ html.gate-through #stage { opacity: 0.3; transition: opacity 0.9s; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
   html.js.arriving #stage, html.js.arriving #page, html.js.arriving .bokeh { filter: none; transform: none; opacity: 1; }
+  .bk { animation: none !important; }
 }
 
 /* pictures inside a flight chapter never push it past one screen */
