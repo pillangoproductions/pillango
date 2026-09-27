@@ -1,234 +1,145 @@
-# Salone Medici — rendezvényhelyszín weboldal + admin
+# pillangoprod.com — Pillango Productions Kft.
 
-Egy este a szalonban: a látogató végigrepül az érkezéstől a téren, a
-kínálaton, az élő vásznon és az évadon az ajánlatkérésig. Minden tartalom
-— a csomagok, az esték, a fotók és **a weboldal összes szövege** — az
-`/admin` felületen szerkeszthető; HTML-hez nyúlni sosem kell.
+Marketing site for Pillango Productions: film production, post-production and
+production consulting in Hungary / Europe.
 
-Készült DreamHost (vagy bármilyen) shared hostingra:
-**PHP 8.1+, MySQL, HTML5, CSS, vanilla JS** — nincs Node, nincs Composer,
-nincs framework, nincs frissítendő függőség.
+**Plain static HTML, CSS and vanilla JS.** No build step, no PHP, no database,
+no Node, no third-party requests (fonts are self-hosted). Upload the folder to
+DreamHost and it works.
 
 ---
 
-## Mit tud?
+## Routes
 
-| Funkció | Hol kezelhető |
+| URL | File | Type |
+|---|---|---|
+| `/` | `index.html` | flight (chapter scroll) |
+| `/about` | `about/index.html` | flight |
+| `/services` | `services/index.html` | flight |
+| `/post-production` | `post-production/index.html` | flight |
+| `/partners` | `partners/index.html` | flight |
+| `/blog` | `blog/index.html` | document page — journal index |
+| `/held-still` | `held-still/index.html` | **stub** — replace with the Held Still page |
+| `/the-book` | `the-book/index.html` | stub |
+| `/privacy`, `/impresszum`, `/gdpr` | `*/index.html` | legal document pages |
+| — | `404.html` | error page |
+
+Redirects (`.htaccess`): `www` → apex, `http` → `https`, `/about/` and
+`/about/index.html` → `/about`, `/book` → `/the-book`, `/project-assessment` →
+`/services#ch-consulting`, `/index.php` → `/`. The old template's
+`/admin`, `/api`, `/includes`, `/sql`, `/uploads` answer **410 Gone**.
+
+## Deploying to DreamHost
+
+1. Upload the repository contents (everything except `.git/`) to the domain's
+   web directory, e.g. `~/pillangoprod.com/`, so `index.html` and `.htaccess`
+   sit at the top.
+2. In the DreamHost panel, turn on the free Let's Encrypt certificate for
+   `pillangoprod.com` (the `.htaccess` forces HTTPS and the apex domain).
+3. Check `https://pillangoprod.com/about`, `/about/` (→ 301) and `/book` (→ 301).
+
+Local preview: any static server from the repo root works
+(`npx serve .` or `python3 -m http.server`); pages open at `/about/` there,
+because the clean-URL rewrite is an Apache rule.
+
+## How the pages work
+
+### Flight pages (the chapter scroll)
+Each chapter is a `<section class="layer" data-chapter="…">` inside
+`<main id="stage">`. `js/main.js` reads the spine straight from the markup:
+
+```html
+<section class="layer ink-light" id="ch-sound" data-chapter="sound"
+         data-gap="1.3" data-sky="#24140F" data-rail="Sound">
+```
+
+- `data-gap` — distance from the previous chapter (bigger = longer flight)
+- `data-sky` — background grade while the chapter is on screen
+- `data-rail` — label on the right-hand progress rail (optional)
+- `ink-dark` instead of `ink-light` for light backgrounds (`#ECE5D6`)
+
+Add, remove or reorder sections; nothing else needs changing. One push of the
+wheel / swipe / arrow key moves exactly one chapter. With
+`prefers-reduced-motion` or without JS the page falls back to a normal stacked
+scroll. **A flight chapter cannot scroll**, so keep each one to a screenful;
+long content belongs on a document page.
+
+Deep links: `/#ch-contact` lands on that chapter. Links with
+`data-goto="contact"` fly there without reloading.
+
+### Document pages
+`<body class="page">` + `<main class="doc-main">` → ordinary scrolling page
+with the same nav, a `.doc-head` title block and a `.prose` reading column.
+
+### Shared parts
+Nav, menu overlay and footer are repeated in each HTML file. When you add a
+page or change the menu, update all files (search for `class="nav-links"` and
+`class="overlay-links"`), plus `sitemap.xml`.
+
+## Adding a journal post
+1. Copy `_templates/blog-post.html` to `blog/<slug>/index.html`.
+2. Replace every `POST-SLUG`, `POST TITLE` and summary placeholder — including
+   `<title>`, `description`, `canonical`, `og:url` and the `<h1>`.
+3. Add a `<li>` to the list in `blog/index.html` (newest first) and remove the
+   "In the edit" stub box once there is at least one post:
+   ```html
+   <li><a href="/blog/<slug>"><span class="post-date">2026-10-01</span>
+     <span><span class="post-title">Title</span><span class="post-excerpt">One line.</span></span>
+     <span class="post-go">Read →</span></a></li>
+   ```
+4. Add the URL to `sitemap.xml`.
+
+`_templates/` is blocked in `robots.txt` and returns 404 on the server.
+
+## Dropping in Held Still
+Replace `held-still/index.html` (or just its `<main>`) with the existing page
+and put its assets in `held-still/assets/`. Keep the `<head>` block — title,
+description, canonical `https://pillangoprod.com/held-still` and og tags —
+unless the new page brings its own.
+
+## SEO
+- Every page has its own `<title>`, meta description and
+  `<link rel="canonical">` on `https://pillangoprod.com/<route>` (no trailing
+  slash), plus Open Graph / Twitter tags.
+- Share image: `assets/img/og-image.jpg` (1200×630), hosted here. Swap in a
+  real still at the same size and name whenever you like.
+- `robots.txt` allows everything but `/_templates/` and points to
+  `sitemap.xml`, which lists all the routes above. Update `<lastmod>` when a
+  page changes.
+- The home page carries an `Organization` JSON-LD block.
+
+## Assets
+| Path | What |
 |---|---|
-| **Csomagok** — a hatféle bérlési mód, árral, létszámmal, „mit tartalmaz" listával | admin → **Csomagok** |
-| **Kiegészítők** — élő zongora, sommelier, dekor, fotó… | admin → **Kiegészítők** |
-| **Események** — dátumos esték jegylinkkel; a lejártak maguktól lekerülnek | admin → **Események** |
-| **Sorozatok** — a visszatérő formátumok (Salotto Musicale, Degustazione, Supper Club, Ballo in Maschera) | admin → **Sorozatok** |
-| **Ajánlatkérés** — űrlap a weboldalon, e-mail értesítéssel; minden kérés eltárolva | admin → **Ajánlatkérések** |
-| Galéria fotók a JSON API-hoz (a főoldali „utazásban" **nem** jelennek meg) | admin → **Galéria** |
-| Cím, telefon, e-mail, közösségi linkek, nyitókép, logó | admin → **Beállítások** |
-| **A főoldal összes szövege** — fejezetenként | admin → **Beállítások** → „A weboldal szövegei" |
-| JSON API (`/api/packages.php`, `events.php`, `gallery.php`, `settings.php`) | — |
+| `assets/img/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | butterfly mark icons |
+| `assets/img/logo-mark.png` | 512×512 mark (JSON-LD logo) |
+| `assets/img/og-image.jpg` | share image |
+| `assets/fonts/*.woff2`, `css/fonts.css` | Instrument Serif + Inter Tight (SIL OFL), Latin + Latin Extended |
 
-Ha egy csomagot vagy estet *rejtettre* állítasz, azonnal eltűnik a
-weboldalról — a csomag az ajánlatkérő űrlap listájából is.
+**Hero footage:** put a muted loop at `assets/video/hero.mp4` (with a
+poster) and follow the comment at the top of the hero section in
+`index.html`. It pauses automatically once the hero has scrolled away, and is
+hidden for reduced-motion visitors.
 
----
+**Image placeholders** are `<div class="frame">` boxes. Put an `<img>` inside
+(it fills the frame) and delete the `.frame-label`.
 
-## Telepítés (kb. 20 perc)
+## Placeholders still to fill
+- Contact e-mail `hello@pillangoprod.com` — confirm or replace (search the repo).
+- Impresszum / Privacy: registered address, company reg. no., registry court,
+  tax number, EU VAT number, managing director, e-mail provider, log retention
+  (dashed amber boxes, class `tbc`). Have the legal texts reviewed before launch.
+- Team names and bios (`/about`), partner logos (home + `/partners`),
+  stills (home, `/post-production`), Held Still and The Book content.
+- Social links (none yet).
 
-### 1. Fájlok feltöltése
-Töltsd fel a mappa **teljes tartalmát** a domain gyökérmappájába
-(pl. `~/salonemedici.hu/`), hogy az `index.php` közvetlenül ott legyen.
-Almappába telepítve lásd a 4. pontot.
-
-### 2. MySQL adatbázis
-A hosting panelben hozz létre egy **üres adatbázist** + egy felhasználót
-jelszóval. Jegyezd fel: hostname, adatbázisnév, felhasználó, jelszó.
-
-### 3. Az adatbázis feltöltése
-phpMyAdmin → válaszd ki az új adatbázist → **Import** →
-**`sql/salone.sql`** → Go.
-Ez létrehoz minden táblát, és feltölti a **teljes kiinduló tartalmat**:
-a hat csomagot, a hat kiegészítőt, a négy estformátumot, a galériát és
-a weboldal összes szövegét. *(Egyetlen fájl — nincs külön frissítő szkript.)*
-
-### 4. `includes/config.php` kitöltése
-```php
-define('DB_HOST', 'mysql.salonemedici.hu');
-define('DB_NAME', 'salone_db');
-define('DB_USER', 'salone_user');
-define('DB_PASS', '••••••••');
-```
-Ugyanitt **cseréld le a `FORM_SECRET` értékét** egy hosszú, véletlen
-karakterláncra — ezzel írjuk alá az ajánlatkérő űrlapot (lásd „Biztonság").
-
-- A domain gyökerében vagy aldomainen: `BASE_URL` maradjon `''`.
-- Almappában (pl. `salonemedici.hu/uj`): `define('BASE_URL', '/uj');`
-- Ha **több** oldal fut ugyanazon a szerveren, adj mindegyiknek
-  egyedi `SESSION_NAME`-et.
-
-### 5. Írási jog
-Az `uploads/` mappa (és almappái) legyenek írhatók a PHP számára
-(általában alapból jó; ha nem: `chmod 755`).
-
-### 6. PHP verzió
-Állítsd **PHP 8.1+**-ra a hosting panelben.
-
-### 7. Első belépés
-Nyisd meg: **`https://salonemedici.hu/admin/`**
-A telepítő bekéri az első admin fiókot (felhasználónév + min. 10 karakteres
-jelszó), majd **véglegesen letiltja magát**. Alapértelmezett jelszó nincs.
-
----
-
-## Beüzemelés az ügyfélnek (sorrendben)
-
-1. **Beállítások → A helyszín adatai** — ellenőrizd a címet, telefont,
-   e-mailt. ⚠️ Ezek a `salonemedici.hu`-ról származó adatokkal vannak
-   előre kitöltve; **élesítés előtt erősítsd meg őket az ügyféllel.**
-2. **Beállítások → Ajánlatkérés** — az értesítési e-mail cím. Üresen hagyva
-   nem megy levél, a kérések akkor is megmaradnak az adminban.
-3. **Beállítások → Nyitókép** — a kiinduló nyitókép a zongorás fotó
-   (`uploads/branding/salone-hero.jpg`). Bátran cserélhető.
-   Logó nem kötelező: amíg nincs, a helyszín neve jelenik meg szép szedéssel.
-4. **Csomagok** — a hat csomag árai a 2026-os ajánlati lapról származnak;
-   érdemes átfutni, hogy még aktuálisak-e.
-5. **Események** — tűzd ki az első estéket, és add meg a jegyvásárlási
-   linket (lásd „Jegyértékesítés" lent).
-6. **Galéria** — a fotók az adminban maradtak, de a főoldali repülésben
-   már nem jelennek meg (csak a JSON API adja őket).
-7. **Beállítások → A weboldal szövegei** — a hang már a szalon anyagaiból
-   származik, de itt bármelyik mondat átírható.
-
----
-
-## Fájlszerkezet
-
-```
-/
-├── index.php              publikus oldal (mindent az adatbázisból renderel)
-├── css/style.css          a teljes dizájn
-├── js/main.js             a 3D „átrepülős" görgetésmotor + a lapok
-├── assets/                logo.png és hero-video.mp4 helye (nem kötelező)
-├── uploads/               galéria, nyitókép, logó (+ thumbs/)
-├── admin/                 a teljes kezelőfelület
-├── includes/              config, adatbázis, auth, renderelés, ajánlatkérés
-├── api/                   JSON végpontok
-└── sql/salone.sql         ⬅ EZT KELL IMPORTÁLNI
-```
-
----
-
-## Hogyan épül fel a főoldal?
-
-A látogató egy „repülésben" haladva éri el a fejezeteket:
-
-```
-nyitókép → a szalon → a tér → a kínálat
-        → az élő vászon → az évad → ajánlatkérés → kapcsolat
-```
-
-A fejezetek helyét **a szerver számolja ki** (`build_journey()` a
-`includes/site-render.php`-ben), és a `window.SITE_JOURNEY` objektumban
-adja át a böngészőnek. Ezért **egy új fejezet felvétele hosszabbítja az
-utazást** — nem szorulnak össze a meglévők, és nem kell JavaScriptet
-szerkeszteni.
-
-A repülésben **nincsenek teljes képernyős fotóoldalak**: a korábbi
-átrepülős galéria fejezetek kikerültek. A galéria fotói megmaradtak az
-adminban és a `/api/gallery.php` végponton, de a főoldalon nem látszanak.
-
-### A repülés „megáll" minden fejezetnél
-
-A görgetés **nem folyamatos**: a kamera egy fejezeten *megpihen*, és
-onnan **egy lökés = egy fejezet**. Egy egérgörgetés, egy ujjhúzás vagy egy
-nyílbillentyű pontosan a következő megállóig visz, tovább nem — a
-következő fejezethez új mozdulat kell. Egy hosszú „pörgetés" is csak
-egyetlen lökésnek számít; a rendszer akkor élesedik újra, amikor a
-mozdulat egy pillanatra abbamarad.
-
-A nyíl-/menü-/rail-ugrások és a mélylinkek (`#viaggio-...`) továbbra is
-egyből a megadott fejezetre visznek. Ha bármi máshogy mozdul el a
-görgetés (görgetősáv húzása, böngészős keresés), a rendszer a legközelebbi
-fejezetre igazítja — a repülés soha nem áll meg két megálló között.
-
-A finomhangolás a `js/main.js` tetején, a „detent" blokkban van:
-`SNAP_MS` (utazási idő), `WHEEL_TRIGGER` (mekkora görgetés számít
-lökésnek), `GESTURE_GAP` (mennyi szünet kezd új mozdulatot),
-`SWIPE_TRIGGER` (ujjhúzás küszöbe).
-
-A hosszú tartalom nem a repülésben, hanem **teljes képernyős, görgethető
-lapokon** („sheet") jelenik meg: a teljes kínálat, az évad estéi és az
-ajánlatkérő űrlap. Ez azért van így, mert egy repülő fejezet nem tud
-görgetni — ami nem fér ki, az levágódna.
-
-**Csökkentett mozgás** (`prefers-reduced-motion`) vagy 3D nélküli böngésző
-esetén az oldal automatikusan hagyományos, egymás alatti szakaszokra vált
-(`.flat` mód). JavaScript nélkül is olvasható marad az egész tartalom.
-
----
-
-## Jegyértékesítés
-
-Ez a rendszer **nem ad el jegyet** — nincs benne pénztár. Minden esthez
-megadható egy **jegyvásárlási link** (admin → Események), amely a meglévő
-jegyértékesítő oldalra visz, és a láblécben is elhelyezhető egy általános
-„Jegyek" link (admin → Beállítások).
-
-> ⚠️ A `salonemedici.hu` jelenleg egy WordPress + WooCommerce oldal, amely
-> **online árul jegyeket az egyes estékre**. Ha ez a rendszer váltja le,
-> tisztázni kell, hogy a jegyeladás hol történjen ezután: marad-e a
-> WooCommerce külön aldomainen (és ide csak linkelünk), vagy más
-> jegyértékesítő szolgáltatás lép a helyére. **Ez döntést kíván az
-> élesítés előtt.**
-
----
-
-## Betűtípusok
-
-**Cormorant Garamond** (a szalon hangja) + **Jost** (nagybetűs jelzések,
-űrlapok) — mindkettő **SIL Open Font License**, a Google Fontsról töltve.
-Nincs betűfájl a projektben, és nincs licencgond.
-
-Ha az ügyfélnek saját arculati betűje van, cseréld le:
-1. a `<link rel="stylesheet" href="https://fonts.googleapis.com/...">` sort
-   az `index.php`-ben és az `includes/header.php`-ben,
-2. a `css/style.css` tetején a `--font-display` / `--font-caps` /
-   `--font-body` változókat.
-
-*(A korábbi `pizzeria-website` sablon a CIAO arculati betűit tartalmazta
-licenc-tisztázás nélkül; ez a projekt szándékosan nem viszi tovább őket.)*
-
----
-
-## Biztonság
-
-- Minden lekérdezés PDO **prepared statement**.
-- Jelszavak `password_hash()` (bcrypt); alapértelmezett jelszó nincs.
-- Az adminban **CSRF token** minden adatmódosító űrlapon; 30 perc
-  tétlenség után kilép.
-- **A publikus oldal nem tesz le sütit** (nincs munkamenet, nincs
-  sütibanner-kényszer). Az ajánlatkérő űrlapot ezért nem session-CSRF,
-  hanem **HMAC-cal aláírt időbélyeg** védi (`FORM_SECRET`): az azonnal
-  beküldött vagy régi űrlap elutasításra kerül. Emellett rejtett
-  „honeypot" mező és **IP-alapú óránkénti korlát** (`ENQUIRY_RATE_PER_HOUR`)
-  szűri a robotokat.
-- Az ajánlatkérés **először az adatbázisba kerül**, és csak utána indul az
-  e-mail — egy nem működő levelezés sosem veszíthet el megkeresést.
-- Minden kimenet escape-elve; feltöltésnél MIME-ellenőrzés + 5 MB limit.
-- Az `uploads/` alatt PHP-futtatás tiltva; `includes/` és `sql/` webről zárt.
-- A `/api/settings.php` **engedélyezőlistából** dolgozik, így az értesítési
-  e-mail cím és a többi belső beállítás nem szivárog ki.
-
----
-
-## Fejlesztői jegyzetek
-
-- **Ezen a gépen nincs PHP**, így a kód lokálisan nem futtatható. Az
-  ellenőrzés szerkezeti (zárójel- és `endforeach`-egyensúly, séma- és
-  beállításkulcs-egyeztetés) volt, a dizájnt pedig egy statikusan
-  legenerált másolaton néztük meg böngészőben. **Az éles teszt a szerveren
-  még hátravan** — lásd a projekt CLAUDE.md-jét.
-- `session_boot()` **minden kimenet ELŐTT** kell (különben a CSRF cookie
-  nem áll be).
-- `.htaccess`-be **ne kerüljön `php_flag`** — DreamHost PHP-FPM-en 500-as
-  hibát ad.
-- MySQL 8-ban a `lead` **fenntartott szó**, ezért az `events` táblában az
-  egysoros leírás oszlopa `lead_text`.
-- Telepítési sorrend frissítéskor: **előbb adatbázis, utána fájlok**.
+## Colours
+| Token | Hex | Use |
+|---|---|---|
+| `--night` | `#0A0B0D` | base black |
+| `--steel` | `#17202A` | blue-hour chapters |
+| `--teal` | `#0E2629` | deep grade |
+| `--ember` | `#24140F` | warm shadow |
+| `--paper` | `#ECE5D6` | the one light chapter |
+| `--amber` | `#D9A441` | accent / the "practical" |
+| `--rust` | `#A5461F` | accent on paper |

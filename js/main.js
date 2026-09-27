@@ -1,12 +1,18 @@
 /* ============================================================
-   Flight engine — scroll-driven 3D journey.
-   Native scroll drives a camera along the z-axis; the chapters of
-   an evening in the salon sit at depths, and the room's colour
-   travels with them from the doorway to the last goodnight.
+   Pillango Productions — flight engine.
+   Native scroll drives a camera along the z-axis; each chapter of a
+   page sits at a depth, and the frame's colour grades along with it,
+   from the first shot to the end credits.
 
-   The chapter spine (positions, colours, rail labels) is computed
-   on the server and handed over in window.SITE_JOURNEY, so adding
-   a chapter lengthens the flight rather than crowding it.
+   The chapter spine is read straight from the markup: every
+   [data-chapter] layer inside #stage carries
+     data-gap   distance from the previous chapter (1 = one unit)
+     data-sky   the background colour while it is on screen
+     data-rail  optional label for the progress rail
+   so adding a chapter lengthens the flight rather than crowding it.
+
+   Pages without a #stage (the legal pages, the blog) get only the
+   menu and the sheets; the flight never starts there.
 
    The flight is detented: one push of the wheel, one swipe or one
    arrow key carries the camera to the next chapter and stops there.
@@ -14,26 +20,71 @@
 (function () {
   "use strict";
 
+  var UNIT_DEPTH = 1150;       // px of travel per unit of data-gap
+
   var stage = document.getElementById("stage");
   var scrollSpace = document.getElementById("scroll-space");
   var railFill = document.getElementById("rail-fill");
   var railStops = document.getElementById("rail-stops");
   var burger = document.getElementById("burger");
   var overlay = document.getElementById("overlay-menu");
-  var yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  document.querySelectorAll("[data-year]").forEach(function (el) {
+    el.textContent = new Date().getFullYear();
+  });
 
-  var JOURNEY = window.SITE_JOURNEY || {};
-  var CHAPTERS = JOURNEY.chapters || [];
-  var TOTAL_DEPTH = JOURNEY.totalDepth || 11000;
+  /* ---- the menu overlay: every page has one ---- */
+  function closeOverlay() {
+    if (!overlay || overlay.hidden) return;
+    overlay.hidden = true;
+    if (burger) {
+      burger.setAttribute("aria-expanded", "false");
+      burger.setAttribute("aria-label", "Open menu");
+    }
+    document.body.style.overflow = "";
+  }
+  if (burger && overlay) {
+    burger.addEventListener("click", function () {
+      var open = overlay.hidden;
+      overlay.hidden = !open;
+      burger.setAttribute("aria-expanded", String(open));
+      burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      document.body.style.overflow = open ? "hidden" : "";
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeOverlay();
+    });
+  }
 
-  if (!stage || !CHAPTERS.length) return;
+  /* ---- the chapter spine, read from the markup ---- */
+  var CHAPTERS = [];
+  var TOTAL_DEPTH = 0;
+  if (stage) {
+    var els = stage.querySelectorAll("[data-chapter]");
+    var total = 0, gaps = [];
+    els.forEach(function (el, i) {
+      var g = i === 0 ? 0 : parseFloat(el.getAttribute("data-gap") || "1.25");
+      gaps.push(g);
+      total += g;
+    });
+    if (total <= 0) total = 1;
+    var cum = 0;
+    els.forEach(function (el, i) {
+      cum += gaps[i];
+      CHAPTERS.push({
+        id: el.getAttribute("data-chapter"),
+        p: Math.round((cum / total) * 1e5) / 1e5,
+        sky: el.getAttribute("data-sky") || "#0B0C0E",
+        rail: el.getAttribute("data-rail") || null
+      });
+    });
+    TOTAL_DEPTH = Math.round(total * UNIT_DEPTH);
+  }
 
   /* The scroll driver is as tall as the journey is deep, so one
      pixel of scrolling is one pixel of travel. */
-  if (scrollSpace) scrollSpace.style.height = TOTAL_DEPTH + "px";
+  if (scrollSpace && TOTAL_DEPTH) scrollSpace.style.height = TOTAL_DEPTH + "px";
 
-  /* The room's colour at each chapter, interpolated in between. */
+  /* the frame's colour at each chapter, interpolated in between. */
   var SKY = CHAPTERS.map(function (ch) { return [ch.p, ch.sky]; });
 
   var FADE_OUT_START = 140;     // begins passing the camera
@@ -53,7 +104,7 @@
     heroVideo.style.display = "none";
   }
 
-  /* ---- sheets (the offer sheet, the season sheet) ---- */
+  /* ---- sheets: full-screen scrollable panels over the flight ---- */
   var lastSheetOpener = null;
 
   function openSheet(id, opener) {
@@ -88,22 +139,6 @@
     btn.addEventListener("click", closeSheets);
   });
 
-  /* "Ajánlatot kérek erre" inside the offer sheet: pick that package in
-     the form and swap straight over to the enquiry sheet. */
-  document.querySelectorAll("[data-enquire]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var select = document.getElementById("q-package");
-      if (select) select.value = btn.getAttribute("data-enquire");
-      closeSheets();
-      openSheet("enquiry-sheet", btn);
-      var name = document.getElementById("q-name");
-      if (name) name.focus({ preventScroll: true });
-    });
-  });
-
-  /* A rejected submission comes back as a normal page load: open the
-     sheet so the visitor sees the reason and their typed values. */
-  if (window.SITE_FORM_ERROR) openSheet("enquiry-sheet", null);
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") { closeSheets(); return; }
@@ -126,15 +161,15 @@
     }
   });
 
-  /* After a successful submit the server sends us back with ?sent=1 —
-     land on the thank-you rather than at the top of the evening. */
+  if (!stage || !CHAPTERS.length) return;
+
+  /* A deep link (/#ch-contact) lands straight on its chapter. */
   var landOn = null;
-  if (/[?&]sent=1\b/.test(window.location.search)) landOn = "richiesta";
-  else if (/^#viaggio-/.test(window.location.hash)) landOn = window.location.hash.replace("#viaggio-", "");
+  if (/^#ch-/.test(window.location.hash)) landOn = window.location.hash.replace("#ch-", "");
 
   if (reduceMotion || !supports3d) {
     document.documentElement.classList.add("flat");
-    wireNav(true);
+    wireNav();
     if (landOn) goTo(landOn);
     return;
   }
@@ -153,7 +188,7 @@
     layer.fadeInEnd = -Math.min(-FADE_IN_END, gapPrev * 0.28);
   });
 
-  /* candle-dust drifting through the room */
+  /* dust in the projector beam */
   var dust = [];
   for (var i = 0; i < DUST_COUNT; i++) {
     var d = document.createElement("div");
@@ -168,7 +203,7 @@
     });
   }
 
-  /* the evening's rail — only chapters that named a label */
+  /* the progress rail — only chapters that named a label */
   if (railStops) {
     CHAPTERS.forEach(function (ch) {
       if (!ch.rail) return;
@@ -177,7 +212,7 @@
       b.type = "button";
       b.textContent = ch.rail;
       b.setAttribute("data-goto", ch.id);
-      b.setAttribute("aria-label", "Ugrás: " + ch.rail);
+      b.setAttribute("aria-label", "Go to: " + ch.rail);
       li.appendChild(b);
       railStops.appendChild(li);
     });
@@ -245,11 +280,11 @@
   function render() {
     var camZ = currentP * TOTAL_DEPTH;
 
-    /* the room's colour */
+    /* the frame's grade */
     var c = skyColor(currentP);
     stage.style.background = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
 
-    /* nav ink follows the room's brightness */
+    /* nav ink follows the frame's brightness */
     var lum = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
     var overlayOpen = overlay && !overlay.hidden;
     var nav = document.getElementById("nav");
@@ -322,7 +357,7 @@
   }
 
   /* ---- the detent: one push, one chapter -------------------------
-     The evening is a set of stops, not a slide. The camera rests on a
+     The page is a set of stops, not a slide. The camera rests on a
      chapter and stays there; a wheel gesture, a swipe or an arrow key
      is one "push" that carries it to the next chapter and no further.
      A long flick is still one push — the next one needs a fresh
@@ -504,7 +539,7 @@
   render();
   requestAnimationFrame(frame);
 
-  wireNav(false);
+  wireNav();
   if (landOn) {
     /* jump, don't glide, on a fresh load */
     var landIdx = chapterIndexById(landOn);
@@ -521,7 +556,7 @@
 
   function goTo(id) {
     if (document.documentElement.classList.contains("flat")) {
-      var target = document.getElementById("viaggio-" + id);
+      var target = document.getElementById("ch-" + id);
       if (target) target.scrollIntoView({ behavior: "smooth" });
       return;
     }
@@ -531,7 +566,7 @@
     if (idx >= 0) travelTo(idx);
   }
 
-  function wireNav(flat) {
+  function wireNav() {
     document.querySelectorAll("[data-goto]").forEach(function (link) {
       link.addEventListener("click", function (e) {
         e.preventDefault();
@@ -540,25 +575,5 @@
         goTo(link.getAttribute("data-goto"));
       });
     });
-
-    function closeOverlay() {
-      if (!overlay || overlay.hidden) return;
-      overlay.hidden = true;
-      if (burger) burger.setAttribute("aria-expanded", "false");
-      document.body.style.overflow = "";
-    }
-
-    if (burger && overlay) {
-      burger.addEventListener("click", function () {
-        var open = overlay.hidden;
-        overlay.hidden = !open;
-        burger.setAttribute("aria-expanded", String(open));
-        burger.setAttribute("aria-label", open ? "Menü bezárása" : "Menü megnyitása");
-        document.body.style.overflow = open ? "hidden" : "";
-      });
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") closeOverlay();
-      });
-    }
   }
 })();
