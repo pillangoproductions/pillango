@@ -536,6 +536,11 @@
       });
     }
     if (pick) sel.value = pick.value;
+    var pre = (window.location.search.match(/[?&]msg=([^&]*)/) || [])[1];
+    var ta = form.querySelector("textarea");
+    if (pre && ta && !ta.value) {
+      try { ta.value = decodeURIComponent(pre.replace(/\+/g, " ")); } catch (e) {}
+    }
     var done = function () {
       form.classList.add("is-sent");
       form.innerHTML = '<h2 class="display">Thank you</h2><p class="lede">Your message is on its way. We’ll write back soon.</p>';

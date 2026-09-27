@@ -56,6 +56,7 @@ ordinary scrolling pages.
 | `/blog` | `blog/index.html` | flight — post boxes |
 | `/projects` | `projects/index.html` | flight — project boxes; Held Still opens the password box |
 | `/book` | `book/index.html` | flight |
+| `/locations` | `locations/index.html` + `js/locations.js` | the searchable location database (linked from Production Consulting) |
 | `/services/film-production`, `/post-production`, `/financing`, `/consulting` | `services/<slug>/index.html` | ordinary scrolling pages, opened from the four boxes on `/services`; the × (top right) flies back to the boxes |
 | `/contact` | `contact/index.html` | flight — the contact form (`contact/send.php`) |
 | `/privacy`, `/impresszum`, `/gdpr` | `*/index.html` | document pages |
@@ -137,6 +138,25 @@ cp config.sample.php config.php   # then put the receiving address in 'to'
 `'from'` must be an address on pillangoprod.com so DreamHost delivers it.
 `config.php` is git-ignored and blocked from the web. Until it exists the form
 answers "The form isn't switched on yet".
+
+## Location database
+
+`/locations` lists the film locations around Pécs and Southern Hungary from the
+production's Google Drive folder and the "Pécs Location Database" sheet.
+Visitors search (accents optional: "orfu" finds Orfű), filter by category and
+interior/exterior, open a location's photos, and heart favourites. Favourites
+live in the visitor's browser; they can copy a share link (`/locations?fav=…`,
+which opens that selection for whoever receives it) or send the list to us —
+it opens the contact form on "Production consulting & locations" with the
+locations already written into the message.
+
+The locations are the `LOCS` list in the generator (name, area, public address,
+category, type, keywords, setting, notes, private flag) with Drive photo IDs
+per location. Private homes show no address. Photos are shown from Google
+Drive (`drive.google.com/thumbnail?id=…`), so they must stay shared "anyone
+with the link"; the privacy notice says so. To self-host them instead, download
+the photos into `assets/img/locations/` and point `img()` in `js/locations.js`
+at them.
 
 ## How the pages are built
 
