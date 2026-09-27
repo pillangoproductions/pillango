@@ -13,7 +13,7 @@ are self-hosted). Upload the folder to DreamHost and it works.
 
 The menu (top right, on every page) is the only navigation:
 
-**Home · About · Services · Partners · Post-production · Blog · Projects · Book · Contact**
+**Home · About · Services · Partners · Blog · Projects · Book · Contact**
 and, smaller, **Privacy · Impresszum · GDPR**.
 
 The flight follows the same order. Scrolling (wheel, trackpad, swipe, arrow
@@ -53,7 +53,6 @@ ordinary scrolling pages.
 | `/about` | `about/index.html` | flight |
 | `/services` | `services/index.html` | flight — four service boxes |
 | `/partners` | `partners/index.html` | flight — partner logo boxes |
-| `/post-production` | `post-production/index.html` | flight — Pécs City Studios |
 | `/blog` | `blog/index.html` | flight — post boxes |
 | `/projects` | `projects/index.html` | flight — project boxes; Held Still opens the password box |
 | `/book` | `book/index.html` | flight |
@@ -68,7 +67,7 @@ flight page, and the menu list in each page. Change both together.
 
 Redirects (`.htaccess`): `www` → apex, `http` → `https`, `/about/` and
 `/about/index.html` → `/about`, `/the-book` → `/book`, `/held-still` →
-`/projects/held-still/`, `/project-assessment` → `/services/consulting`,
+`/projects/held-still/`, `/project-assessment` → `/services/consulting`, `/post-production` → `/services/post-production`,
 `/index.php` → `/`. The old template's `/admin`, `/api`, `/includes`, `/sql`,
 `/uploads` answer **410 Gone**.
 

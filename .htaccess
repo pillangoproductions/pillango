@@ -29,6 +29,7 @@ RewriteRule ^(admin|api|includes|sql|uploads)(/.*)?$ - [G,L]
 RewriteRule ^the-book/?$ /book [R=301,L]
 RewriteRule ^held-still(/.*)?$ /projects/held-still$1 [R=301,L]
 RewriteRule ^project-assessment/?$ /services/consulting [R=301,L]
+RewriteRule ^post-production/?$ /services/post-production [R=301,L]
 
 # ---- /index.html and /page/index.html → clean URL -----------------------
 RewriteCond %{THE_REQUEST} \s/index\.html[\s?]
