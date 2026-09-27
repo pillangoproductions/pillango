@@ -132,6 +132,7 @@
     if (dA && dB) dA.setAttribute("content", dB.getAttribute("content"));
     var canA = document.querySelector('link[rel="canonical"]'), canB = doc.querySelector('link[rel="canonical"]');
     if (canA && canB) canA.setAttribute("href", canB.getAttribute("href"));
+    fromPage = stage.getAttribute("data-page");
     Array.prototype.slice.call(stage.attributes).forEach(function (at) {
       if (at.name !== "id" && at.name !== "class" && at.name !== "style") stage.removeAttribute(at.name);
     });
@@ -149,6 +150,7 @@
       stage.parentNode.insertBefore(document.importNode(el, true), stage.nextSibling);
     });
     initGate();
+    initContact();
   }
 
   window.addEventListener("popstate", function () {
@@ -502,6 +504,55 @@
     }
   }
   initGate();
+
+  /* ---------- the contact form: topic preselected from the page you came from ---------- */
+  var fromPage = null;
+  function initContact() {
+    var form = document.getElementById("contact-form");
+    if (!form || form.getAttribute("data-ready")) return;
+    form.setAttribute("data-ready", "1");
+    var sel = form.querySelector('select[name="topic"]'), msg = document.getElementById("contact-msg");
+    var q = (window.location.search.match(/[?&]topic=([\w-]+)/) || [])[1];
+    var from = fromPage;
+    if (!from && document.referrer) {
+      try {
+        var r = new URL(document.referrer);
+        if (r.origin === window.location.origin) from = r.pathname.replace(/\/(index\.html)?$/, "") || "/";
+      } catch (e) {}
+    }
+    var pick = q ? sel.querySelector('option[value="' + q + '"]') : null;
+    if (!pick && from) {
+      Array.prototype.forEach.call(sel.options, function (o) {
+        if (!pick && (" " + o.getAttribute("data-from") + " ").indexOf(" " + from + " ") >= 0) pick = o;
+      });
+    }
+    if (pick) sel.value = pick.value;
+    var done = function () {
+      form.classList.add("is-sent");
+      form.innerHTML = '<h2 class="display">Thank you</h2><p class="lede">Your message is on its way. We’ll write back soon.</p>';
+    };
+    if (/[?&]sent=1/.test(window.location.search)) return done();
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      msg.textContent = "Sending…";
+      fetch(form.getAttribute("data-endpoint"), { method: "POST", body: new FormData(form), headers: { Accept: "application/json" }, credentials: "same-origin" })
+        .then(function (res) { return res.json(); })
+        .catch(function () { return { ok: false, error: "offline" }; })
+        .then(function (j) {
+          btn.disabled = false;
+          if (j.ok || (j.error === "offline" && window.PILLANGO_DEMO_PASSWORD)) return done();   // the static preview has no PHP
+          msg.textContent = {
+            invalid: "Please fill in your name, a valid e-mail address and a message.",
+            consent: "Please tick the box so we may reply to you.",
+            "too-many": "Too many messages from here. Please try again later.",
+            "not-configured": "The form isn’t switched on yet. Please try again later."
+          }[j.error] || "Couldn’t send your message. Please try again.";
+        });
+    });
+  }
+  initContact();
 
   /* ============================================================
      7. The flight

@@ -25,11 +25,10 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
-<link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=8">
-<link rel="stylesheet" href="/css/style.css?v=8">
+<link rel="stylesheet" href="/css/fonts.css?v=9">
+<link rel="stylesheet" href="/css/style.css?v=9">
 <noscript><style>
   .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
@@ -37,14 +36,14 @@
   .nav.at-hero .nav-brand{opacity:1!important}
   .scroll-space,.rail{display:none!important}
 </style></noscript>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Pillango Productions Kft.", "alternateName": "Pillango Productions", "url": "https://pillangoprod.com", "logo": "https://pillangoprod.com/assets/img/pillango-logo.png", "email": "hello@pillangoprod.com", "description": "Pillango Productions is a Hungary-based film production company operating at the intersection of storytelling, technology, and global collaboration.", "areaServed": ["HU", "EU"], "address": {"@type": "PostalAddress", "addressCountry": "HU"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Pillango Productions Kft.", "alternateName": "Pillango Productions", "url": "https://pillangoprod.com", "logo": "https://pillangoprod.com/assets/img/pillango-logo.png", "contactPoint": {"@type": "ContactPoint", "contactType": "customer service", "url": "https://pillangoprod.com/contact"}, "description": "Pillango Productions is a Hungary-based film production company operating at the intersection of storytelling, technology, and global collaboration.", "areaServed": ["HU", "EU"], "address": {"@type": "PostalAddress", "addressCountry": "HU"}}</script>
 </head>
 <body class="flight">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav at-hero" id="nav">
   <a class="nav-brand" href="/" data-label="Home" aria-label="Pillango Productions — home">
-    <span class="wm wm-nav"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
+    <img class="wm wm-nav" src="/assets/img/pillango-logo-900.webp" width="900" height="209" alt="" decoding="async">
   </a>
   <button class="nav-burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="overlay-menu">
     <span></span><span></span>
@@ -61,9 +60,9 @@
     <a href="/blog">Blog</a>
     <a href="/projects">Projects</a>
     <a href="/book">Book</a>
+    <a href="/contact">Contact</a>
   </nav>
   <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
-  <p class="overlay-mail"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
 </div>
 
 <div class="bokeh" id="bokeh" aria-hidden="true"></div>
@@ -75,7 +74,7 @@
     <div class="layer-inner">
       <h1 class="hero-logo-wrap">
         <span class="visually-hidden">Pillango Productions</span>
-        <span class="wm wm-hero"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
+        <img class="wm wm-hero" src="/assets/img/pillango-logo.webp" width="2000" height="465" alt="" fetchpriority="high">
       </h1>
     </div>
     <span class="scroll-cue" aria-hidden="true"></span>
@@ -86,7 +85,7 @@
       <p class="kicker">Hungary · Europe</p>
       <h2 class="display">Storytelling, technology &amp; global collaboration</h2>
       <p class="lede">Pillango Productions is a Hungary-based film production company operating at the intersection of storytelling, technology, and global collaboration.</p>
-      <p class="small" style="margin-top:1.2rem"><a href="mailto:hello@pillangoprod.com">hello@pillangoprod.com</a></p>
+      <div class="btn-row"><a class="btn" href="/contact?topic=general">Get in touch</a></div>
       <a class="next-hint" href="/about" data-label="About">Next<b>About</b><i>Scroll again to continue</i></a>
     </div>
   </section>
@@ -102,11 +101,12 @@
     <li class=""><a href="/blog" data-label="Blog">Blog</a></li>
     <li class=""><a href="/projects" data-label="Projects">Projects</a></li>
     <li class=""><a href="/book" data-label="Book">Book</a></li>
+    <li class=""><a href="/contact" data-label="Contact">Contact</a></li>
   </ol>
 </nav>
 
 <div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=8"></script>
+<script src="/js/main.js?v=9"></script>
 </body>
 </html>

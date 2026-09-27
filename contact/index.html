@@ -4,23 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>(function(){var r=document.documentElement;r.classList.add("js");try{var t=JSON.parse(sessionStorage.getItem("pillango-transit")||"null");if(t&&t.label){r.setAttribute("data-transit",t.label);r.classList.add("transit-in");if(t.dir==="back")r.classList.add("arriving-back");}}catch(e){}setTimeout(function(){r.classList.remove("arriving","transit-in");},3500);})();</script>
-<title>The Book — Pillango Productions</title>
-<meta name="description" content="The Book from Pillango Productions: cover, synopsis and where to get a copy.">
-<link rel="canonical" href="https://pillangoprod.com/book">
+<title>Contact — Pillango Productions</title>
+<meta name="description" content="Contact Pillango Productions about film production, post-production at Pécs City Studios, financing, consulting, partnerships or The Book.">
+<link rel="canonical" href="https://pillangoprod.com/contact">
 <meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
-<meta property="og:title" content="The Book — Pillango Productions">
-<meta property="og:description" content="The Book from Pillango Productions: cover, synopsis and where to get a copy.">
-<meta property="og:url" content="https://pillangoprod.com/book">
+<meta property="og:title" content="Contact — Pillango Productions">
+<meta property="og:description" content="Contact Pillango Productions about film production, post-production at Pécs City Studios, financing, consulting, partnerships or The Book.">
+<meta property="og:url" content="https://pillangoprod.com/contact">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="The Book — Pillango Productions">
-<meta name="twitter:description" content="The Book from Pillango Productions: cover, synopsis and where to get a copy.">
+<meta name="twitter:title" content="Contact — Pillango Productions">
+<meta name="twitter:description" content="Contact Pillango Productions about film production, post-production at Pécs City Studios, financing, consulting, partnerships or The Book.">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
@@ -58,8 +58,8 @@
     <a href="/post-production">Post-production</a>
     <a href="/blog">Blog</a>
     <a href="/projects">Projects</a>
-    <a href="/book" aria-current="page">Book</a>
-    <a href="/contact">Contact</a>
+    <a href="/book">Book</a>
+    <a href="/contact" aria-current="page">Contact</a>
   </nav>
   <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
 </div>
@@ -67,40 +67,58 @@
 <div class="bokeh" id="bokeh" aria-hidden="true"></div>
 <div class="grade" id="grade" aria-hidden="true"></div>
 
-<main class="stage" id="stage" aria-label="Book" data-page="/book" data-next="/contact" data-next-label="Contact" data-prev="/projects" data-prev-label="Projects">
+<main class="stage" id="stage" aria-label="Contact" data-page="/contact" data-next="/" data-next-label="Home" data-prev="/book" data-prev-label="Book">
 <div id="main"></div>
   <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
     <span class="scroll-cue" aria-hidden="true"></span>
     <div class="layer-inner narrow">
-      <p class="kicker">Book</p>
-      <h1 class="display intro">The Book</h1>
-      <p class="lede">Cover, synopsis and where to get a copy — coming soon.</p>
+      <p class="kicker">Contact</p>
+      <h1 class="display intro">Get in touch</h1>
+      <p class="lede">A feature, a series, a campaign, a mix — or just a question. Tell us about it and we’ll write back.</p>
     </div>
   </section>
 
-  <section class="layer" id="ch-detail" data-chapter="detail" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.7">
+  <section class="layer" id="ch-form" data-chapter="form" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.72">
     <div class="layer-inner narrow">
-      <!-- THE BOOK — add the cover as /assets/img/book-cover.jpg (replace the frame label with an <img>),
-           the synopsis, and where to buy / order. -->
-      <div class="box" style="max-width:min(15rem,22vh);margin:0 auto 1.8rem;padding:0"><div class="frame is-portrait" style="margin:0"><span class="frame-label">Cover</span></div></div>
-      <p class="lede">Details are on their way. To be told when it’s out, drop us a line.</p>
-      <div class="btn-row"><a class="btn" href="/contact?topic=book">Tell me when it’s out</a><a class="btn back" href="/projects" data-dir="back">Back to Projects</a></div>
-      <a class="next-hint" href="/contact" data-label="Contact">Next<b>Contact</b><i>Scroll again to continue</i></a>
+      <form class="contact box" id="contact-form" action="/contact/send.php" method="post" data-endpoint="/contact/send.php">
+        <div class="field-row">
+          <label class="field"><span>Name</span><input name="name" type="text" autocomplete="name" required maxlength="120"></label>
+          <label class="field"><span>E-mail</span><input name="email" type="email" autocomplete="email" required maxlength="160"></label>
+        </div>
+        <label class="field"><span>Topic</span><select name="topic" id="contact-topic">
+          <option value="general" data-from="/ /about /impresszum">General enquiry</option>
+          <option value="production" data-from="/services">Film production</option>
+          <option value="post-production" data-from="/post-production">Post-production / booking the stage</option>
+          <option value="financing" data-from="">Post-production financing</option>
+          <option value="consulting" data-from="">Production consulting</option>
+          <option value="partnership" data-from="/partners">Partnerships</option>
+          <option value="projects" data-from="/projects">Projects &amp; screenings</option>
+          <option value="blog" data-from="/blog">Blog &amp; press</option>
+          <option value="book" data-from="/book">The Book</option>
+          <option value="privacy" data-from="/privacy /gdpr">Privacy / GDPR request</option>
+        </select></label>
+        <label class="field"><span>Message</span><textarea name="message" rows="4" required maxlength="5000"></textarea></label>
+        <label class="field hp" aria-hidden="true"><span>Leave this empty</span><input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+        <label class="consent"><input name="consent" type="checkbox" value="1" required><span>I agree that Pillango Productions may use these details to reply to me, as described in the <a href="/privacy">privacy notice</a>.</span></label>
+        <div class="btn-row"><button class="btn" type="submit">Send</button></div>
+        <p class="form-msg" id="contact-msg" role="status" aria-live="polite"></p>
+      </form>
+      <a class="next-hint" href="/" data-label="Home">Back to the start<b>Home</b><i>Scroll again to continue</i></a>
     </div>
   </section>
 </main>
 
 <nav class="rail" id="rail" aria-label="Pages">
   <ol class="rail-pages">
-    <li class=""><a href="/" data-label="Home" data-dir="back">Home</a></li>
+    <li class="is-next"><a href="/" data-label="Home" data-dir="back">Home</a></li>
     <li class=""><a href="/about" data-label="About" data-dir="back">About</a></li>
     <li class=""><a href="/services" data-label="Services" data-dir="back">Services</a></li>
     <li class=""><a href="/partners" data-label="Partners" data-dir="back">Partners</a></li>
     <li class=""><a href="/post-production" data-label="Post-production" data-dir="back">Post-production</a></li>
     <li class=""><a href="/blog" data-label="Blog" data-dir="back">Blog</a></li>
     <li class=""><a href="/projects" data-label="Projects" data-dir="back">Projects</a></li>
-    <li class="is-current"><a href="/book" data-label="Book" aria-current="page">Book</a><ol class="rail-stops" id="rail-stops"></ol></li>
-    <li class="is-next"><a href="/contact" data-label="Contact">Contact</a></li>
+    <li class=""><a href="/book" data-label="Book" data-dir="back">Book</a></li>
+    <li class="is-current"><a href="/contact" data-label="Contact" aria-current="page">Contact</a><ol class="rail-stops" id="rail-stops"></ol></li>
   </ol>
 </nav>
 

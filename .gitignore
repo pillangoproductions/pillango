@@ -3,3 +3,4 @@ Thumbs.db
 *.swp
 node_modules/
 projects/held-still/config.php
+contact/config.php

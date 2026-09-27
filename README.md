@@ -13,7 +13,7 @@ are self-hosted). Upload the folder to DreamHost and it works.
 
 The menu (top right, on every page) is the only navigation:
 
-**Home · About · Services · Partners · Post-production · Blog · Projects · Book**
+**Home · About · Services · Partners · Post-production · Blog · Projects · Book · Contact**
 and, smaller, **Privacy · Impresszum · GDPR**.
 
 The flight follows the same order. Scrolling (wheel, trackpad, swipe, arrow
@@ -21,7 +21,7 @@ keys) moves exactly one chapter per gesture, with a one-second glide. Moving
 from one page to the next is the very same glide: from a page's last chapter,
 one more gesture flies on to the next page's intro. Pushing back at the top of
 a page returns to the previous one, landing on its last chapter.
-Book loops back to Home. Trackpad swipes are read the way a trackpad sends them: the faint momentum
+Contact loops back to Home. Trackpad swipes are read the way a trackpad sends them: the faint momentum
 tail never counts, and a new swipe is recognised even while the last one's
 momentum is still dying away. Keeping a wheel rolling carries on chapter by
 chapter. Timings are at the top of section 7 in
@@ -57,6 +57,7 @@ ordinary scrolling pages.
 | `/blog` | `blog/index.html` | flight — post boxes |
 | `/projects` | `projects/index.html` | flight — project boxes; Held Still opens the password box |
 | `/book` | `book/index.html` | flight |
+| `/contact` | `contact/index.html` | flight — the contact form (`contact/send.php`) |
 | `/privacy`, `/impresszum`, `/gdpr` | `*/index.html` | document pages |
 | `/projects/held-still/` | `projects/held-still/site/` | **password-protected**, reached only through the box on `/projects` |
 | — | `404.html` | not found |
@@ -77,7 +78,7 @@ Redirects (`.htaccess`): `www` → apex, `http` → `https`, `/about/` and
    sit at the top. PHP must be on for the domain (DreamHost default).
 2. Turn on the free Let's Encrypt certificate for `pillangoprod.com` in the
    panel (the `.htaccess` forces HTTPS and the apex domain).
-3. Set the Held Still password (next section).
+3. Set the Held Still password and the contact form's mailbox (sections below).
 4. Check `https://pillangoprod.com/about`, `/about/` (→ 301), `/the-book` (→ 301).
 
 ## Held Still — the password box
@@ -110,6 +111,27 @@ relative paths (`assets/still.jpg`) or absolute ones starting
 `/projects/held-still/`. To send people to a Held Still site hosted somewhere
 else instead, set `'redirect'` in `config.php` to its URL (that site is then
 not protected by this gate).
+
+## Contact form
+
+Every contact button on the site links to `/contact?topic=…`, and the form's
+Topic menu starts on that topic. Arriving without one (flying on from Book,
+or from the menu) picks the topic of the page you came from — each
+`<option data-from="…">` in `contact/index.html` lists its pages (the list is
+`TOPICS` in the generator). The site shows no e-mail address anywhere.
+
+`contact/send.php` e-mails each message (Reply-To is the sender), with a
+hidden bot trap and a limit of 5 messages per hour per address. **Set the
+mailbox** once over SSH:
+
+```sh
+cd ~/pillangoprod.com/contact
+cp config.sample.php config.php   # then put the receiving address in 'to'
+```
+
+`'from'` must be an address on pillangoprod.com so DreamHost delivers it.
+`config.php` is git-ignored and blocked from the web. Until it exists the form
+answers "The form isn't switched on yet".
 
 ## How the pages are built
 
@@ -167,7 +189,7 @@ underneath. Make one a link with `<a class="box" href="…">`.
   `https://pillangoprod.com/<route>`, plus Open Graph / Twitter tags and the
   share image `assets/img/og-image.jpg` (1200×630, the logo over the bokeh).
 - `robots.txt` allows everything but `/_templates/`; `sitemap.xml` lists the
-  eleven menu routes. The Held Still pages send `noindex`.
+  twelve routes. The Held Still pages send `noindex`.
 - The home page carries an `Organization` JSON-LD block.
 
 ## Assets
@@ -176,17 +198,14 @@ underneath. Make one a link with `<a class="box" href="…">`.
 |---|---|
 | `assets/img/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | the serif ⅃L |
 | `assets/img/cursor-*.svg/png` | the cursor |
-| `assets/img/pillango-logo.png` | 1200×400 logo on white (JSON-LD, press) |
-| `assets/img/pillango-logo-original.png` | the supplied logo file |
+| `assets/img/pillango-logo.webp` | the supplied logo (2000×465, transparent); `-900.webp` is the small copy for the menu bar and footer |
+| `assets/img/pillango-logo.png` | 1200×400 logo on the dark ground (JSON-LD, press) |
 | `assets/img/og-image.jpg` | share image |
-| `assets/fonts/*.woff2`, `css/fonts.css` | Cormorant Garamond + Outfit (SIL OFL); Tinos subset for the wordmark (Apache 2.0) |
-
-The wordmark (`PI⅃LANGO / PRODUCTIONS`) is live text rebuilt from the logo. If
-you have the logo as SVG it can replace it (`class="wm"` in the nav and hero).
+| `assets/fonts/*.woff2`, `css/fonts.css` | Cormorant Garamond + Outfit (SIL OFL) |
 
 ## Placeholders still to fill
 
-- Contact e-mail `hello@pillangoprod.com` — confirm or replace (search the repo).
+- The receiving mailbox for the contact form (`contact/config.php`).
 - Impresszum / Privacy: registered address, company reg. no., registry court,
   tax number, EU VAT, managing director, e-mail provider, log retention
   (dashed orange, class `tbc`). Have the legal texts reviewed before launch.
