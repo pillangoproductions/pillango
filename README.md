@@ -57,6 +57,7 @@ ordinary scrolling pages.
 | `/blog` | `blog/index.html` | flight — post boxes |
 | `/projects` | `projects/index.html` | flight — project boxes; Held Still opens the password box |
 | `/book` | `book/index.html` | flight |
+| `/services/film-production`, `/post-production`, `/financing`, `/consulting` | `services/<slug>/index.html` | ordinary scrolling pages, opened from the four boxes on `/services`; the × (top right) flies back to the boxes |
 | `/contact` | `contact/index.html` | flight — the contact form (`contact/send.php`) |
 | `/privacy`, `/impresszum`, `/gdpr` | `*/index.html` | document pages |
 | `/projects/held-still/` | `projects/held-still/site/` | **password-protected**, reached only through the box on `/projects` |
@@ -67,7 +68,7 @@ flight page, and the menu list in each page. Change both together.
 
 Redirects (`.htaccess`): `www` → apex, `http` → `https`, `/about/` and
 `/about/index.html` → `/about`, `/the-book` → `/book`, `/held-still` →
-`/projects/held-still/`, `/project-assessment` → `/services#ch-consulting`,
+`/projects/held-still/`, `/project-assessment` → `/services/consulting`,
 `/index.php` → `/`. The old template's `/admin`, `/api`, `/includes`, `/sql`,
 `/uploads` answer **410 Gone**.
 
@@ -153,8 +154,8 @@ A flight chapter cannot scroll, so keep each to a screenful. Deep links like
 
 ### Boxes
 Everything listed — services, partners, projects, posts — is a `.box` in a
-`.box-grid` (`cols-2/3/4`). Boxes lift on hover with orange light from
-underneath. Make one a link with `<a class="box" href="…">`.
+`.box-grid` (`cols-2/3/4`). Boxes that link somewhere lift on hover with orange light from
+underneath; boxes that don't stay still. Make one a link with `<a class="box" href="…">`.
 
 - **Partner logos:** put the file in `assets/img/partners/` and use
   `<span class="logo-mark"><img src="/assets/img/partners/name.svg" alt="Name"></span>`
@@ -209,8 +210,6 @@ underneath. Make one a link with `<a class="box" href="…">`.
 - Impresszum / Privacy: registered address, company reg. no., registry court,
   tax number, EU VAT, managing director, e-mail provider, log retention
   (dashed orange, class `tbc`). Have the legal texts reviewed before launch.
-- `/post-production`: the studio photo (see the comment in the page), the end
-  of the Pécs City Studios paragraph and the rest of the equipment list.
 - Partner logos, project key art, the Held Still site, The Book (cover,
   synopsis, where to buy).
 
