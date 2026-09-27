@@ -38,6 +38,7 @@
   function closeOverlay() {
     if (!overlay || overlay.hidden) return;
     overlay.hidden = true;
+    document.body.classList.remove("menu-open");
     if (burger) {
       burger.setAttribute("aria-expanded", "false");
       burger.setAttribute("aria-label", "Open menu");
@@ -48,6 +49,7 @@
     burger.addEventListener("click", function () {
       var open = overlay.hidden;
       overlay.hidden = !open;
+      document.body.classList.toggle("menu-open", open);
       burger.setAttribute("aria-expanded", String(open));
       burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
       document.body.style.overflow = open ? "hidden" : "";
@@ -55,6 +57,23 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeOverlay();
     });
+  }
+
+  /* ---- ripples: every click or tap sends rings out from the point,
+     like a drop on water. Purely decorative; skipped for visitors who
+     asked for less motion. ---- */
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.addEventListener("pointerdown", function (e) {
+      if (e.button !== 0) return;
+      var r = document.createElement("span");
+      r.className = "ripple";
+      r.setAttribute("aria-hidden", "true");
+      r.style.left = e.clientX + "px";
+      r.style.top = e.clientY + "px";
+      r.innerHTML = "<i></i><i></i><i></i>";
+      document.body.appendChild(r);
+      setTimeout(function () { r.remove(); }, 1500);
+    }, { passive: true });
   }
 
   /* ---- the chapter spine, read from the markup ---- */
@@ -345,6 +364,8 @@
     layers.forEach(function (layer, idx) {
       layer.el.classList.toggle("is-active", idx === activeIdx);
     });
+    /* the nav logo stays out of the way while the big one is on screen */
+    if (nav && grade) nav.classList.toggle("at-hero", activeIdx === 0 && currentP < 0.02);
 
     /* dust */
     dust.forEach(function (p) {

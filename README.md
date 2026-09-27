@@ -16,7 +16,7 @@ DreamHost and it works.
 | `/` | `index.html` | flight (chapter scroll) |
 | `/about` | `about/index.html` | flight |
 | `/services` | `services/index.html` | flight |
-| `/post-production` | `post-production/index.html` | flight |
+| `/post-production` | `post-production/index.html` | document page with a photo header |
 | `/partners` | `partners/index.html` | flight |
 | `/projects` | `projects/index.html` | document page — project cards |
 | `/projects/held-still` | `projects/held-still/index.html` | **password-protected** stub — linked only from `/projects`, not in the sitemap |
@@ -78,14 +78,15 @@ Each chapter is a `<section class="layer" data-chapter="…">` inside
 `<main id="stage">`. `js/main.js` reads the spine straight from the markup:
 
 ```html
-<section class="layer ink-light" id="ch-sound" data-chapter="sound"
-         data-gap="1.3" data-sky="#24140F" data-rail="Sound">
+<section class="layer" id="ch-financing" data-chapter="financing"
+         data-gap="1.3" data-sky="#0B0B0B" data-rail="Financing">
 ```
 
 - `data-gap` — distance from the previous chapter (bigger = longer flight)
-- `data-sky` — background grade while the chapter is on screen
+- `data-sky` — background colour while the chapter is on screen (kept
+  near-black, like the current site; slight warm/cool shifts between chapters)
+- `data-veil` — home page only: how much the video is dimmed (see below)
 - `data-rail` — label on the right-hand progress rail (optional)
-- `ink-dark` instead of `ink-light` for light backgrounds (`#ECE5D6`)
 
 Add, remove or reorder sections; nothing else needs changing. One push of the
 wheel / swipe / arrow key moves exactly one chapter. With
@@ -139,11 +140,12 @@ and don't delete `projects/held-still/.htaccess`.
 
 ## Background video (home page)
 The home page plays a muted, looping film behind every chapter. Each chapter's
-`data-veil` (0–1) sets how strongly its colour grade covers the video: the
-opening is almost clear (`0.18`), text-heavy chapters are dimmed (`~0.8`),
-the paper chapter nearly hides it (`0.93`).
+`data-veil` (0–1) sets how strongly the dark grade covers the video: the
+opening is almost clear (`0.12`) so the footage carries the logo, text
+chapters are dimmed (`~0.9`).
 
-The current files are **placeholders** (generated drifting light). Replace:
+The current files are **placeholders**: a generated bokeh loop in the colours
+of the current site's hero. Replace:
 
 | File | Spec |
 |---|---|
@@ -159,6 +161,14 @@ ffmpeg -i master.mov -an -vf scale=1920:-2,format=yuv420p -c:v libx264 -preset s
 ffmpeg -ss 2 -i master.mov -frames:v 1 -q:v 3 -vf scale=1920:-2 assets/img/hero-poster.jpg
 ```
 
+## Cursor and ripples
+On mouse/trackpad devices the cursor is a tiny ⅃L
+(`assets/img/cursor-normal.svg`, PNG fallback). Over anything clickable it
+switches to `cursor-hover.svg`, which adds a soft amber glow. Every click or
+tap sends three rings out from the point (`.ripple` in `css/style.css`,
+created in `js/main.js`). Both are native/CSS, so the cursor never lags;
+ripples are skipped for visitors with reduced motion turned on.
+
 ## Assets
 | Path | What |
 |---|---|
@@ -166,12 +176,13 @@ ffmpeg -ss 2 -i master.mov -frames:v 1 -q:v 3 -vf scale=1920:-2 assets/img/hero-
 | `assets/img/pillango-logo.png` | 1200×400 logo on white (JSON-LD logo, press) |
 | `assets/img/pillango-logo-original.png` | the supplied logo file (200×46) |
 | `assets/img/og-image.jpg` | share image |
-| `assets/fonts/*.woff2`, `css/fonts.css` | Instrument Serif + Inter Tight (SIL OFL), Latin + Latin Extended; Tinos (Apache 2.0) subset for the wordmark |
+| `assets/img/cursor-normal.*`, `cursor-hover.*` | the ⅃L cursor |
+| `assets/fonts/*.woff2`, `css/fonts.css` | Cormorant Garamond (headings) + Outfit (body), SIL OFL, Latin + Latin Extended — the pairing of the current site; Tinos (Apache 2.0) subset for the wordmark |
 
 **The wordmark** (`PI⅃LANGO / PRODUCTIONS`) is live text, rebuilt from the
-logo: Tinos caps, the first L mirrored, both Ls in `#FF4A00`, a hairline and a
-spaced PRODUCTIONS. If you have the logo as SVG, it can replace the text
-version in the nav, hero and footer (`class="wm"`).
+logo: Tinos caps, the first L mirrored, both Ls in `#FF4A00`, a rule and a
+spaced PRODUCTIONS in Outfit. If you have the logo as SVG, it can replace the
+text version in the nav, hero and footer (`class="wm"`).
 
 **Image placeholders** are `<div class="frame">` boxes. Put an `<img>` inside
 (it fills the frame) and delete the `.frame-label`.
@@ -182,18 +193,21 @@ version in the nav, hero and footer (`class="wm"`).
   tax number, EU VAT number, managing director, e-mail provider, log retention
   (dashed orange boxes, class `tbc`). Have the legal texts reviewed before launch.
 - The real background video + poster (see above).
-- Team names and bios (`/about`), partner logos (home + `/partners`),
-  stills (`/post-production`, `/projects`), Held Still and The Book content.
+- `/post-production`: the studio photo (`assets/img/post-studio.jpg`, see the
+  comment in the page), the end of the Pécs City Studios paragraph and the
+  rest of the equipment list (marked in dashed orange).
+- Partner logos, project key art, Held Still and The Book content.
 - Social links (none yet).
 
 ## Colours
+Taken from the current site.
+
 | Token | Hex | Use |
 |---|---|---|
-| `--night` | `#08090B` | base black |
-| `--steel` | `#17202A` | blue-hour chapters |
-| `--teal` | `#0E2629` | deep grade |
-| `--ember` | `#24140F` | warm shadow |
-| `--paper` | `#ECE5D6` | the one light chapter |
-| `--orange` | `#FF4A00` | the logo's LL — accent |
-| `--orange-soft` | `#FF8A52` | italic accents on dark |
-| `--rust` | `#C53C00` | orange on paper |
+| `--night` | `#0B0B0B` | page ground |
+| `--panel` | `#141414` | cards |
+| `--edge` | `#262626` | card borders |
+| `--white` | `#EDEAE3` | headings |
+| `--text` | `#A09D93` | body copy |
+| `--amber` | `#EE8A2B` | heading rules, icons, links, buttons |
+| `--orange` | `#FF4A00` | the logo's LL only |
