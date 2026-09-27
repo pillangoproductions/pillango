@@ -3,6 +3,7 @@ Options -Indexes -MultiViews
 AddDefaultCharset UTF-8
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
+ErrorDocument 401 /401.html
 
 # Clean URLs without a trailing slash (/about, not /about/): mod_dir must not
 # add the slash itself — the rules below map /about to /about/index.html.
@@ -19,13 +20,15 @@ RewriteCond %{HTTP:X-Forwarded-Proto} !=https
 RewriteCond %{HTTP_HOST} ^pillangoprod\.com$ [NC]
 RewriteRule ^ https://pillangoprod.com%{REQUEST_URI} [R=301,L]
 
-# ---- never serve the working folders ------------------------------------
+# ---- never serve the working folders or password files -----------------
 RewriteRule ^_templates(/|$) - [R=404,L]
+RewriteRule (^|/)\.ht - [R=404,L]
 
 # ---- legacy routes from the previous template ---------------------------
 RewriteRule ^index\.php$ / [R=301,L]
 RewriteRule ^(admin|api|includes|sql|uploads)(/.*)?$ - [G,L]
 RewriteRule ^book/?$ /the-book [R=301,L]
+RewriteRule ^held-still(/.*)?$ /projects/held-still$1 [R=301,L]
 RewriteRule ^project-assessment/?$ /services#ch-consulting [R=301,NE,L]
 
 # ---- /index.html and /page/index.html → clean URL -----------------------
@@ -49,14 +52,16 @@ RewriteRule ^(.+)$ /$1/index.html [END]
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set X-Frame-Options "SAMEORIGIN"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+  # Public caching everywhere except the private project folder, which
+  # sets its own "private, no-store" (projects/held-still/.htaccess).
   <FilesMatch "\.(woff2|jpg|jpeg|png|webp|avif|svg|mp4|webm)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Cache-Control "public, max-age=31536000, immutable" "expr=%{REQUEST_URI} !~ m#^/projects/held-still#"
   </FilesMatch>
   <FilesMatch "\.(css|js)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
   <FilesMatch "\.html$">
-    Header set Cache-Control "public, max-age=0, must-revalidate"
+    Header set Cache-Control "public, max-age=0, must-revalidate" "expr=%{REQUEST_URI} !~ m#^/projects/held-still#"
   </FilesMatch>
 </IfModule>
 

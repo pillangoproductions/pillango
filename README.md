@@ -18,14 +18,16 @@ DreamHost and it works.
 | `/services` | `services/index.html` | flight |
 | `/post-production` | `post-production/index.html` | flight |
 | `/partners` | `partners/index.html` | flight |
+| `/projects` | `projects/index.html` | document page — project cards |
+| `/projects/held-still` | `projects/held-still/index.html` | **password-protected** stub — linked only from `/projects`, not in the sitemap |
 | `/blog` | `blog/index.html` | document page — journal index |
-| `/held-still` | `held-still/index.html` | **stub** — replace with the Held Still page |
 | `/the-book` | `the-book/index.html` | stub |
 | `/privacy`, `/impresszum`, `/gdpr` | `*/index.html` | legal document pages |
-| — | `404.html` | error page |
+| — | `404.html`, `401.html` | not found / login required |
 
 Redirects (`.htaccess`): `www` → apex, `http` → `https`, `/about/` and
-`/about/index.html` → `/about`, `/book` → `/the-book`, `/project-assessment` →
+`/about/index.html` → `/about`, `/book` → `/the-book`, `/held-still` →
+`/projects/held-still`, `/project-assessment` →
 `/services#ch-consulting`, `/index.php` → `/`. The old template's
 `/admin`, `/api`, `/includes`, `/sql`, `/uploads` answer **410 Gone**.
 
@@ -36,7 +38,34 @@ Redirects (`.htaccess`): `www` → apex, `http` → `https`, `/about/` and
    sit at the top.
 2. In the DreamHost panel, turn on the free Let's Encrypt certificate for
    `pillangoprod.com` (the `.htaccess` forces HTTPS and the apex domain).
-3. Check `https://pillangoprod.com/about`, `/about/` (→ 301) and `/book` (→ 301).
+3. Set up the Held Still password (next section) — until then that one
+   folder answers 500, i.e. stays locked.
+4. Check `https://pillangoprod.com/about`, `/about/` (→ 301) and `/book` (→ 301).
+
+## Held Still password
+
+`/projects/held-still` (the page **and every file in that folder**) is behind
+HTTP Basic authentication, enforced by Apache — nothing is visible without the
+login, and the folder sends `noindex` and `no-store` headers. It is linked only
+from the `/projects` page and is left out of `sitemap.xml` and `robots.txt`.
+
+One-time setup on DreamHost (SSH):
+
+```sh
+mkdir -p ~/.htpasswds
+htpasswd -c ~/.htpasswds/held-still heldstill     # asks for the password
+```
+
+Then edit `projects/held-still/.htaccess` and replace `DREAMHOST_USER` in the
+`AuthUserFile` line with your DreamHost shell user name (the file must be the
+absolute path, e.g. `/home/pillango/.htpasswds/held-still`). To add another
+login: `htpasswd ~/.htpasswds/held-still otheruser` (no `-c`, which would
+overwrite the file). To change a password, run the same command for that user.
+
+No SSH? Generate a line locally with `openssl passwd -apr1` (format
+`user:hash`), save it as `~/.htpasswds/held-still` via SFTP.
+
+A wrong password or cancelled login shows `/401.html`.
 
 Local preview: any static server from the repo root works
 (`npx serve .` or `python3 -m http.server`); pages open at `/about/` there,
@@ -92,10 +121,10 @@ page or change the menu, update all files (search for `class="nav-links"` and
 `_templates/` is blocked in `robots.txt` and returns 404 on the server.
 
 ## Dropping in Held Still
-Replace `held-still/index.html` (or just its `<main>`) with the existing page
-and put its assets in `held-still/assets/`. Keep the `<head>` block — title,
-description, canonical `https://pillangoprod.com/held-still` and og tags —
-unless the new page brings its own.
+Replace `projects/held-still/index.html` (or just its `<main>`) with the
+existing page and put its assets in `projects/held-still/assets/` — they are
+behind the same password. Keep `<meta name="robots" content="noindex, nofollow">`,
+and don't delete `projects/held-still/.htaccess`.
 
 ## SEO
 - Every page has its own `<title>`, meta description and
@@ -104,22 +133,45 @@ unless the new page brings its own.
 - Share image: `assets/img/og-image.jpg` (1200×630), hosted here. Swap in a
   real still at the same size and name whenever you like.
 - `robots.txt` allows everything but `/_templates/` and points to
-  `sitemap.xml`, which lists all the routes above. Update `<lastmod>` when a
+  `sitemap.xml`, which lists all the public routes above (not the private Held Still page). Update `<lastmod>` when a
   page changes.
 - The home page carries an `Organization` JSON-LD block.
+
+## Background video (home page)
+The home page plays a muted, looping film behind every chapter. Each chapter's
+`data-veil` (0–1) sets how strongly its colour grade covers the video: the
+opening is almost clear (`0.18`), text-heavy chapters are dimmed (`~0.8`),
+the paper chapter nearly hides it (`0.93`).
+
+The current files are **placeholders** (generated drifting light). Replace:
+
+| File | Spec |
+|---|---|
+| `assets/video/hero.webm` | VP9, 1920×1080 (or 1280×720), no audio, 10–30 s seamless loop |
+| `assets/video/hero.mp4` | H.264 fallback (Safari), same cut, `-movflags +faststart` |
+| `assets/img/hero-poster.jpg` | a still from the loop — shown while loading and for reduced-motion visitors |
+
+Aim for under ~8 MB per file. Example encodes with ffmpeg:
+
+```sh
+ffmpeg -i master.mov -an -vf scale=1920:-2 -c:v libvpx-vp9 -b:v 0 -crf 36 -row-mt 1 assets/video/hero.webm
+ffmpeg -i master.mov -an -vf scale=1920:-2,format=yuv420p -c:v libx264 -preset slow -crf 24 -movflags +faststart assets/video/hero.mp4
+ffmpeg -ss 2 -i master.mov -frames:v 1 -q:v 3 -vf scale=1920:-2 assets/img/hero-poster.jpg
+```
 
 ## Assets
 | Path | What |
 |---|---|
-| `assets/img/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | butterfly mark icons |
-| `assets/img/logo-mark.png` | 512×512 mark (JSON-LD logo) |
+| `assets/img/favicon.svg`, `favicon-32.png`, `apple-touch-icon.png` | the orange ⅃L pair |
+| `assets/img/pillango-logo.png` | 1200×400 logo on white (JSON-LD logo, press) |
+| `assets/img/pillango-logo-original.png` | the supplied logo file (200×46) |
 | `assets/img/og-image.jpg` | share image |
-| `assets/fonts/*.woff2`, `css/fonts.css` | Instrument Serif + Inter Tight (SIL OFL), Latin + Latin Extended |
+| `assets/fonts/*.woff2`, `css/fonts.css` | Instrument Serif + Inter Tight (SIL OFL), Latin + Latin Extended; Tinos (Apache 2.0) subset for the wordmark |
 
-**Hero footage:** put a muted loop at `assets/video/hero.mp4` (with a
-poster) and follow the comment at the top of the hero section in
-`index.html`. It pauses automatically once the hero has scrolled away, and is
-hidden for reduced-motion visitors.
+**The wordmark** (`PI⅃LANGO / PRODUCTIONS`) is live text, rebuilt from the
+logo: Tinos caps, the first L mirrored, both Ls in `#FF4A00`, a hairline and a
+spaced PRODUCTIONS. If you have the logo as SVG, it can replace the text
+version in the nav, hero and footer (`class="wm"`).
 
 **Image placeholders** are `<div class="frame">` boxes. Put an `<img>` inside
 (it fills the frame) and delete the `.frame-label`.
@@ -128,18 +180,20 @@ hidden for reduced-motion visitors.
 - Contact e-mail `hello@pillangoprod.com` — confirm or replace (search the repo).
 - Impresszum / Privacy: registered address, company reg. no., registry court,
   tax number, EU VAT number, managing director, e-mail provider, log retention
-  (dashed amber boxes, class `tbc`). Have the legal texts reviewed before launch.
+  (dashed orange boxes, class `tbc`). Have the legal texts reviewed before launch.
+- The real background video + poster (see above).
 - Team names and bios (`/about`), partner logos (home + `/partners`),
-  stills (home, `/post-production`), Held Still and The Book content.
+  stills (`/post-production`, `/projects`), Held Still and The Book content.
 - Social links (none yet).
 
 ## Colours
 | Token | Hex | Use |
 |---|---|---|
-| `--night` | `#0A0B0D` | base black |
+| `--night` | `#08090B` | base black |
 | `--steel` | `#17202A` | blue-hour chapters |
 | `--teal` | `#0E2629` | deep grade |
 | `--ember` | `#24140F` | warm shadow |
 | `--paper` | `#ECE5D6` | the one light chapter |
-| `--amber` | `#D9A441` | accent / the "practical" |
-| `--rust` | `#A5461F` | accent on paper |
+| `--orange` | `#FF4A00` | the logo's LL — accent |
+| `--orange-soft` | `#FF8A52` | italic accents on dark |
+| `--rust` | `#C53C00` | orange on paper |

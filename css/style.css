@@ -1,28 +1,31 @@
 /* ============================================================
    PILLANGO PRODUCTIONS — site design
    A dark, graded frame: night black, steel blue, deep teal and
-   ember, lit by a single warm practical (amber). One light
-   chapter — "paper" — for contrast, like a white-balance card.
+   ember, cut with the logo's signal orange (#FF4A00, the mirrored
+   "LL" of the wordmark). One light chapter — "paper" — for
+   contrast, like a white-balance card.
 
-   Type: Instrument Serif (display) + Inter Tight (captions, body),
-   both SIL Open Font License, self-hosted from /assets/fonts
-   (see css/fonts.css) — no third-party requests.
+   Type: the wordmark is set in Tinos (a Times-metric serif, close to
+   the logo); Instrument Serif for display, Inter Tight for captions
+   and body. All self-hosted from /assets/fonts (see css/fonts.css) —
+   no third-party requests.
    ============================================================ */
 
 :root {
-  --night:     #0A0B0D;  /* the black of the frame */
+  --night:     #08090B;  /* the black of the frame */
   --graphite:  #121418;
   --steel:     #17202A;  /* blue hour */
   --teal:      #0E2629;  /* deep grade */
   --ember:     #24140F;  /* warm shadow */
   --paper:     #ECE5D6;  /* the white-balance card */
   --bone:      #F2EDE3;  /* text on dark */
-  --amber:     #D9A441;  /* the practical */
-  --amber-soft:#EBC57A;
-  --rust:      #A5461F;  /* accent on paper */
+  --orange:    #FF4A00;  /* the logo's LL */
+  --orange-soft:#FF8A52; /* italic accents on dark */
+  --rust:      #C53C00;  /* orange on paper */
   --ink:       #16130F;  /* text on paper */
   --line:      rgba(242,237,227,0.14);
 
+  --font-wordmark: "Pillango Wordmark", Tinos, "Times New Roman", Times, serif;
   --font-display: "Instrument Serif", "Iowan Old Style", Georgia, "Times New Roman", serif;
   --font-caps:    "Inter Tight", "Helvetica Neue", Arial, system-ui, sans-serif;
   --font-body:    "Inter Tight", "Helvetica Neue", Arial, system-ui, sans-serif;
@@ -59,7 +62,7 @@ img { max-width: 100%; height: auto; }
 [hidden] { display: none !important; }
 
 :focus-visible {
-  outline: 2px solid var(--amber);
+  outline: 2px solid var(--orange);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -69,7 +72,7 @@ img { max-width: 100%; height: auto; }
   left: 1rem;
   top: -4rem;
   z-index: 100;
-  background: var(--amber);
+  background: var(--orange);
   color: var(--night);
   padding: 0.6rem 1rem;
   font-family: var(--font-caps);
@@ -130,7 +133,7 @@ img { max-width: 100%; height: auto; }
   margin-bottom: clamp(0.9rem, 2.5vh, 1.6rem);
 }
 .eyebrow .tc {
-  color: var(--amber);
+  color: var(--orange);
   opacity: 1;
   font-variant-numeric: tabular-nums;
   margin-right: 0.8em;
@@ -145,7 +148,7 @@ img { max-width: 100%; height: auto; }
   letter-spacing: -0.015em;
   margin-bottom: clamp(0.9rem, 2.5vh, 1.4rem);
 }
-.display em { font-style: italic; color: var(--amber-soft); }
+.display em { font-style: italic; color: var(--orange-soft); }
 .ink-dark .display em { color: var(--rust); }
 .display-small { font-size: clamp(2.2rem, 6vw, 3.8rem); }
 
@@ -171,7 +174,7 @@ img { max-width: 100%; height: auto; }
   font-style: italic;
   font-size: clamp(1.1rem, 2.2vw, 1.35rem);
   margin-top: clamp(1.1rem, 3vh, 1.8rem);
-  color: var(--amber-soft);
+  color: var(--orange-soft);
 }
 
 .micro-note {
@@ -205,24 +208,47 @@ img { max-width: 100%; height: auto; }
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
   text-decoration: none;
   line-height: 1;
 }
-.nav-brand svg { width: 1.7rem; height: 1.7rem; color: var(--amber); flex: none; }
-.nav-brand-text { display: flex; flex-direction: column; }
-.nav-brand-name {
-  font-family: var(--font-display);
-  font-size: 1.45rem;
-  letter-spacing: 0.01em;
+
+/* ---------- the wordmark ----------
+   PI⅃LANGO over a hairline and a spaced PRODUCTIONS, after the logo:
+   the first L is mirrored and both are in signal orange, a pair of
+   wings. Sized by font-size on .wm; everything else is in em. */
+.wm {
+  display: inline-flex;
+  flex-direction: column;
+  font-family: var(--font-wordmark);
+  font-weight: 400;
+  line-height: 1;
 }
-.nav-brand-sub {
+.wm-word { letter-spacing: 0.015em; white-space: nowrap; }
+.wm-ll { color: var(--orange); }
+.wm-l1 { display: inline-block; transform: scaleX(-1); margin-right: -0.04em; }
+.wm-sub {
+  display: flex;
+  justify-content: space-between;
   font-family: var(--font-caps);
-  font-size: 0.5rem;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  opacity: 0.62;
-  margin-top: 0.2rem;
+  font-weight: 500;
+  font-size: 0.19em;
+  border-top: 1px solid rgba(242,237,227,0.35);
+  margin-top: 0.4em;
+  padding: 0.55em 0.1em 0;
+}
+.nav.on-light .wm-sub, .ink-dark .wm-sub { border-top-color: rgba(22,19,15,0.35); }
+.wm-nav { font-size: 1.45rem; }
+.wm-nav .wm-sub { font-size: 0.26em; margin-top: 0.3em; padding-top: 0.45em; }
+.wm-hero { font-size: clamp(3.4rem, 12.5vw, 8.2rem); }
+.wm-foot { font-size: 2rem; margin-bottom: 0.9rem; }
+.wm-foot .wm-sub { font-size: 0.24em; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .nav-links {
@@ -258,7 +284,7 @@ img { max-width: 100%; height: auto; }
   transition: background 0.25s, color 0.25s, border-color 0.25s;
   white-space: nowrap;
 }
-.btn-cta:hover { background: var(--amber); border-color: var(--amber); color: var(--night); }
+.btn-cta:hover { background: var(--orange); border-color: var(--orange); color: var(--night); }
 
 .nav-burger {
   display: none;
@@ -307,7 +333,7 @@ img { max-width: 100%; height: auto; }
   font-size: 0.62rem;
   letter-spacing: 0.34em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--orange);
   margin-bottom: 2.2rem;
 }
 .overlay-links { display: grid; gap: 0.1rem; }
@@ -325,12 +351,35 @@ img { max-width: 100%; height: auto; }
   font-family: var(--font-caps);
   font-size: 0.6rem;
   letter-spacing: 0.2em;
-  color: var(--amber);
+  color: var(--orange);
   opacity: 0.75;
   min-width: 2.4rem;
   text-align: right;
 }
-.overlay-links a:hover { color: var(--amber-soft); }
+.overlay-links a:hover { color: var(--orange-soft); }
+
+/* ---------- the background film (home) ----------
+   The video runs behind every chapter; #grade lies over it in the
+   chapter's colour, at the chapter's data-veil opacity (js/main.js). */
+.bg-film {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--night) url("/assets/img/hero-poster.jpg") center / cover no-repeat;
+}
+.bg-film video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.grade {
+  position: absolute;
+  inset: 0;
+  background: rgba(8,9,11,0.2);
+  pointer-events: none;
+}
+.has-film .stage { background: var(--night); }
 
 /* ---------- the opening ---------- */
 .hero-media {
@@ -348,7 +397,7 @@ img { max-width: 100%; height: auto; }
   inset: 0;
   z-index: -2;
   background:
-    radial-gradient(ellipse 60% 45% at 50% 52%, rgba(217,164,65,0.16) 0%, rgba(217,164,65,0.04) 45%, transparent 70%),
+    radial-gradient(ellipse 60% 45% at 50% 52%, rgba(255,74,0,0.16) 0%, rgba(255,74,0,0.04) 45%, transparent 70%),
     radial-gradient(ellipse 90% 70% at 50% 50%, rgba(23,32,42,0.9) 0%, rgba(10,11,13,1) 75%);
 }
 .hero-light::after {
@@ -358,7 +407,7 @@ img { max-width: 100%; height: auto; }
   right: 8%;
   top: 52%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(235,197,122,0.5) 35%, rgba(160,200,255,0.35) 50%, rgba(235,197,122,0.5) 65%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,138,82,0.5) 35%, rgba(160,200,255,0.35) 50%, rgba(255,138,82,0.5) 65%, transparent);
   filter: blur(0.4px);
   opacity: 0.7;
 }
@@ -414,25 +463,7 @@ img { max-width: 100%; height: auto; }
 }
 @keyframes rec { 50% { opacity: 0.15; } }
 
-.hero-mark { width: clamp(3.2rem, 8vw, 4.6rem); height: auto; color: var(--amber); display: block; margin: 0 auto 1.1rem; }
-.hero-wordmark {
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(3.4rem, 13vw, 8rem);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  display: block;
-}
-.hero-wordmark small {
-  display: block;
-  font-family: var(--font-caps);
-  font-size: clamp(0.62rem, 1.5vw, 0.8rem);
-  letter-spacing: 0.62em;
-  text-transform: uppercase;
-  margin-top: 0.9rem;
-  opacity: 0.7;
-}
-.hero-logo-wrap { font-weight: inherit; margin-bottom: clamp(1.1rem, 3vh, 1.8rem); }
+.hero-logo-wrap { font-weight: inherit; margin-bottom: clamp(1.1rem, 3vh, 1.8rem); display: flex; justify-content: center; }
 
 .hero-tag {
   font-family: var(--font-display);
@@ -475,7 +506,7 @@ img { max-width: 100%; height: auto; }
   font-family: var(--font-display);
   font-size: clamp(2.4rem, 6.5vw, 3.8rem);
   line-height: 1;
-  color: var(--amber-soft);
+  color: var(--orange-soft);
 }
 .ink-dark .fig-num { color: var(--rust); }
 .fig-label {
@@ -520,7 +551,7 @@ img { max-width: 100%; height: auto; }
   font-family: var(--font-caps);
   font-size: 0.6rem;
   letter-spacing: 0.2em;
-  color: var(--amber);
+  color: var(--orange);
   opacity: 0.8;
   font-variant-numeric: tabular-nums;
 }
@@ -561,7 +592,7 @@ img { max-width: 100%; height: auto; }
   top: 0.65em;
   width: 0.45rem;
   height: 1px;
-  background: var(--amber);
+  background: var(--orange);
 }
 .ink-dark .card li::before { background: var(--rust); }
 
@@ -574,7 +605,7 @@ img { max-width: 100%; height: auto; }
   border-radius: 3px;
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 30% 40%, rgba(217,164,65,0.14), transparent 60%),
+    radial-gradient(ellipse at 30% 40%, rgba(255,74,0,0.14), transparent 60%),
     radial-gradient(ellipse at 75% 70%, rgba(80,120,150,0.18), transparent 55%),
     var(--graphite);
   display: grid;
@@ -636,9 +667,9 @@ img { max-width: 100%; height: auto; }
   cursor: pointer;
   transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
-.btn:hover { background: var(--amber); border-color: var(--amber); color: var(--night); }
-.btn-solid { background: var(--amber); border-color: var(--amber); color: var(--night); }
-.btn-solid:hover { background: var(--amber-soft); border-color: var(--amber-soft); }
+.btn:hover { background: var(--orange); border-color: var(--orange); color: var(--night); }
+.btn-solid { background: var(--orange); border-color: var(--orange); color: var(--night); }
+.btn-solid:hover { background: var(--orange-soft); border-color: var(--orange-soft); }
 .ink-dark .btn:hover { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .btn-row { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
 
@@ -658,7 +689,7 @@ img { max-width: 100%; height: auto; }
   transition: color 0.25s, border-color 0.25s;
   white-space: nowrap;
 }
-.btn-line:hover { color: var(--amber); border-color: var(--amber); }
+.btn-line:hover { color: var(--orange); border-color: var(--orange); }
 
 /* ---------- contact ---------- */
 .contact-grid {
@@ -682,7 +713,7 @@ img { max-width: 100%; height: auto; }
   line-height: 1.75;
 }
 .contact-grid a { text-decoration: none; border-bottom: 1px solid rgba(242,237,227,0.28); }
-.contact-grid a:hover { border-bottom-color: var(--amber); color: var(--amber-soft); }
+.contact-grid a:hover { border-bottom-color: var(--orange); color: var(--orange-soft); }
 
 .footer-line {
   font-family: var(--font-caps);
@@ -693,7 +724,7 @@ img { max-width: 100%; height: auto; }
   line-height: 1.9;
 }
 .footer-line a { text-decoration: none; }
-.footer-line a:hover { color: var(--amber); }
+.footer-line a:hover { color: var(--orange); }
 
 /* ---------- the rail ---------- */
 .rail {
@@ -721,7 +752,7 @@ img { max-width: 100%; height: auto; }
   position: absolute;
   inset: 0 0 auto 0;
   width: 1px;
-  background: var(--amber);
+  background: var(--orange);
   height: 0;
 }
 .rail-stops {
@@ -745,7 +776,7 @@ img { max-width: 100%; height: auto; }
   transition: opacity 0.25s, color 0.25s;
 }
 .rail-stops button:hover { opacity: 0.85; }
-.rail-stops button.is-current { opacity: 1; color: var(--amber); }
+.rail-stops button.is-current { opacity: 1; color: var(--orange); }
 
 /* ---------- atmosphere ---------- */
 .dust {
@@ -755,7 +786,7 @@ img { max-width: 100%; height: auto; }
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background: var(--amber-soft);
+  background: var(--orange-soft);
   opacity: 0;
   pointer-events: none;
   will-change: transform, opacity;
@@ -800,7 +831,7 @@ img { max-width: 100%; height: auto; }
   cursor: pointer;
   transition: color 0.25s, border-color 0.25s;
 }
-.sheet-close:hover { color: var(--amber); border-color: var(--amber); }
+.sheet-close:hover { color: var(--orange); border-color: var(--orange); }
 .sheet-wrap {
   max-width: 58rem;
   margin: 0 auto;
@@ -853,8 +884,8 @@ img { max-width: 100%; height: auto; }
 .prose p, .prose li { opacity: 0.86; }
 .prose ul, .prose ol { padding-left: 1.2rem; }
 .prose li + li { margin-top: 0.35rem; }
-.prose a { color: var(--amber-soft); text-underline-offset: 3px; }
-.prose a:hover { color: var(--amber); }
+.prose a { color: var(--orange-soft); text-underline-offset: 3px; }
+.prose a:hover { color: var(--orange); }
 .prose strong { font-weight: 500; }
 .prose dl { display: grid; grid-template-columns: minmax(9rem, 14rem) 1fr; gap: 0.55rem 1.4rem; }
 .prose dt {
@@ -871,16 +902,16 @@ img { max-width: 100%; height: auto; }
   font-style: italic;
   font-size: 1.4rem;
   line-height: 1.45;
-  border-left: 1px solid var(--amber);
+  border-left: 1px solid var(--orange);
   padding-left: 1.2rem;
-  color: var(--amber-soft);
+  color: var(--orange-soft);
 }
 .tbc {
   font-family: var(--font-caps);
   font-size: 0.78em;
   letter-spacing: 0.04em;
-  color: var(--amber);
-  border: 1px dashed rgba(217,164,65,0.5);
+  color: var(--orange);
+  border: 1px dashed rgba(255,74,0,0.5);
   border-radius: 3px;
   padding: 0.05rem 0.4rem;
 }
@@ -894,11 +925,41 @@ img { max-width: 100%; height: auto; }
 }
 
 .stub {
-  border: 1px dashed rgba(217,164,65,0.45);
+  border: 1px dashed rgba(255,74,0,0.45);
   border-radius: 4px;
   padding: clamp(1.4rem, 4vw, 2.2rem);
-  background: rgba(217,164,65,0.04);
+  background: rgba(255,74,0,0.04);
 }
+
+/* ---------- projects ---------- */
+.project-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: clamp(1.2rem, 3vw, 2rem);
+}
+.project > a,
+.project > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  text-decoration: none;
+}
+.project .frame { margin: 0 0 0.6rem; transition: border-color 0.3s; }
+.project > a:hover .frame { border-color: var(--orange); }
+.project h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3.6vw, 2.3rem);
+  line-height: 1.1;
+}
+.project p:not(.card-kicker) { font-size: 0.95rem; line-height: 1.65; opacity: 0.75; }
+.project .btn-line { align-self: flex-start; margin-top: auto; }
+.project .card-kicker { display: flex; align-items: center; gap: 0.5rem; }
+.project.is-private .card-kicker { color: var(--orange); opacity: 1; }
+.project.is-soon { opacity: 0.55; }
+.lock { width: 0.8rem; height: 0.8rem; fill: none; stroke: currentColor; stroke-width: 1.5; }
 
 /* ---------- the journal ---------- */
 .post-list { list-style: none; display: grid; gap: 0; }
@@ -913,7 +974,7 @@ img { max-width: 100%; height: auto; }
   text-decoration: none;
   transition: color 0.25s;
 }
-.post-list a:hover { color: var(--amber-soft); }
+.post-list a:hover { color: var(--orange-soft); }
 .post-date {
   font-family: var(--font-caps);
   font-size: 0.66rem;
@@ -949,9 +1010,9 @@ img { max-width: 100%; height: auto; }
 }
 .site-foot ul { list-style: none; display: grid; gap: 0.35rem; font-size: 0.9rem; }
 .site-foot a { text-decoration: none; opacity: 0.82; }
-.site-foot a:hover { opacity: 1; color: var(--amber-soft); }
-.site-foot .brand-line { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.15; }
-.site-foot .brand-line em { color: var(--amber-soft); }
+.site-foot a:hover { opacity: 1; color: var(--orange-soft); }
+.site-foot .brand-line { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.25; }
+.site-foot .brand-line em { color: var(--orange-soft); }
 .site-foot .footer-line { grid-column: 1 / -1; margin-top: 1rem; }
 
 /* ============================================================
@@ -975,6 +1036,8 @@ img { max-width: 100%; height: auto; }
   min-height: 100svh;
 }
 .flat .layer.ink-dark { background: var(--paper); }
+.flat .bg-film, .flat .grade { position: fixed; }
+.flat .grade { background: rgba(8,9,11,0.7); }
 .flat .scroll-space,
 .flat .dust,
 .flat .rail { display: none; }
@@ -1043,8 +1106,7 @@ img { max-width: 100%; height: auto; }
   .fig-num { font-size: clamp(1.7rem, 7vw, 2.2rem); }
   .contact-grid { margin: 1rem 0; }
   .footer-line { margin-top: 0.9rem; }
-  .hero-wordmark { font-size: clamp(2.8rem, 10vw, 5.4rem); }
-  .hero-mark { width: 2.8rem; margin-bottom: 0.6rem; }
+  .wm-hero { font-size: clamp(2.8rem, 10vw, 5.6rem); }
   .scroll-hint { margin-top: 1.6rem; }
   .scroll-line { height: 2rem; }
   .frame { max-height: 28vh; aspect-ratio: auto; height: 28vh; }
@@ -1052,8 +1114,7 @@ img { max-width: 100%; height: auto; }
 
 @media (max-width: 420px) {
   .btn-cta { padding: 0.5rem 0.9rem; font-size: 0.6rem; }
-  .nav-brand-name { font-size: 1.2rem; }
-  .nav-brand-sub { display: none; }
+  .wm-nav { font-size: 1.2rem; }
   .fig-note { display: none; }
 }
 
@@ -1062,4 +1123,5 @@ img { max-width: 100%; height: auto; }
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
   .dust { display: none; }
+  .bg-film video { display: none; }  /* the poster stays as a still */
 }

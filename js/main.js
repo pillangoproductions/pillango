@@ -11,6 +11,8 @@
      data-rail  optional label for the progress rail
    so adding a chapter lengthens the flight rather than crowding it.
 
+     data-veil  on pages with a background film (#grade present): how
+                much of the chapter's colour lies over the video, 0–1
    Pages without a #stage (the legal pages, the blog) get only the
    menu and the sheets; the flight never starts there.
 
@@ -73,7 +75,8 @@
       CHAPTERS.push({
         id: el.getAttribute("data-chapter"),
         p: Math.round((cum / total) * 1e5) / 1e5,
-        sky: el.getAttribute("data-sky") || "#0B0C0E",
+        sky: el.getAttribute("data-sky") || "#08090B",
+        veil: parseFloat(el.getAttribute("data-veil") || "0.8"),
         rail: el.getAttribute("data-rail") || null
       });
     });
@@ -96,12 +99,26 @@
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var supports3d = window.CSS && CSS.supports && CSS.supports("transform", "translateZ(1px)");
 
-  /* background video: respect reduced-motion */
-  var heroVideo = document.getElementById("hero-video");
-  if (heroVideo && reduceMotion) {
-    heroVideo.removeAttribute("autoplay");
-    heroVideo.pause();
-    heroVideo.style.display = "none";
+  /* background film: the grade over it follows the chapters; a visitor
+     who asked for less motion gets the poster frame instead */
+  var grade = document.getElementById("grade");
+  var bgVideo = document.getElementById("bg-video");
+  if (bgVideo && reduceMotion) {
+    bgVideo.removeAttribute("autoplay");
+    bgVideo.pause();
+  }
+  var VEIL = CHAPTERS.map(function (ch) { return [ch.p, ch.veil]; });
+  function veilAt(p) {
+    if (!VEIL.length) return 0.8;
+    if (p <= VEIL[0][0]) return VEIL[0][1];
+    for (var i = 1; i < VEIL.length; i++) {
+      if (p <= VEIL[i][0]) {
+        var a = VEIL[i - 1], b = VEIL[i];
+        var t = b[0] > a[0] ? (p - a[0]) / (b[0] - a[0]) : 1;
+        return a[1] + (b[1] - a[1]) * t;
+      }
+    }
+    return VEIL[VEIL.length - 1][1];
   }
 
   /* ---- sheets: full-screen scrollable panels over the flight ---- */
@@ -282,10 +299,16 @@
 
     /* the frame's grade */
     var c = skyColor(currentP);
-    stage.style.background = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
+    if (grade) {
+      grade.style.background = "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + veilAt(currentP).toFixed(3) + ")";
+    } else {
+      stage.style.background = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
+    }
 
-    /* nav ink follows the frame's brightness */
+    /* nav ink follows the frame's brightness (over the film, only a
+       heavy light veil makes the frame light) */
     var lum = (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
+    if (grade) lum *= veilAt(currentP);
     var overlayOpen = overlay && !overlay.hidden;
     var nav = document.getElementById("nav");
     if (nav) nav.classList.toggle("on-light", !overlayOpen && lum > 0.52);
@@ -335,16 +358,6 @@
       p.el.style.transform =
         "translate3d(" + (50 + p.x) + "vw," + (50 + p.y) + "vh," + dz.toFixed(1) + "px) scale(" + p.s + ")";
     });
-
-    /* hero video: only decode while the opening is on screen */
-    if (heroVideo && !reduceMotion) {
-      var heroVisible = layers.length && layers[0].el.style.visibility !== "hidden";
-      if (!heroVisible && !heroVideo.paused) {
-        heroVideo.pause();
-      } else if (heroVisible && heroVideo.paused) {
-        heroVideo.play().catch(function () {});
-      }
-    }
 
     /* rail */
     if (railFill) railFill.style.height = (currentP * 100).toFixed(2) + "%";

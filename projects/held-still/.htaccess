@@ -1,0 +1,22 @@
+# Held Still — password wall (HTTP Basic auth, checked by the server).
+# Everything in this folder — the page and all its assets — needs the login.
+#
+# SETUP (once, on DreamHost — see README → "Held Still password"):
+#   1. Create the password file OUTSIDE the web folder, over SSH:
+#        mkdir -p ~/.htpasswds && htpasswd -c ~/.htpasswds/held-still heldstill
+#   2. Replace DREAMHOST_USER below with your DreamHost shell user name.
+# Until both are done the folder answers "500 Internal Server Error" —
+# it fails closed, never open.
+
+AuthType Basic
+AuthName "Held Still - private screening room"
+AuthUserFile /home/DREAMHOST_USER/.htpasswds/held-still
+Require valid-user
+
+# Wrong password / cancelled login → branded page (outside this folder).
+ErrorDocument 401 /401.html
+
+<IfModule mod_headers.c>
+  Header always set X-Robots-Tag "noindex, nofollow, noarchive"
+  Header always set Cache-Control "private, no-store"
+</IfModule>

@@ -6,7 +6,7 @@
 <title>Pillango Productions — Film Production & Post-Production in Hungary</title>
 <meta name="description" content="Pillango Productions Kft. is an independent film production company in Hungary: production, post-production and production consulting for projects across Europe.">
 <link rel="canonical" href="https://pillangoprod.com/">
-<meta name="theme-color" content="#0A0B0D">
+<meta name="theme-color" content="#08090B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
@@ -24,11 +24,13 @@
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
+<link rel="preload" href="/assets/fonts/tinos-wordmark.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/instrumentserif-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/intertight-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/css/fonts.css?v=1">
 <link rel="stylesheet" href="/css/style.css?v=1">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Pillango Productions Kft.", "alternateName": "Pillango Productions", "url": "https://pillangoprod.com", "logo": "https://pillangoprod.com/assets/img/logo-mark.png", "email": "hello@pillangoprod.com", "description": "Film production, post-production and production consulting in Hungary and across Europe.", "areaServed": ["HU", "EU"], "address": {"@type": "PostalAddress", "addressCountry": "HU"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Pillango Productions Kft.", "alternateName": "Pillango Productions", "url": "https://pillangoprod.com", "logo": "https://pillangoprod.com/assets/img/pillango-logo.png", "email": "hello@pillangoprod.com", "description": "Film production, post-production and production consulting in Hungary and across Europe.", "areaServed": ["HU", "EU"], "address": {"@type": "PostalAddress", "addressCountry": "HU"}}</script>
+<link rel="preload" href="/assets/img/hero-poster.jpg" as="image">
 <noscript><style>
   .stage{position:static!important;height:auto!important;background:var(--night)!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
@@ -36,18 +38,18 @@
   .scroll-space,.dust,.rail{display:none!important}
 </style></noscript>
 </head>
-<body>
+<body class="has-film">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
   <a class="nav-brand" href="/" data-goto="hero" aria-label="Pillango Productions — home">
-    <svg class="nav-mark" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M31 29C26 15 12 7 6.5 13.5 2.5 19 12 29.5 31 32Z" fill="currentColor" fill-opacity=".14"/><path d="M33 29C38 15 52 7 57.5 13.5 61.5 19 52 29.5 33 32Z" fill="currentColor" fill-opacity=".14"/><path d="M31 34C20 34.5 11.5 43 16.5 51.5 21 57 29 47 31 37Z"/><path d="M33 34C44 34.5 52.5 43 47.5 51.5 43 57 35 47 33 37Z"/><path d="M32 22v26M32 22l-4-7M32 22l4-7"/></svg>
-    <span class="nav-brand-text"><span class="nav-brand-name">Pillango</span><span class="nav-brand-sub">Productions</span></span>
+    <span class="wm wm-nav"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
   </a>
   <nav class="nav-links" aria-label="Main">
     <a href="/about">About</a>
     <a href="/services">Services</a>
     <a href="/post-production">Post-production</a>
+    <a href="/projects">Projects</a>
     <a href="/partners">Partners</a>
     <a href="/blog">Journal</a>
   </nav>
@@ -67,7 +69,7 @@
     <a href="/services"><span>03</span>Services</a>
     <a href="/post-production"><span>04</span>Post-production</a>
     <a href="/partners"><span>05</span>Partners</a>
-    <a href="/held-still"><span>06</span>Held Still</a>
+    <a href="/projects"><span>06</span>Projects</a>
     <a href="/the-book"><span>07</span>The Book</a>
     <a href="/blog"><span>08</span>Journal</a>
     <a href="/#ch-contact" data-goto="contact"><span>09</span>Contact</a>
@@ -76,27 +78,32 @@
 
 <main class="stage" id="stage" aria-label="Pillango Productions">
 <div id="main"></div>
-  <section class="layer ink-light" id="ch-hero" data-chapter="hero" data-sky="#0A0B0D">
-    <!-- Hero footage: drop a muted loop at /assets/video/hero.mp4 (+ poster) and
-         replace the .hero-light div with:
-         <video class="hero-media" id="hero-video" autoplay muted loop playsinline preload="auto"
-                poster="/assets/img/hero-poster.jpg" aria-hidden="true">
-           <source src="/assets/video/hero.mp4" type="video/mp4"></video>
-         <div class="hero-scrim" aria-hidden="true"></div> -->
-    <div class="hero-light" aria-hidden="true"></div>
+  <!-- Background film: runs behind every chapter; each chapter's data-veil sets
+       how much of its colour grade lies over it (0 = clear, 1 = hidden).
+       Replace /assets/video/hero.webm + hero.mp4 and /assets/img/hero-poster.jpg
+       with the real footage (muted, 10–30 s loop, 1920×1080, ideally < 8 MB). -->
+  <div class="bg-film" aria-hidden="true">
+    <video id="bg-video" autoplay muted loop playsinline preload="auto" poster="/assets/img/hero-poster.jpg">
+      <source src="/assets/video/hero.webm" type="video/webm">
+      <source src="/assets/video/hero.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="grade" id="grade" aria-hidden="true"></div>
+
+  <section class="layer ink-light" id="ch-hero" data-chapter="hero" data-sky="#08090B" data-veil="0.18">
     <div class="viewfinder" aria-hidden="true"><span class="vf-tl vf-rec">Rec · 24 fps</span><span class="vf-br">2.39 : 1</span></div>
     <div class="layer-inner hero-inner">
       <p class="eyebrow">Film production · Post-production · Consulting</p>
       <h1 class="hero-logo-wrap">
-        <svg class="hero-mark" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M31 29C26 15 12 7 6.5 13.5 2.5 19 12 29.5 31 32Z" fill="currentColor" fill-opacity=".14"/><path d="M33 29C38 15 52 7 57.5 13.5 61.5 19 52 29.5 33 32Z" fill="currentColor" fill-opacity=".14"/><path d="M31 34C20 34.5 11.5 43 16.5 51.5 21 57 29 47 31 37Z"/><path d="M33 34C44 34.5 52.5 43 47.5 51.5 43 57 35 47 33 37Z"/><path d="M32 22v26M32 22l-4-7M32 22l4-7"/></svg>
-        <span class="hero-wordmark">Pillango<small>Productions</small></span>
+        <span class="visually-hidden">Pillango Productions</span>
+        <span class="wm wm-hero"><span class="wm-word">PI<span class="wm-ll"><span class="wm-l1">L</span>L</span>ANGO</span><span class="wm-sub" aria-hidden="true"><span>P</span><span>R</span><span>O</span><span>D</span><span>U</span><span>C</span><span>T</span><span>I</span><span>O</span><span>N</span><span>S</span></span></span>
       </h1>
       <p class="hero-tag">Stories made in Hungary, finished for the world.</p>
       <p class="scroll-hint" aria-hidden="true">Scroll to roll<span class="scroll-line"></span></p>
     </div>
   </section>
 
-  <section class="layer ink-light" id="ch-studio" data-chapter="studio" data-gap="1.3" data-sky="#17202A" data-rail="Studio">
+  <section class="layer ink-light" id="ch-studio" data-chapter="studio" data-gap="1.3" data-sky="#17202A" data-veil="0.78" data-rail="Studio">
     <div class="layer-inner narrow">
       <p class="eyebrow"><span class="tc">01:00:04:12</span>The studio</p>
       <h2 class="display">We make films —<br><em>and help others make theirs.</em></h2>
@@ -105,7 +112,7 @@
     </div>
   </section>
 
-  <section class="layer ink-light" id="ch-services" data-chapter="services" data-gap="1.3" data-sky="#0E2629" data-rail="Services">
+  <section class="layer ink-light" id="ch-services" data-chapter="services" data-gap="1.3" data-sky="#0E2629" data-veil="0.82" data-rail="Services">
     <div class="layer-inner wide">
       <p class="eyebrow"><span class="tc">01:00:11:03</span>What we do</p>
       <h2 class="display">Three disciplines, <em>one table.</em></h2>
@@ -119,7 +126,7 @@
     </div>
   </section>
 
-  <section class="layer ink-dark" id="ch-post" data-chapter="post" data-gap="1.3" data-sky="#ECE5D6" data-rail="Post">
+  <section class="layer ink-dark" id="ch-post" data-chapter="post" data-gap="1.3" data-sky="#ECE5D6" data-veil="0.93" data-rail="Post">
     <div class="layer-inner">
       <p class="eyebrow"><span class="tc">01:00:18:20</span>Post-production</p>
       <h2 class="display">The finish is where <em>the film is found.</em></h2>
@@ -133,17 +140,16 @@
     </div>
   </section>
 
-  <section class="layer ink-light" id="ch-work" data-chapter="work" data-gap="1.25" data-sky="#24140F" data-rail="Work">
-    <div class="layer-inner">
+  <section class="layer ink-light" id="ch-projects" data-chapter="projects" data-gap="1.25" data-sky="#24140F" data-veil="0.62" data-rail="Projects">
+    <div class="layer-inner narrow">
       <p class="eyebrow"><span class="tc">01:00:26:07</span>On the slate</p>
-      <div class="frame"><span class="frame-label">Held Still · still placeholder</span></div>
-      <h2 class="display display-small"><em>Held Still</em></h2>
-      <p class="chapter-note">Our current project. The full page — story, stills and screenings — is on its way.</p>
-      <div class="btn-row"><a class="btn" href="/held-still">Held Still</a><a class="btn" href="/the-book">The Book</a></div>
+      <h2 class="display display-small">Our own <em>films and books.</em></h2>
+      <p class="chapter-note">Alongside work for partners, we develop and produce projects of our own — from feature documentaries to publishing.</p>
+      <a class="btn" href="/projects">See the projects</a>
     </div>
   </section>
 
-  <section class="layer ink-light" id="ch-partners" data-chapter="partners" data-gap="1.25" data-sky="#17202A" data-rail="Partners">
+  <section class="layer ink-light" id="ch-partners" data-chapter="partners" data-gap="1.25" data-sky="#17202A" data-veil="0.82" data-rail="Partners">
     <div class="layer-inner wide">
       <p class="eyebrow"><span class="tc">01:00:33:15</span>Partners</p>
       <h2 class="display display-small">Made in <em>good company.</em></h2>
@@ -156,7 +162,7 @@
     </div>
   </section>
 
-  <section class="layer ink-light" id="ch-contact" data-chapter="contact" data-gap="1.15" data-sky="#0A0B0D" data-rail="Contact">
+  <section class="layer ink-light" id="ch-contact" data-chapter="contact" data-gap="1.15" data-sky="#08090B" data-veil="0.55" data-rail="Contact">
     <div class="layer-inner">
       <p class="eyebrow"><span class="tc">01:00:59:00</span>Contact</p>
       <h2 class="display display-small">Have a film in mind? <em>Let’s talk.</em></h2>
@@ -173,7 +179,7 @@
         </div>
         <div>
           <h3 class="contact-label">Projects</h3>
-          <p><a href="/held-still">Held Still</a><br><a href="/the-book">The Book</a><br><a href="/blog">Journal</a></p>
+          <p><a href="/projects">Projects</a><br><a href="/the-book">The Book</a><br><a href="/blog">Journal</a></p>
         </div>
       </div>
       <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft. · <a href="/impresszum">Impresszum</a> · <a href="/privacy">Privacy</a> · <a href="/gdpr">GDPR</a></p>
