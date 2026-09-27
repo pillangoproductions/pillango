@@ -156,9 +156,10 @@ Everything listed — services, partners, projects, posts — is a `.box` in a
 `.box-grid` (`cols-2/3/4`). Boxes that link somewhere lift on hover with orange light from
 underneath; boxes that don't stay still. Make one a link with `<a class="box" href="…">`.
 
-- **Partner logos:** put the file in `assets/img/partners/` and use
-  `<span class="logo-mark"><img src="/assets/img/partners/name.svg" alt="Name"></span>`
-  in its box on `/partners`. Empty boxes are marked "Partner logo".
+- **Partners:** each box links to the partner's website (new tab). To show a
+  logo instead of the name, put the file in `assets/img/partners/` and pass it
+  as `img` to `logo_box(...)` in the generator (or put
+  `<img src="/assets/img/partners/name.svg" alt="Name">` inside `.logo-mark`).
 - **Projects with a full page:** copy `_templates/project.html` to
   `projects/<slug>/index.html` (it has the "Back to Projects" button), then
   link a box to it on `/projects` and add the URL to `sitemap.xml`.

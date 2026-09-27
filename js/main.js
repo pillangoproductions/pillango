@@ -506,6 +506,14 @@
   }
   initGate();
 
+  /* service pages (the ones with the ×) always open at the top, even on Back/Forward */
+  if (document.querySelector(".close-x")) {
+    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+    var toTop = function () { if (!window.location.hash) window.scrollTo(0, 0); };
+    toTop();
+    window.addEventListener("pageshow", toTop);
+  }
+
   /* ---------- the contact form: topic preselected from the page you came from ---------- */
   var fromPage = null;
   function initContact() {
