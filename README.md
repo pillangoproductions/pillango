@@ -152,13 +152,16 @@ locations already written into the message.
 
 The locations are the `LOCS` list in the generator (name, area, public address,
 category, type, keywords, setting, notes, private flag) with Drive photo IDs
-per location. Private homes show no address. Photos are shown from Google
-Drive (`drive.google.com/thumbnail?id=…`), so they must stay shared "anyone
-with the link"; the privacy notice says so. To self-host them, allow `drive.google.com`,
-`drive.usercontent.google.com` and `lh3.googleusercontent.com` in the cloud
-environment's network settings, then run `python3 tools/fetch_location_photos.py`
-(it downloads, resizes to `assets/img/locations/` and switches
-`js/locations.js`); then drop the Google Drive paragraph from the privacy notice.
+per location. Private homes show no address. Photos are self-hosted in
+`assets/img/locations/<id>/<n>.jpg` (1600px, the photo window) and
+`<n>-s.jpg` (640px, cards and thumbnails), numbered in the order of the
+location's photo IDs; `js/locations.js` maps each ID to its file, so the site
+makes no requests to Google. After adding or changing photo IDs, run
+`python3 tools/fetch_location_photos.py` (needs `pip install pillow pillow-heif`
+and network access to `drive.google.com`, `drive.usercontent.google.com` and
+`lh3.googleusercontent.com`); it fetches only the files that are missing. If
+you remove or reorder a location's photos, delete that location's folder first
+so the numbering is rebuilt.
 
 ## How the pages are built
 

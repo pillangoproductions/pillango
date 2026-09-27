@@ -1,7 +1,7 @@
 /* Pillango — the location database (/locations).
    Search, filter by category and setting, open a location's photos,
    keep a favourites list in this browser, share it or send it to us.
-   Photos load from the production's Google Drive (shared "anyone with the link"). */
+   Photos are self-hosted in /assets/img/locations/<id>/<n>.jpg (and <n>-s.jpg). */
 (function () {
   "use strict";
   var DATA = JSON.parse(document.getElementById("loc-data").textContent);
@@ -15,7 +15,9 @@
   var modal = $("loc-modal"), mbox = modal.querySelector(".loc-modal-box");
   document.body.appendChild(modal);   // out of #page, so it sits above the menu bar
 
-  function img(id, w) { return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(id) + "&sz=w" + w; }
+  var PHOTO = {};
+  LOCS.forEach(function (l) { l.photos.forEach(function (p, i) { PHOTO[p] = l.id + "/" + (i + 1); }); });
+  function img(id, w) { return "/assets/img/locations/" + PHOTO[id] + (w > 700 ? "" : "-s") + ".jpg"; }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
