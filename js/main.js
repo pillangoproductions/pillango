@@ -54,13 +54,13 @@
   /* The head script already put the name of this page on screen (the
      "title card") if we flew in from another page; let it fade as the
      page pulls into focus. */
-  var TRANSIT_OUT = 1500;
+  var TRANSIT_OUT = 1100;
   requestAnimationFrame(function () {
     requestAnimationFrame(function () {
       root.classList.remove("arriving");
       if (root.classList.contains("transit-in")) {
-        setTimeout(function () { root.classList.remove("transit-in"); }, 350);
-        setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, 350 + TRANSIT_OUT);
+        setTimeout(function () { root.classList.remove("transit-in"); }, 120);
+        setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, 120 + TRANSIT_OUT);
       }
     });
   });
@@ -69,7 +69,7 @@
   /* Leaving: the page drifts past the camera and out of focus, the light
      behind it swells, and the name of the next page settles in the middle
      of the screen. The next page picks the same card up and fades it. */
-  var LEAVE_MS = 1150;
+  var LEAVE_MS = 1050;
   var leaving = false;
   /* landLast: scrolling back into the previous page lands on its last
      chapter; clicking a link always lands on the intro. */
@@ -208,11 +208,14 @@
       g.fillStyle = gr; g.fillRect(0, 0, W, H);
     }
     function build() {
-      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      /* Out-of-focus light has no fine detail, so the canvas is drawn at
+         (at most) 1.6 million pixels and scaled up by the browser: it
+         looks the same and costs a fraction of a retina-sized redraw. */
+      var dpr = 1;
       /* the canvas overhangs the screen a little (css/style.css), so the
          water ripple has real light to pull in at the edges */
       var cw = canvas.clientWidth || window.innerWidth, ch = canvas.clientHeight || window.innerHeight;
-      if (cw * ch * dpr * dpr > 4.6e6) dpr = Math.sqrt(4.6e6 / (cw * ch));
+      if (cw * ch > 1.6e6) dpr = Math.sqrt(1.6e6 / (cw * ch));
       W = canvas.width = Math.round(cw * dpr);
       H = canvas.height = Math.round(ch * dpr);
       bg = document.createElement("canvas");
@@ -606,7 +609,8 @@
   function frame(now) {
     lastFrame = now || performance.now();
     if (typeof window.__freezeP === "number") targetP = currentP = window.__freezeP;   // debug
-    currentP += (targetP - currentP) * 0.085;
+    if (tween) currentP = targetP;             // the glide already eases
+    else currentP += (targetP - currentP) * 0.12;
     if (Math.abs(targetP - currentP) < 0.00004) currentP = targetP;
     render();
     requestAnimationFrame(frame);
@@ -634,12 +638,9 @@
       } else {
         o = 1;
       }
-      /* rack focus: soft in the distance, sharp at the camera */
-      var blur = dz < 0 ? Math.min(10, Math.max(0, (-dz - 60) / 85)) : Math.min(8, Math.max(0, dz - 40) / 60);
       layer.el.style.visibility = "visible";
       layer.el.style.opacity = o.toFixed(3);
       layer.el.style.transform = "translateZ(" + dz.toFixed(1) + "px)";
-      layer.el.style.filter = blur > 0.25 ? "blur(" + blur.toFixed(1) + "px)" : "";
       var dist = Math.abs(dz);
       if (dist < bestDist) { bestDist = dist; activeIdx = idx; }
     });
@@ -662,12 +663,12 @@
      after arriving on a page all input waits until the old gesture —
      trackpad momentum included — has died away, so one long flick can
      never carry you past more than one page. */
-  var SNAP_MS = 1000;          // chapter-to-chapter glide
-  var WHEEL_TRIGGER = 60;      // wheel distance that makes one push
+  var SNAP_MS = 1100;          // chapter-to-chapter glide
+  var WHEEL_TRIGGER = 24;      // wheel distance that makes one push (one notch of any mouse)
   var GESTURE_GAP = 280;       // quiet time that ends a gesture
   var REST_MS = 260;           // pause on arriving at a chapter
   var EDGE_HOLD = 650;         // rest on the last chapter before the page can be left
-  var ARRIVAL_QUIET = 1300;    // nothing moves in the first moment on a new page
+  var ARRIVAL_QUIET = 1100;    // nothing moves in the first moment on a new page
   var SWIPE_TRIGGER = 50, SETTLE_MS = 160;
   var loadedAt = performance.now();
   root.classList.add("snap");
@@ -685,11 +686,13 @@
     if (overlay && !overlay.hidden) return true;
     return gateOpen();
   }
-  function easeInOut(t) { return t < 0.5 ? 16 * t * t * t * t * t : 1 - Math.pow(-2 * t + 2, 5) / 2; }
+  /* a gentle sine ease: no lurch at the start, no snap at the end */
+  function easeInOut(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
 
   var snapIndex = nearestChapter(window.scrollY), tween = null;
   /* start disarmed: a gesture still running from the previous page is ignored */
   var wheelAccum = 0, lastWheel = performance.now(), armed = false, restAt = performance.now();
+  var fresh = false, recent = [];
   var touching = false, touchY = 0, touchDy = 0, settleTimer = null;
 
   function stepTween(now) {
@@ -714,7 +717,7 @@
     void hint.offsetWidth;
     hint.classList.add("is-nudged");
   }
-  function push(dir) {
+  function push(dir, sustained) {
     if (tween || busy() || leaving) return;
     var now = performance.now();
     if (now - loadedAt < ARRIVAL_QUIET) return;
@@ -723,7 +726,7 @@
     if (next >= CHAPTERS.length || next < 0) {
       var url = next < 0 ? prevUrl : nextUrl;
       if (!url) return;
-      if (now - restAt < EDGE_HOLD) { if (next > 0) nudgeHint(); return; }
+      if (sustained || now - restAt < EDGE_HOLD) { if (next > 0) nudgeHint(); return; }
       leave(url, next < 0 ? "back" : "forward", next < 0 ? prevLabel : nextLabel, next < 0);
       return;
     }
@@ -738,16 +741,26 @@
     /* Anything that arrives in the first moment on a page is the tail of
        the gesture that brought us here: it keeps the wheel locked, so
        only a fresh gesture after a pause can move on. */
-    if (now - loadedAt < ARRIVAL_QUIET) { lastWheel = now; armed = false; wheelAccum = 0; return; }
-    if (now - lastWheel > GESTURE_GAP) { wheelAccum = 0; armed = true; }
+    if (now - loadedAt < ARRIVAL_QUIET) { lastWheel = now; armed = false; wheelAccum = 0; recent = []; return; }
+    var ad = Math.abs(dy);
+    if (now - lastWheel > GESTURE_GAP) { wheelAccum = 0; armed = true; fresh = true; recent = []; }
     lastWheel = now;
-    if (tween || !armed || leaving) return;
-    if (Math.abs(dy) < 4) return;            // the faint tail of momentum never counts
+    recent.push(ad);
+    if (recent.length > 8) recent.shift();
+    if (tween || leaving) return;
+    /* Still scrolling after the last glide ended? Carry on — unless the
+       stream is dying away (trackpad momentum), which never counts. */
+    if (!armed && now - restAt > 380 && recent.length >= 6 && ad >= 8 &&
+        recent[recent.length - 1] >= recent[0] * 0.95) {
+      armed = true; fresh = false; wheelAccum = 0;
+    }
+    if (!armed) return;
+    if (ad < 4) return;                      // the faint tail of momentum never counts
     wheelAccum += dy;
     if (Math.abs(wheelAccum) >= WHEEL_TRIGGER) {
       var dir = wheelAccum > 0 ? 1 : -1;
-      wheelAccum = 0; armed = false;
-      push(dir);
+      wheelAccum = 0; armed = false; recent = [];
+      push(dir, !fresh);                     // only a fresh gesture may leave the page
     }
   }, { passive: false });
 

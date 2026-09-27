@@ -23,8 +23,15 @@ the first push only lights up "Next · … · Scroll again to continue". On a ne
 page all input waits until the old gesture (trackpad momentum included) has
 died away, so a long flick never carries you more than one page. Pushing back
 at the top of a page returns to the previous one, landing on its last chapter.
-Book loops back to Home. Timings are at the top of section 7 in `js/main.js`
-(`SNAP_MS`, `EDGE_HOLD`, `ARRIVAL_QUIET`…).
+Book loops back to Home. Keeping a wheel rolling (or fingers moving) carries on chapter by chapter
+within a page, but never out of it. Timings are at the top of section 7 in
+`js/main.js` (`SNAP_MS`, `EDGE_HOLD`, `ARRIVAL_QUIET`…).
+
+Performance: everything that moves during a glide is a transform or an
+opacity; the bokeh canvas is capped at 1.6 million pixels (soft light needs
+no retina detail); focus blurs apply only to the content block, never the
+whole screen; and nothing blends or blurs live over the moving background.
+Keep it that way when adding effects.
 
 Between pages the old page drifts past the camera and out of focus while the
 bokeh swells, the name of the next page settles in the middle of the screen
