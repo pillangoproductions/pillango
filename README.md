@@ -35,6 +35,15 @@ the flight only redraws when the camera moves; focus blurs apply only to the con
 whole screen; and nothing blends or blurs live over the moving background.
 Keep it that way when adding effects.
 
+Pages change without reloading: the next and previous pages are fetched
+ahead of time, and flying on swaps the new page's chapters into the stage
+while the title card is up, so the light, menu and cursor never blink. The
+address bar, title, canonical link, rail and menu all update, and the
+browser's Back/Forward buttons work. Each page is still a complete page at
+its own address (search engines, shared links); legal pages and
+reduced-motion visitors load normally. The page settings (`data-next`,
+`data-prev`, labels) are on `<main id="stage">`.
+
 Between pages the old page drifts past the camera and out of focus while the
 bokeh swells, the name of the next page settles in the middle of the screen
 over a short amber line, and the new page pulls into focus beneath it as the

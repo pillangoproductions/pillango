@@ -7,19 +7,23 @@
      Projects → Book → (back to Home)
    Inside a page, native scroll drives a camera along the z-axis
    through its chapters; a push past the last chapter flies on into
-   the next page (<body data-next>), a push back past the first returns
-   to the previous one (<body data-prev>). Each page arrives out of
-   focus and pulls into focus.
+   the next page, a push back past the first returns to the previous
+   one. Page to page, nothing reloads: the next page is fetched ahead
+   of time and its chapters are swapped into the stage while the title
+   card is up, so the light, the menu and the cursor never blink. Every
+   page is still a real page at its own address (search engines, links,
+   the Back button); legal pages and reduced-motion visitors simply
+   load normally.
 
    The chapter spine is read from the markup: every [data-chapter]
    layer inside #stage carries
      data-gap   distance from the previous chapter (1 = one unit)
      data-sky   the colour laid over the background while on screen
      data-veil  how much of that colour covers the bokeh, 0–1
+   and #stage itself carries data-next / data-prev (+ -label).
 
-   Also here: the live bokeh background (every page), the orange light
-   under the cursor, the water ripple on click, the menu, and the
-   Held Still password box.
+   Also here: the bokeh background, the orange light under the cursor,
+   the water ripple on click, the menu, and the Held Still password box.
    ============================================================ */
 (function () {
   "use strict";
@@ -48,57 +52,143 @@
   }
 
   /* ============================================================
-     1. Arrival and departure: out of focus → into focus
+     1. Moving between pages
      ============================================================ */
   var arrive = store("pillango-arrive");
-  /* The head script already put the name of this page on screen (the
-     "title card") if we flew in from another page; let it fade as the
-     page pulls into focus. */
-  var TRANSIT_OUT = 1100;
-  requestAnimationFrame(function () {
-    requestAnimationFrame(function () {
-      root.classList.remove("arriving");
-      if (root.classList.contains("transit-in")) {
-        setTimeout(function () { root.classList.remove("transit-in"); }, 120);
-        setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, 120 + TRANSIT_OUT);
-      }
-    });
-  });
   store("pillango-transit");
-
-  /* Leaving: the page drifts past the camera and out of focus, the light
-     behind it swells, and the name of the next page settles in the middle
-     of the screen. The next page picks the same card up and fades it. */
-  var LEAVE_MS = 1050;
+  var TRANSIT_OUT = 1100;   // the title card fading on arrival
+  var LEAVE_MS = 950;       // the old page dissolving before the new one comes in
   var leaving = false;
-  /* landLast: scrolling back into the previous page lands on its last
-     chapter; clicking a link always lands on the intro. */
-  function leave(url, dir, label, landLast) {
+
+  /* Arrival after a normal page load: the head script already put the
+     title card up; let it fade as the page pulls into focus. */
+  function settleArrival() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        root.classList.remove("arriving", "arriving-back");
+        if (root.classList.contains("transit-in")) {
+          setTimeout(function () { root.classList.remove("transit-in"); }, 180);
+          setTimeout(function () { if (!leaving) root.removeAttribute("data-transit"); }, 180 + TRANSIT_OUT);
+        }
+      });
+    });
+  }
+  settleArrival();
+
+  /* --- fetching pages ahead of time --- */
+  var pageCache = {};
+  function pageKey(url) { return new URL(url, window.location.href).href.split("#")[0]; }
+  function fetchPage(url) {
+    var key = pageKey(url);
+    if (!pageCache[key]) {
+      pageCache[key] = fetch(key, { credentials: "same-origin" }).then(function (r) {
+        if (!r.ok) throw new Error("status " + r.status);
+        return r.text();
+      });
+      pageCache[key].catch(function () { delete pageCache[key]; });
+    }
+    return pageCache[key];
+  }
+  function prefetch(url) { if (url && canSwap()) fetchPage(url).catch(function () {}); }
+  function canSwap() {
+    return !!(stage && !root.classList.contains("flat") && window.fetch && window.DOMParser &&
+              window.history && history.pushState);
+  }
+
+  /* --- leaving: the one way out of a page --- */
+  function leave(url, dir, label, landLast, fromHistory) {
     if (leaving) return;
     leaving = true;
-    if (landLast) store("pillango-arrive", "back");
-    if (label) {
-      store("pillango-transit", JSON.stringify({ label: label, dir: dir || "forward" }));
-      root.setAttribute("data-transit", label);
-    }
+    if (label) root.setAttribute("data-transit", label);
     root.classList.remove("transit-in");
     root.classList.add(dir === "back" ? "leaving-back" : "leaving");
-    setTimeout(function () { window.location.href = url; }, reduceMotion ? 0 : LEAVE_MS);
+    var started = performance.now();
+    var hardLoad = function () {
+      if (landLast) store("pillango-arrive", "back");
+      if (label) store("pillango-transit", JSON.stringify({ label: label, dir: dir || "forward" }));
+      setTimeout(function () { window.location.href = url; }, Math.max(0, LEAVE_MS - (performance.now() - started)));
+    };
+    if (!canSwap() || reduceMotion) { hardLoad(); return; }
+    fetchPage(url).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      var next = doc.getElementById("stage");
+      if (!next || !next.querySelector("[data-chapter]")) throw new Error("not a flight page");
+      setTimeout(function () { swapIn(doc, next, url, dir, landLast, fromHistory); },
+                 Math.max(0, LEAVE_MS - (performance.now() - started)));
+    }).catch(hardLoad);
   }
+
+  /* --- arriving without a reload: swap the new page into the stage --- */
+  function swapIn(doc, next, url, dir, landLast, fromHistory) {
+    teardownFlight();
+    /* the address changes first, so relative links in the new content
+       resolve against the new page */
+    if (!fromHistory) history.pushState({ pillango: true }, "", url);
+    document.title = doc.title;
+    ["description"].forEach(function (n) {
+      var a = document.querySelector('meta[name="' + n + '"]'), b = doc.querySelector('meta[name="' + n + '"]');
+      if (a && b) a.setAttribute("content", b.getAttribute("content"));
+    });
+    var canA = document.querySelector('link[rel="canonical"]'), canB = doc.querySelector('link[rel="canonical"]');
+    if (canA && canB) canA.setAttribute("href", canB.getAttribute("href"));
+
+    /* the stage: its settings and its chapters */
+    Array.prototype.slice.call(stage.attributes).forEach(function (at) {
+      if (at.name !== "id" && at.name !== "class" && at.name !== "style") stage.removeAttribute(at.name);
+    });
+    Array.prototype.slice.call(next.attributes).forEach(function (at) {
+      if (at.name !== "id" && at.name !== "class" && at.name !== "style") stage.setAttribute(at.name, at.value);
+    });
+    stage.innerHTML = next.innerHTML;
+
+    /* the rail, the menu's "you are here", and page extras (the gate) */
+    var railA = document.getElementById("rail"), railB = doc.getElementById("rail");
+    if (railA && railB) railA.replaceWith(document.importNode(railB, true));
+    ["overlay-links", "overlay-legal"].forEach(function (cls) {
+      var a = document.querySelector("." + cls), b = doc.querySelector("." + cls);
+      if (a && b) a.innerHTML = b.innerHTML;
+    });
+    document.querySelectorAll(".gate, .gate-light").forEach(function (el) { el.remove(); });
+    doc.querySelectorAll(".gate, .gate-light").forEach(function (el) {
+      stage.parentNode.insertBefore(document.importNode(el, true), stage.nextSibling);
+    });
+
+    /* from dissolving straight to "coming out of focus", without
+       animating between the two while invisible */
+    root.classList.add("no-trans");
+    root.classList.remove("leaving", "leaving-back");
+    root.classList.add("arriving", "transit-in");
+    if (dir === "back") root.classList.add("arriving-back");
+    window.scrollTo(0, 0);
+    initFlight(landLast ? "last" : null);
+    initGate();
+    void root.offsetWidth;
+    root.classList.remove("no-trans");
+    leaving = false;
+    settleArrival();
+  }
+
+  window.addEventListener("popstate", function () {
+    if (!canSwap()) { window.location.reload(); return; }
+    var path = window.location.pathname;
+    var link = document.querySelector('.rail-pages a[href="' + path + '"], .overlay-links a[href="' + path + '"]');
+    leave(window.location.href, "back", link ? link.getAttribute("data-label") || link.textContent : "", false, true);
+  });
   window.addEventListener("pageshow", function (e) {
     if (e.persisted) {
       leaving = false;
-      root.classList.remove("leaving", "leaving-back", "arriving", "transit-in");
+      root.classList.remove("leaving", "leaving-back", "arriving", "arriving-back", "transit-in");
       root.removeAttribute("data-transit");
     }
   });
+
   function linkLabel(a) {
     if (a.getAttribute("data-label")) return a.getAttribute("data-label");
     var h = a.querySelector("h3, b");
     return (h || a).textContent.replace(/\s+/g, " ").trim().slice(0, 40);
   }
 
-  /* Every internal link leaves through the same focus-out. */
+  /* Every internal link leaves through the same transition. */
   document.addEventListener("click", function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     var a = e.target.closest && e.target.closest("a[href]");
@@ -110,6 +200,11 @@
     closeOverlay();
     leave(url.href, a.getAttribute("data-dir") || "forward", linkLabel(a));
   });
+  /* hovering a page name starts fetching it */
+  document.addEventListener("pointerover", function (e) {
+    var a = e.target.closest && e.target.closest(".rail-pages a, .overlay-links a, .next-hint, a.box");
+    if (a) prefetch(a.href);
+  }, { passive: true });
 
   /* ============================================================
      2. The menu — the one way around the site
@@ -346,11 +441,21 @@
      6. Held Still: a small password box. The password is checked by
      the server (/projects/held-still/gate.php); a right answer
      dissolves the page into light and opens the Held Still site.
+     (Set up again whenever the Projects page is swapped in.)
      ============================================================ */
-  var gate = document.getElementById("gate");
-  var gateOpener = null;
-  function gateOpen() { return gate && !gate.hidden; }
-  if (gate) {
+  var gate = null, gateOpener = null;
+  function gateOpen() { return !!(gate && !gate.hidden); }
+  function closeGate() {
+    if (!gate) return;
+    var g = gate;
+    g.classList.remove("is-open");
+    setTimeout(function () { g.hidden = true; }, 250);
+    if (gateOpener) gateOpener.focus();
+  }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && gateOpen()) closeGate(); });
+  function initGate() {
+    gate = document.getElementById("gate");
+    if (!gate) return;
     var form = document.getElementById("gate-form");
     var input = document.getElementById("gate-pw");
     var msg = document.getElementById("gate-msg");
@@ -363,17 +468,11 @@
       boxEl.classList.remove("is-wrong", "is-granted");
       requestAnimationFrame(function () { gate.classList.add("is-open"); input.focus(); });
     };
-    var closeGate = function () {
-      gate.classList.remove("is-open");
-      setTimeout(function () { gate.hidden = true; }, 250);
-      if (gateOpener) gateOpener.focus();
-    };
     document.querySelectorAll("[data-gate]").forEach(function (b) {
       b.addEventListener("click", function () { openGate(b); });
     });
     gate.querySelectorAll("[data-gate-close]").forEach(function (b) { b.addEventListener("click", closeGate); });
     gate.addEventListener("click", function (e) { if (e.target === gate) closeGate(); });
-    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && gateOpen()) closeGate(); });
 
     var granted = function (url) {
       boxEl.classList.add("is-granted");
@@ -416,58 +515,54 @@
     });
     if (window.location.hash === "#held-still") {
       var hs = document.querySelector("[data-gate]");
-      setTimeout(function () { openGate(hs); }, 700);
+      setTimeout(function () { openGate(hs); }, 900);
     }
   }
+  initGate();
 
   /* ============================================================
      7. The flight
+     The listeners are set up once; initFlight() reads whichever page is
+     in the stage (on load, and after every swap).
      ============================================================ */
   if (!stage) return;
 
   var UNIT_DEPTH = 1150;
-  var CHAPTERS = [], TOTAL_DEPTH = 0;
-  (function spine() {
-    var els = stage.querySelectorAll("[data-chapter]");
-    var total = 0, gaps = [];
-    els.forEach(function (el, i) {
-      var g = i === 0 ? 0 : parseFloat(el.getAttribute("data-gap") || "1.25");
-      gaps.push(g); total += g;
-    });
-    if (total <= 0) total = 1;
-    var cum = 0;
-    els.forEach(function (el, i) {
-      cum += gaps[i];
-      CHAPTERS.push({
-        id: el.getAttribute("data-chapter"),
-        el: el,
-        p: Math.round((cum / total) * 1e5) / 1e5,
-        sky: el.getAttribute("data-sky") || "#0B0B0B",
-        veil: parseFloat(el.getAttribute("data-veil") || "0.7")
-      });
-    });
-    TOTAL_DEPTH = Math.round(total * UNIT_DEPTH);
-  })();
-  if (!CHAPTERS.length) return;
-  var single = CHAPTERS.length === 1;
+  var FADE_OUT_START = 140, FADE_OUT_END = 620, FADE_IN_START = -2400, FADE_IN_END = -650;
+  /* The stops. One push moves one chapter and no further. Leaving the
+     page takes a fresh push after coming to rest on the last (or first)
+     chapter. Right after arriving on a page, input waits until the new
+     page has pulled into focus. */
+  var SNAP_MS = 1100;          // chapter-to-chapter glide
+  var WHEEL_TRIGGER = 24;      // wheel distance that makes one push (one notch of any mouse)
+  var GESTURE_GAP = 280;       // quiet time that ends a gesture
+  var REST_MS = 260;           // pause on arriving at a chapter
+  var EDGE_HOLD = 650;         // rest on the last chapter before the page can be left
+  var ARRIVAL_QUIET = 1400;    // nothing moves until a new page has settled
+  var SWIPE_TRIGGER = 50, SETTLE_MS = 160;
 
   var scrollSpace = document.getElementById("scroll-space");
   var grade = document.getElementById("grade");
-  var railStops = document.getElementById("rail-stops");
   var nav = document.getElementById("nav");
-  var nextUrl = body.getAttribute("data-next");
-  var prevUrl = body.getAttribute("data-prev");
-  var nextLabel = body.getAttribute("data-next-label") || "";
-  var prevLabel = body.getAttribute("data-prev-label") || "";
-  var hint = stage.querySelector(".next-hint");
+  var supports3d = window.CSS && CSS.supports && CSS.supports("transform", "translateZ(1px)");
+  var flat = reduceMotion || !supports3d;
+  if (flat) root.classList.add("flat");
+  else root.classList.add("snap");
 
-  if (scrollSpace) scrollSpace.style.height = single ? "0px" : TOTAL_DEPTH + "px";
+  /* per-page state, filled by initFlight() */
+  var CHAPTERS = [], TOTAL_DEPTH = 0, single = true, layers = [];
+  var railStops = null, hint = null, isHome = false;
+  var nextUrl = null, prevUrl = null, nextLabel = "", prevLabel = "";
+  var targetP = 0, currentP = 0, lastFrame = 0, renderedP = -1;
+  var snapIndex = 0, tween = null, loadedAt = 0, restAt = 0;
+  var wheelAccum = 0, lastWheel = 0, armed = false, fresh = false, recent = [];
+  var lastSig = 0, prevAd = 0, decaying = false;
+  var touching = false, touchY = 0, touchDy = 0, settleTimer = null;
 
   function hexToRgb(hex) {
     var n = parseInt(hex.slice(1), 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  CHAPTERS.forEach(function (ch) { ch.rgb = hexToRgb(ch.sky); });
   function lerpAt(p, pick) {
     if (p <= CHAPTERS[0].p) return pick(CHAPTERS[0]);
     for (var i = 1; i < CHAPTERS.length; i++) {
@@ -482,78 +577,109 @@
     return pick(CHAPTERS[CHAPTERS.length - 1]);
   }
   function paintGrade(p) {
-    if (!grade) return;
+    if (!grade || !CHAPTERS.length) return;
     var c = lerpAt(p, function (ch) { return ch.rgb; });
     var v = lerpAt(p, function (ch) { return ch.veil; });
     grade.style.background = "rgba(" + Math.round(c[0]) + "," + Math.round(c[1]) + "," + Math.round(c[2]) + "," + v.toFixed(3) + ")";
   }
 
-  /* A deep link (/#ch-name) lands on its chapter; arriving backwards
-     from the next page lands on the last one. */
-  var landOn = null;
-  if (/^#ch-/.test(window.location.hash)) landOn = window.location.hash.replace("#ch-", "");
-  else if (arrive === "back") landOn = CHAPTERS[CHAPTERS.length - 1].id;
-
-  var supports3d = window.CSS && CSS.supports && CSS.supports("transform", "translateZ(1px)");
-  if (reduceMotion || !supports3d) {
-    root.classList.add("flat");
-    paintGrade(0);
-    if (landOn) {
-      var el = document.getElementById("ch-" + landOn);
-      if (el) el.scrollIntoView();
-    }
-    return;
+  function teardownFlight() {
+    tween = null;
+    clearTimeout(settleTimer);
+    touching = false;
   }
 
-  /* ---- layers ---- */
-  var FADE_OUT_START = 140, FADE_OUT_END = 620, FADE_IN_START = -2400, FADE_IN_END = -650;
-  var layers = CHAPTERS.map(function (ch) { return { el: ch.el, depth: ch.p * TOTAL_DEPTH, id: ch.id }; });
-  layers.forEach(function (layer, i) {
-    var gapPrev = i === 0 ? TOTAL_DEPTH : layer.depth - layers[i - 1].depth;
-    layer.fadeInStart = -Math.min(-FADE_IN_START, gapPrev * 0.88);
-    layer.fadeInEnd = -Math.min(-FADE_IN_END, gapPrev * 0.28);
-  });
-
-  /* the rail: every page by name, this page's chapters as dots beneath it */
-  if (railStops && !single) {
-    CHAPTERS.forEach(function (ch) {
-      var li = document.createElement("li");
-      var b = document.createElement("button");
-      b.type = "button";
-      b.setAttribute("data-goto", ch.id);
-      b.setAttribute("tabindex", "-1");
-      li.appendChild(b);
-      railStops.appendChild(li);
+  function initFlight(land) {
+    CHAPTERS = [];
+    var els = stage.querySelectorAll("[data-chapter]");
+    var total = 0, gaps = [];
+    els.forEach(function (el, i) {
+      var g = i === 0 ? 0 : parseFloat(el.getAttribute("data-gap") || "1.25");
+      gaps.push(g); total += g;
     });
+    if (total <= 0) total = 1;
+    var cum = 0;
+    els.forEach(function (el, i) {
+      cum += gaps[i];
+      var sky = el.getAttribute("data-sky") || "#0B0B0B";
+      CHAPTERS.push({
+        id: el.getAttribute("data-chapter"), el: el,
+        p: Math.round((cum / total) * 1e5) / 1e5,
+        rgb: hexToRgb(sky),
+        veil: parseFloat(el.getAttribute("data-veil") || "0.7")
+      });
+    });
+    TOTAL_DEPTH = Math.round(total * UNIT_DEPTH);
+    single = CHAPTERS.length <= 1;
+    isHome = stage.hasAttribute("data-home");
+    nextUrl = stage.getAttribute("data-next");
+    prevUrl = stage.getAttribute("data-prev");
+    nextLabel = stage.getAttribute("data-next-label") || "";
+    prevLabel = stage.getAttribute("data-prev-label") || "";
+    hint = stage.querySelector(".next-hint");
+    railStops = document.getElementById("rail-stops");
+    if (nav) nav.classList.toggle("at-hero", isHome);
+    if (!CHAPTERS.length) return;
+
+    if (flat) {
+      paintGrade(0);
+      return;
+    }
+    if (scrollSpace) scrollSpace.style.height = single ? "0px" : TOTAL_DEPTH + "px";
+
+    layers = CHAPTERS.map(function (ch) { return { el: ch.el, depth: ch.p * TOTAL_DEPTH, id: ch.id }; });
+    layers.forEach(function (layer, i) {
+      var gapPrev = i === 0 ? TOTAL_DEPTH : layer.depth - layers[i - 1].depth;
+      layer.fadeInStart = -Math.min(-FADE_IN_START, gapPrev * 0.88);
+      layer.fadeInEnd = -Math.min(-FADE_IN_END, gapPrev * 0.28);
+    });
+    if (railStops && !single) {
+      railStops.innerHTML = "";
+      CHAPTERS.forEach(function (ch) {
+        var li = document.createElement("li");
+        var b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-goto", ch.id);
+        b.setAttribute("tabindex", "-1");
+        b.setAttribute("aria-hidden", "true");
+        li.appendChild(b);
+        railStops.appendChild(li);
+      });
+    }
+
+    var now = performance.now();
+    loadedAt = now; restAt = now; lastWheel = now; lastSig = now;
+    armed = false; fresh = false; recent = []; prevAd = 0; decaying = false; wheelAccum = 0;
+    tween = null;
+
+    snapIndex = 0;
+    if (land === "last") travelTo(CHAPTERS.length - 1, true);
+    else if (land) {
+      for (var i = 0; i < CHAPTERS.length; i++) if (CHAPTERS[i].id === land) { travelTo(i, true); break; }
+    } else {
+      window.scrollTo(0, 0);
+    }
+    targetP = single ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll()));
+    currentP = targetP;
+    renderedP = -1;
+    render();
+
+    /* fetch the neighbours now, so flying on never waits for the network */
+    setTimeout(function () { prefetch(nextUrl); prefetch(prevUrl); }, 1200);
   }
 
-  var targetP = 0, currentP = 0, lastFrame = 0;
   function maxScroll() { return Math.max(1, root.scrollHeight - window.innerHeight); }
   function readScroll() {
     targetP = single ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll()));
     if (document.hidden || performance.now() - lastFrame > 250) { currentP = targetP; render(); }
   }
-  window.addEventListener("scroll", readScroll, { passive: true });
-  window.addEventListener("resize", function () { renderedP = -1; readScroll(); });
 
-  function frame(now) {
-    lastFrame = now || performance.now();
-    if (typeof window.__freezeP === "number") targetP = currentP = window.__freezeP;   // debug
-    if (tween) currentP = targetP;             // the glide already eases
-    else currentP += (targetP - currentP) * 0.12;
-    if (Math.abs(targetP - currentP) < 0.00004) currentP = targetP;
-    /* nothing moved, nothing to draw: a resting page costs nothing */
-    if (currentP !== renderedP) render();
-    requestAnimationFrame(frame);
-  }
-
-  var renderedP = -1;
   function render() {
+    if (!layers.length) return;
     renderedP = currentP;
     var camZ = currentP * TOTAL_DEPTH;
     paintGrade(currentP);
     setBokehShift(currentP);
-
     var activeIdx = -1, bestDist = Infinity;
     layers.forEach(function (layer, idx) {
       var dz = camZ - layer.depth;
@@ -578,8 +704,7 @@
       if (dist < bestDist) { bestDist = dist; activeIdx = idx; }
     });
     layers.forEach(function (layer, idx) { layer.el.classList.toggle("is-active", idx === activeIdx); });
-    if (nav) nav.classList.toggle("at-hero", body.classList.contains("home") && activeIdx === 0 && currentP < 0.02);
-
+    if (nav) nav.classList.toggle("at-hero", isHome && activeIdx === 0 && currentP < 0.02);
     if (railStops && activeIdx >= 0) {
       var id = layers[activeIdx].id;
       railStops.querySelectorAll("button").forEach(function (b) {
@@ -588,23 +713,15 @@
     }
   }
 
-  /* ---- the detent: one push, one chapter; past the ends, the next page ---- */
-  /* The stops. One push moves one chapter and no further: a push is one
-     gesture, and the next needs a fresh one (a pause in the wheel or a
-     new swipe). Leaving the page takes more: you must have come to rest
-     on the last (or first) chapter first, and then push again. Right
-     after arriving on a page all input waits until the old gesture —
-     trackpad momentum included — has died away, so one long flick can
-     never carry you past more than one page. */
-  var SNAP_MS = 1100;          // chapter-to-chapter glide
-  var WHEEL_TRIGGER = 24;      // wheel distance that makes one push (one notch of any mouse)
-  var GESTURE_GAP = 280;       // quiet time that ends a gesture
-  var REST_MS = 260;           // pause on arriving at a chapter
-  var EDGE_HOLD = 650;         // rest on the last chapter before the page can be left
-  var ARRIVAL_QUIET = 1100;    // nothing moves in the first moment on a new page
-  var SWIPE_TRIGGER = 50, SETTLE_MS = 160;
-  var loadedAt = performance.now();
-  root.classList.add("snap");
+  function frame(now) {
+    lastFrame = now || performance.now();
+    if (typeof window.__freezeP === "number") targetP = currentP = window.__freezeP;   // debug
+    if (tween) currentP = targetP;             // the glide already eases
+    else currentP += (targetP - currentP) * 0.12;
+    if (Math.abs(targetP - currentP) < 0.00004) currentP = targetP;
+    if (currentP !== renderedP) render();      // a resting page costs nothing
+    requestAnimationFrame(frame);
+  }
 
   function chapterTop(i) { return Math.round(CHAPTERS[i].p * maxScroll()); }
   function nearestChapter(y) {
@@ -617,17 +734,10 @@
   }
   function busy() {
     if (overlay && !overlay.hidden) return true;
-    return gateOpen();
+    return gateOpen() || leaving;
   }
   /* a gentle sine ease: no lurch at the start, no snap at the end */
   function easeInOut(t) { return -(Math.cos(Math.PI * t) - 1) / 2; }
-
-  var snapIndex = nearestChapter(window.scrollY), tween = null;
-  /* start disarmed: a gesture still running from the previous page is ignored */
-  var wheelAccum = 0, lastWheel = performance.now(), armed = false, restAt = performance.now();
-  var fresh = false, recent = [];
-  var lastSig = performance.now(), prevAd = 0, decaying = false;
-  var touching = false, touchY = 0, touchDy = 0, settleTimer = null;
 
   function stepTween(now) {
     if (!tween) return;
@@ -637,6 +747,7 @@
     else { tween = null; restAt = now; wheelAccum = 0; }
   }
   function travelTo(i, instant) {
+    if (!CHAPTERS.length) return;
     i = Math.max(0, Math.min(CHAPTERS.length - 1, i));
     snapIndex = i;
     var to = chapterTop(i);
@@ -652,7 +763,7 @@
     hint.classList.add("is-nudged");
   }
   function push(dir, sustained) {
-    if (tween || busy() || leaving) return;
+    if (tween || busy() || !CHAPTERS.length) return;
     var now = performance.now();
     if (now - loadedAt < ARRIVAL_QUIET) return;
     if (now - restAt < REST_MS) return;
@@ -667,18 +778,29 @@
     travelTo(next);
   }
 
+  if (flat) {
+    initFlight(null);
+    return;
+  }
+
+  window.addEventListener("scroll", readScroll, { passive: true });
+  window.addEventListener("resize", function () {
+    renderedP = -1;
+    readScroll();
+    if (tween || touching || busy()) return;
+    travelTo(snapIndex, true);
+  });
+
   window.addEventListener("wheel", function (e) {
-    if (busy()) return;
+    if (busy()) { if (leaving) e.preventDefault(); return; }
     e.preventDefault();
     var now = performance.now();
     var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
-    /* Anything that arrives in the first moment on a page is the tail of
-       the gesture that brought us here: it keeps the wheel locked, so
-       only a fresh gesture after a pause can move on. */
     var ad = Math.abs(dy);
     /* How a trackpad really scrolls: a swipe rises for a few events, then
        its momentum dies away in a long tail of tiny events that can go on
        for seconds. So:
+       - while a new page settles, everything waits (and resets);
        - the faint tail (under 4 px) never counts as scrolling, and never
          hides the start of the next swipe;
        - a new swipe is either one that follows a real pause, or one that
@@ -701,7 +823,7 @@
       if (recent.length > 8) recent.shift();
     }
     lastWheel = now;
-    if (tween || leaving || !sig) return;
+    if (tween || !sig) return;
     if (!armed && now - restAt > 380 && recent.length >= 6 && ad >= 8 &&
         recent[recent.length - 1] >= recent[0] * 0.95 && !decaying) {
       armed = true; fresh = false; wheelAccum = 0;
@@ -717,7 +839,6 @@
 
   window.addEventListener("touchstart", function (e) {
     if (busy() || e.touches.length !== 1) { touching = false; return; }
-    armed = true;
     touching = true; touchY = e.touches[0].clientY; touchDy = 0;
   }, { passive: true });
   window.addEventListener("touchmove", function (e) {
@@ -753,33 +874,27 @@
     if (tween || touching) return;
     clearTimeout(settleTimer);
     settleTimer = setTimeout(function () {
-      if (tween || touching || busy()) return;
+      if (tween || touching || busy() || !CHAPTERS.length) return;
       var i = nearestChapter(window.scrollY);
       if (Math.abs(chapterTop(i) - window.scrollY) > 2) travelTo(i); else snapIndex = i;
     }, SETTLE_MS);
   }, { passive: true });
-  window.addEventListener("resize", function () {
-    if (tween || touching || busy()) return;
-    travelTo(snapIndex, true);
-  });
 
-  document.querySelectorAll("[data-goto]").forEach(function (link) {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      closeOverlay();
-      for (var i = 0; i < CHAPTERS.length; i++) {
-        if (CHAPTERS[i].id === link.getAttribute("data-goto")) { travelTo(i); break; }
-      }
-    });
-  });
-
-  if (landOn) {
-    for (var li = 0; li < CHAPTERS.length; li++) {
-      if (CHAPTERS[li].id === landOn) { travelTo(li, true); break; }
+  /* a chapter dot on the rail */
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest && e.target.closest("[data-goto]");
+    if (!link) return;
+    e.preventDefault();
+    closeOverlay();
+    for (var i = 0; i < CHAPTERS.length; i++) {
+      if (CHAPTERS[i].id === link.getAttribute("data-goto")) { travelTo(i); break; }
     }
-  }
-  targetP = single ? 0 : Math.min(1, Math.max(0, window.scrollY / maxScroll()));
-  currentP = targetP;
-  render();
+  });
+
+  var landOn = null;
+  if (/^#ch-/.test(window.location.hash)) landOn = window.location.hash.replace("#ch-", "");
+  else if (arrive === "back") landOn = "last";
+  history.replaceState({ pillango: true }, "", window.location.href);
+  initFlight(landOn);
   requestAnimationFrame(frame);
 })();

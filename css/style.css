@@ -1043,3 +1043,7 @@ html.gate-through #stage { opacity: 0.3; transition: opacity 0.9s; }
 @media (max-width: 1100px) {
   .rail-pages a { font-size: 0; gap: 0; }
 }
+
+/* the instant a new page is swapped in: jump from "dissolved" to
+   "out of focus" without animating in between (js/main.js swapIn) */
+html.no-trans #stage, html.no-trans #page, html.no-trans .layer-inner { transition: none !important; }
