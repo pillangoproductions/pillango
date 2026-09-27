@@ -99,53 +99,45 @@
               window.history && history.pushState);
   }
 
-  /* --- leaving: the one way out of a page --- */
+  /* --- leaving: the one way out of a page ---
+     Flying to another page is the same move as flying to the next
+     chapter: the next page's first chapter (or, going back, the previous
+     page's last one) is placed one step ahead in the same space, and the
+     camera glides to it exactly like any chapter change. Then the rest of
+     that page is filled in around it, unseen. Legal pages, reduced motion
+     and failures fall back to a normal page load. */
   function leave(url, dir, label, landLast, fromHistory) {
     if (leaving) return;
     leaving = true;
-    if (label) root.setAttribute("data-transit", label);
-    root.classList.remove("transit-in");
-    root.classList.add(dir === "back" ? "leaving-back" : "leaving");
-    var started = performance.now();
     var hardLoad = function () {
       if (landLast) store("pillango-arrive", "back");
-      if (label) store("pillango-transit", JSON.stringify({ label: label, dir: dir || "forward" }));
-      setTimeout(function () { window.location.href = url; }, Math.max(0, LEAVE_MS - (performance.now() - started)));
+      root.classList.add(dir === "back" ? "leaving-back" : "leaving");
+      setTimeout(function () { window.location.href = url; }, reduceMotion ? 0 : 450);
     };
-    if (!canSwap() || reduceMotion) { hardLoad(); return; }
+    if (!canSwap() || reduceMotion || !crossReady) { hardLoad(); return; }
     fetchPage(url).then(function (html) {
       var doc = new DOMParser().parseFromString(html, "text/html");
       var next = doc.getElementById("stage");
       if (!next || !next.querySelector("[data-chapter]")) throw new Error("not a flight page");
-      setTimeout(function () { swapIn(doc, next, url, dir, landLast, fromHistory); },
-                 Math.max(0, LEAVE_MS - (performance.now() - started)));
+      crossTo(doc, next, url, dir === "back" || !!landLast, fromHistory);
     }).catch(hardLoad);
   }
+  var crossReady = false;
 
-  /* --- arriving without a reload: swap the new page into the stage --- */
-  function swapIn(doc, next, url, dir, landLast, fromHistory) {
-    teardownFlight();
-    /* the address changes first, so relative links in the new content
-       resolve against the new page */
+  /* after the glide: the page around the new chapter becomes the page */
+  function adoptPage(doc, next, url, fromHistory) {
     if (!fromHistory) history.pushState({ pillango: true }, "", url);
     document.title = doc.title;
-    ["description"].forEach(function (n) {
-      var a = document.querySelector('meta[name="' + n + '"]'), b = doc.querySelector('meta[name="' + n + '"]');
-      if (a && b) a.setAttribute("content", b.getAttribute("content"));
-    });
+    var dA = document.querySelector('meta[name="description"]'), dB = doc.querySelector('meta[name="description"]');
+    if (dA && dB) dA.setAttribute("content", dB.getAttribute("content"));
     var canA = document.querySelector('link[rel="canonical"]'), canB = doc.querySelector('link[rel="canonical"]');
     if (canA && canB) canA.setAttribute("href", canB.getAttribute("href"));
-
-    /* the stage: its settings and its chapters */
     Array.prototype.slice.call(stage.attributes).forEach(function (at) {
       if (at.name !== "id" && at.name !== "class" && at.name !== "style") stage.removeAttribute(at.name);
     });
     Array.prototype.slice.call(next.attributes).forEach(function (at) {
       if (at.name !== "id" && at.name !== "class" && at.name !== "style") stage.setAttribute(at.name, at.value);
     });
-    stage.innerHTML = next.innerHTML;
-
-    /* the rail, the menu's "you are here", and page extras (the gate) */
     var railA = document.getElementById("rail"), railB = doc.getElementById("rail");
     if (railA && railB) railA.replaceWith(document.importNode(railB, true));
     ["overlay-links", "overlay-legal"].forEach(function (cls) {
@@ -156,27 +148,14 @@
     doc.querySelectorAll(".gate, .gate-light").forEach(function (el) {
       stage.parentNode.insertBefore(document.importNode(el, true), stage.nextSibling);
     });
-
-    /* from dissolving straight to "coming out of focus", without
-       animating between the two while invisible */
-    root.classList.add("no-trans");
-    root.classList.remove("leaving", "leaving-back");
-    root.classList.add("arriving", "transit-in");
-    if (dir === "back") root.classList.add("arriving-back");
-    window.scrollTo(0, 0);
-    initFlight(landLast ? "last" : null);
     initGate();
-    void root.offsetWidth;
-    root.classList.remove("no-trans");
-    leaving = false;
-    settleArrival();
   }
 
   window.addEventListener("popstate", function () {
     if (!canSwap()) { window.location.reload(); return; }
     var path = window.location.pathname;
     var link = document.querySelector('.rail-pages a[href="' + path + '"], .overlay-links a[href="' + path + '"]');
-    leave(window.location.href, "back", link ? link.getAttribute("data-label") || link.textContent : "", false, true);
+    leave(window.location.href, "back", "", false, true);
   });
   window.addEventListener("pageshow", function (e) {
     if (e.persisted) {
@@ -541,8 +520,7 @@
   var WHEEL_TRIGGER = 24;      // wheel distance that makes one push (one notch of any mouse)
   var GESTURE_GAP = 280;       // quiet time that ends a gesture
   var REST_MS = 260;           // pause on arriving at a chapter
-  var EDGE_HOLD = 650;         // rest on the last chapter before the page can be left
-  var ARRIVAL_QUIET = 1700;    // nothing moves until a new page has settled
+  var ARRIVAL_QUIET = 1100;    // after a full page load, the old gesture dies away first
   var SWIPE_TRIGGER = 50, SETTLE_MS = 160;
 
   var scrollSpace = document.getElementById("scroll-space");
@@ -593,7 +571,7 @@
     touching = false;
   }
 
-  function initFlight(land) {
+  function initFlight(land, keepInput) {
     CHAPTERS = [];
     var els = stage.querySelectorAll("[data-chapter]");
     var total = 0, gaps = [];
@@ -652,8 +630,14 @@
     }
 
     var now = performance.now();
-    loadedAt = now; restAt = now; lastWheel = now; lastSig = now;
-    armed = false; fresh = false; recent = []; prevAd = 0; decaying = false; wheelAccum = 0;
+    restAt = now;
+    if (keepInput) {
+      loadedAt = now - ARRIVAL_QUIET;          // no extra wait: this was just another glide
+      armed = false; wheelAccum = 0;           // the gesture that brought us here is spent
+    } else {
+      loadedAt = now; lastWheel = now; lastSig = now;
+      armed = false; fresh = false; recent = []; prevAd = 0; decaying = false; wheelAccum = 0;
+    }
     tween = null;
 
     snapIndex = 0;
@@ -670,6 +654,73 @@
 
     /* fetch the neighbours now, so flying on never waits for the network */
     setTimeout(function () { prefetch(nextUrl); prefetch(prevUrl); }, 1200);
+  }
+
+  /* ---- crossing to another page: one chapter glide ---- */
+  var crossing = null;
+  crossReady = true;
+  function layerOpacity(dz, fadeInStart, fadeInEnd) {
+    if (!(dz > fadeInStart && dz < FADE_OUT_END)) return 0;
+    if (dz < fadeInEnd) { var o = (dz - fadeInStart) / (fadeInEnd - fadeInStart); return o * o * o; }
+    if (dz > FADE_OUT_START) return 1 - (dz - FADE_OUT_START) / (FADE_OUT_END - FADE_OUT_START);
+    return 1;
+  }
+  function placeLayer(el, dz, fadeInStart, fadeInEnd) {
+    var o = layerOpacity(dz, fadeInStart, fadeInEnd);
+    el.style.visibility = o > 0 ? "visible" : "hidden";
+    el.style.opacity = o.toFixed(3);
+    if (o > 0) el.style.transform = "translateZ(" + dz.toFixed(1) + "px)";
+  }
+  function crossTo(doc, next, url, back, fromHistory) {
+    var from = layers[snapIndex];
+    var fromCh = CHAPTERS[snapIndex];
+    var src = next.querySelectorAll("[data-chapter]");
+    var idx = back ? src.length - 1 : 0;
+    var target = document.importNode(src[idx], true);
+    target.style.opacity = "0";
+    target.style.visibility = "hidden";
+    if (back) stage.insertBefore(target, from.el); else stage.appendChild(target);
+    var gap = 1.3 * UNIT_DEPTH;
+    crossing = {
+      start: performance.now(), dist: back ? -gap : gap, from: from, fromCh: fromCh, target: target,
+      fin: { start: -Math.min(-FADE_IN_START, gap * 0.88), end: -Math.min(-FADE_IN_END, gap * 0.28) },
+      toRgb: hexToRgb(target.getAttribute("data-sky") || "#0B0B0B"),
+      toVeil: parseFloat(target.getAttribute("data-veil") || "0.7"),
+      done: function () {
+        /* the new page's other chapters go in around the one on screen */
+        var i;
+        for (i = 0; i < idx; i++) stage.insertBefore(document.importNode(src[i], true), target);
+        var after = target.nextSibling;
+        for (i = idx + 1; i < src.length; i++) stage.insertBefore(document.importNode(src[i], true), after);
+        layers.forEach(function (l) { l.el.remove(); });
+        adoptPage(doc, next, url, fromHistory);
+        crossing = null;
+        leaving = false;
+        initFlight(back ? "last" : null, true);
+      }
+    };
+  }
+  function stepCrossing(now) {
+    var c = crossing;
+    var t = Math.min(1, (now - c.start) / SNAP_MS);
+    var e = easeInOut(t);
+    var travelled = c.dist * e;
+    /* the chapter we are leaving moves exactly as it would in a glide */
+    layers.forEach(function (layer) {
+      if (layer === c.from) placeLayer(layer.el, travelled, layer.fadeInStart, layer.fadeInEnd);
+      else { layer.el.style.opacity = "0"; layer.el.style.visibility = "hidden"; }
+    });
+    placeLayer(c.target, travelled - c.dist, c.fin.start, c.fin.end);
+    var nearNew = Math.abs(travelled - c.dist) < Math.abs(travelled);
+    c.from.el.classList.toggle("is-active", !nearNew);
+    c.target.classList.toggle("is-active", nearNew);
+    if (grade) {
+      var fr = c.fromCh.rgb, fv = c.fromCh.veil;
+      grade.style.background = "rgba(" + Math.round(fr[0] + (c.toRgb[0] - fr[0]) * e) + "," +
+        Math.round(fr[1] + (c.toRgb[1] - fr[1]) * e) + "," + Math.round(fr[2] + (c.toRgb[2] - fr[2]) * e) + "," +
+        (fv + (c.toVeil - fv) * e).toFixed(3) + ")";
+    }
+    if (t >= 1) c.done();
   }
 
   function maxScroll() { return Math.max(1, root.scrollHeight - window.innerHeight); }
@@ -720,6 +771,7 @@
   function frame(now) {
     lastFrame = now || performance.now();
     if (typeof window.__freezeP === "number") targetP = currentP = window.__freezeP;   // debug
+    if (crossing) { stepCrossing(lastFrame); requestAnimationFrame(frame); return; }
     if (tween) currentP = targetP;             // the glide already eases
     else currentP += (targetP - currentP) * 0.12;
     if (Math.abs(targetP - currentP) < 0.00004) currentP = targetP;
@@ -766,8 +818,8 @@
     void hint.offsetWidth;
     hint.classList.add("is-nudged");
   }
-  function push(dir, sustained) {
-    if (tween || busy() || !CHAPTERS.length) return;
+  function push(dir) {
+    if (tween || crossing || busy() || !CHAPTERS.length) return;
     var now = performance.now();
     if (now - loadedAt < ARRIVAL_QUIET) return;
     if (now - restAt < REST_MS) return;
@@ -775,8 +827,7 @@
     if (next >= CHAPTERS.length || next < 0) {
       var url = next < 0 ? prevUrl : nextUrl;
       if (!url) return;
-      if (sustained || now - restAt < EDGE_HOLD) { if (next > 0) nudgeHint(); return; }
-      leave(url, next < 0 ? "back" : "forward", next < 0 ? prevLabel : nextLabel, next < 0);
+      leave(url, next < 0 ? "back" : "forward", "", next < 0);
       return;
     }
     travelTo(next);
@@ -796,7 +847,7 @@
   });
 
   window.addEventListener("wheel", function (e) {
-    if (busy()) { if (leaving) e.preventDefault(); return; }
+    if (busy() && !crossing) { if (leaving) e.preventDefault(); return; }
     e.preventDefault();
     var now = performance.now();
     var dy = e.deltaY * (e.deltaMode === 1 ? 16 : 1);
@@ -827,7 +878,7 @@
       if (recent.length > 8) recent.shift();
     }
     lastWheel = now;
-    if (tween || !sig) return;
+    if (tween || crossing || !sig) return;
     if (!armed && now - restAt > 380 && recent.length >= 6 && ad >= 8 &&
         recent[recent.length - 1] >= recent[0] * 0.95 && !decaying) {
       armed = true; fresh = false; wheelAccum = 0;
@@ -837,7 +888,7 @@
     if (Math.abs(wheelAccum) >= WHEEL_TRIGGER) {
       var dir = wheelAccum > 0 ? 1 : -1;
       wheelAccum = 0; armed = false; recent = []; decaying = false;
-      push(dir, !fresh);                     // only a fresh gesture may leave the page
+      push(dir);
     }
   }, { passive: false });
 
