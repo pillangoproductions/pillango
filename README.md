@@ -154,9 +154,11 @@ The locations are the `LOCS` list in the generator (name, area, public address,
 category, type, keywords, setting, notes, private flag) with Drive photo IDs
 per location. Private homes show no address. Photos are shown from Google
 Drive (`drive.google.com/thumbnail?id=…`), so they must stay shared "anyone
-with the link"; the privacy notice says so. To self-host them instead, download
-the photos into `assets/img/locations/` and point `img()` in `js/locations.js`
-at them.
+with the link"; the privacy notice says so. To self-host them, allow `drive.google.com`,
+`drive.usercontent.google.com` and `lh3.googleusercontent.com` in the cloud
+environment's network settings, then run `python3 tools/fetch_location_photos.py`
+(it downloads, resizes to `assets/img/locations/` and switches
+`js/locations.js`); then drop the Google Drive paragraph from the privacy notice.
 
 ## How the pages are built
 
