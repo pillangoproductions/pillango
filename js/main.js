@@ -297,7 +297,7 @@
      orange light underneath that follows it and swells over anything
      you can click.
      ============================================================ */
-  var HOT = "a[href], button, [role='button'], label, summary, .box, input[type='submit']";
+  var HOT = "a[href], button, [role='button'], label, summary, input[type='submit']";
   if (finePointer) {
     var glowEl = document.createElement("div");
     glowEl.className = "cursor-light";
