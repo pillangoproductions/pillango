@@ -123,8 +123,8 @@ site hosted somewhere else instead, set `'redirect'` in `config.php` to its URL
 Every contact button on the site links to `/contact?topic=…`, and the form's
 Topic menu starts on that topic. Arriving without one (flying on from Book,
 or from the menu) picks the topic of the page you came from — each
-`<option data-from="…">` in `contact/index.html` lists its pages (the list is
-`TOPICS` in the generator). The site shows no e-mail address anywhere.
+`<option data-from="…">` in `contact/index.html` lists its pages. The site
+shows no e-mail address anywhere.
 
 `contact/send.php` e-mails each message (Reply-To is the sender), with a
 hidden bot trap and a limit of 5 messages per hour per address. **Set the
@@ -150,9 +150,10 @@ which opens that selection for whoever receives it) or send the list to us —
 it opens the contact form on "Production consulting & locations" with the
 locations already written into the message.
 
-The locations are the `LOCS` list in the generator (name, area, public address,
-category, type, keywords, setting, notes, private flag) with Drive photo IDs
-per location. Private homes show no address. Photos are self-hosted in
+The locations are the `loc-data` JSON in `locations/index.html`, edited there
+directly: one entry per location (id, name, area, public address, category,
+type, keywords, setting, notes, private flag) with its Drive photo IDs.
+Private homes show no address. Photos are self-hosted in
 `assets/img/locations/<id>/<n>.jpg` (1600px, the photo window) and
 `<n>-s.jpg` (640px, cards and thumbnails), numbered in the order of the
 location's photo IDs; `js/locations.js` maps each ID to its file, so the site
@@ -187,9 +188,9 @@ Everything listed — services, partners, projects, posts — is a `.box` in a
 underneath; boxes that don't stay still. Make one a link with `<a class="box" href="…">`.
 
 - **Partners:** each box links to the partner's website (new tab). To show a
-  logo instead of the name, put the file in `assets/img/partners/` and pass it
-  as `img` to `logo_box(...)` in the generator (or put
-  `<img src="/assets/img/partners/name.svg" alt="Name">` inside `.logo-mark`).
+  logo instead of the name, put the file in `assets/img/partners/` and put
+  `<img src="/assets/img/partners/name.svg" alt="Name">` inside the box's
+  `.logo-mark` in `partners/index.html`.
 - **Projects with a full page:** copy `_templates/project.html` to
   `projects/<slug>/index.html` (it has the "Back to Projects" button), then
   link a box to it on `/projects` and add the URL to `sitemap.xml`.

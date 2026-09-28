@@ -9,9 +9,8 @@ lh3.googleusercontent.com, plus Pillow (pip install pillow pillow-heif).
 For every photo ID in locations/index.html (the "loc-data" JSON) it saves
   assets/img/locations/<location-id>/<n>.jpg      1600px wide, the photo window
   assets/img/locations/<location-id>/<n>-s.jpg     640px wide, cards and thumbnails
-then switches js/locations.js to the local files. Afterwards: remove the
-"Location database" paragraph about Google Drive from the privacy notice
-(and the generator), commit and push.
+and, the first time, switches js/locations.js to the local files. Photos that
+are already there are skipped, so a re-run fetches only new ones.
 """
 import io, json, os, re, sys, time, urllib.request
 
