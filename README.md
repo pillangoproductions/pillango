@@ -241,8 +241,8 @@ underneath; boxes that don't stay still. Make one a link with `<a class="box" hr
 - Impresszum / Privacy: registered address, company reg. no., registry court,
   tax number, EU VAT, managing director, e-mail provider, log retention
   (dashed orange, class `tbc`). Have the legal texts reviewed before launch.
-- Partner logos, project key art, the Held Still site, The Book (cover,
-  synopsis, where to buy).
+- Partner logos; loglines for Heartbreak Bay and The Other Shift; the online
+  store link for the book (its "Get the book" buttons open the contact form for now).
 
 ## Colours
 
