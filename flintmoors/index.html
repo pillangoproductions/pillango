@@ -37,7 +37,7 @@
   .scroll-space,.rail{display:none!important}
 </style></noscript>
 </head>
-<body class="page">
+<body class="flight">
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="nav">
@@ -56,33 +56,49 @@
     <a href="/services">Services</a>
     <a href="/partners">Partners</a>
     <a href="/projects">Projects</a>
+    <a href="/flintmoors" aria-current="page">FLINTMOORS</a>
     <a href="/blog">Blog</a>
     <a href="/book">Book</a>
     <a href="/contact">Contact</a>
   </nav>
-  <nav class="overlay-product" aria-label="Products"><a href="/flintmoors" aria-current="page">FLINTMOORS</a></nav>
   <nav class="overlay-legal" aria-label="Legal"><a href="/privacy">Privacy</a> <a href="/impresszum">Impresszum</a> <a href="/gdpr">GDPR</a></nav>
 </div>
 
 <div class="bokeh" id="bokeh" aria-hidden="true"></div>
 <div class="grade" id="grade" aria-hidden="true"></div>
 
-<div id="page">
-<main class="doc-main product-page" id="main">
-  <div class="product">
-    <h1 class="display product-logo"><img src="/assets/img/products/flintmoors-logo.png" alt="FLINTMOORS" width="820" height="128"></h1>
-    <p class="lede product-deck">A Pillangó Productions platform for film and TV producers.</p>
-    <p class="product-body">FLINTMOORS helps producers compare film and TV production incentives across jurisdictions by modelled net effective benefit, with human-verified source provenance — not headline rebate rates alone.</p>
-    <p class="product-body">The platform is in early stages and will open publicly soon.</p>
-    <div class="btn-row"><a class="btn" href="/contact?topic=flintmoors">Interested in early access or a short walkthrough? Get in touch.</a></div>
-    <p class="product-note">FLINTMOORS is a product of Pillangó Productions Kft.</p>
-  </div>
+<main class="stage" id="stage" aria-label="FLINTMOORS" data-page="/flintmoors" data-next="/blog" data-next-label="Blog" data-prev="/projects" data-prev-label="Projects">
+<div id="main"></div>
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.55">
+    <div class="layer-inner narrow">
+      <div class="product">
+        <h1 class="display product-logo"><img src="/assets/img/products/flintmoors-logo.png" alt="FLINTMOORS" width="820" height="128"></h1>
+        <p class="lede product-deck">A Pillangó Productions platform for film and TV producers.</p>
+        <p class="product-body">FLINTMOORS helps producers compare film and TV production incentives across jurisdictions by modelled net effective benefit, with human-verified source provenance — not headline rebate rates alone.</p>
+        <p class="product-body">The platform is in early stages and will open publicly soon.</p>
+        <div class="btn-row"><a class="btn" href="/contact?topic=flintmoors">Interested in early access or a short walkthrough? Get in touch.</a></div>
+        <p class="product-note">FLINTMOORS is a product of Pillangó Productions Kft.</p>
+      </div>
+      <a class="next-hint" href="/blog" data-label="Blog">Next<b>Blog</b><i>Scroll again to continue</i></a>
+    </div>
+  </section>
 </main>
-<footer class="site-foot">
-  <img class="wm wm-foot" src="/assets/img/pillango-logo-900.webp" width="900" height="209" alt="Pillango Productions" decoding="async">
-  <p class="footer-line">© <span data-year>2026</span> Pillango Productions Kft.</p>
-</footer>
-</div>
+
+<nav class="rail" id="rail" aria-label="Pages">
+  <ol class="rail-pages">
+    <li class=""><a href="/" data-label="Home" data-dir="back">Home</a></li>
+    <li class=""><a href="/about" data-label="About" data-dir="back">About</a></li>
+    <li class=""><a href="/services" data-label="Services" data-dir="back">Services</a></li>
+    <li class=""><a href="/partners" data-label="Partners" data-dir="back">Partners</a></li>
+    <li class=""><a href="/projects" data-label="Projects" data-dir="back">Projects</a></li>
+    <li class="is-current"><a href="/flintmoors" data-label="FLINTMOORS" aria-current="page">FLINTMOORS</a><ol class="rail-stops" id="rail-stops"></ol></li>
+    <li class="is-next"><a href="/blog" data-label="Blog">Blog</a></li>
+    <li class=""><a href="/book" data-label="Book">Book</a></li>
+    <li class=""><a href="/contact" data-label="Contact">Contact</a></li>
+  </ol>
+</nav>
+
+<div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
 <script src="/js/main.js?v=19"></script>
 </body>

@@ -13,7 +13,7 @@ are self-hosted). Upload the folder to DreamHost and it works.
 
 The menu (top right, on every page) is the only navigation:
 
-**Home · About · Services · Partners · Projects · Blog · Book · Contact**
+**Home · About · Services · Partners · Projects · FLINTMOORS · Blog · Book · Contact**
 and, smaller, **Privacy · Impresszum · GDPR**.
 
 The flight follows the same order. Scrolling (wheel, trackpad, swipe, arrow
