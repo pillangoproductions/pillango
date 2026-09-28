@@ -1288,3 +1288,5 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 .product .btn { white-space: normal; line-height: 1.5; max-width: 26rem; }
 .product-note { margin-top: 1.4rem; font-size: 0.62rem; letter-spacing: 0.16em; color: var(--text-dim); }
 .product .btn { text-transform: none; letter-spacing: 0.03em; font-size: 0.82rem; }
+.product-logo { line-height: 0; }
+.product-logo img { width: min(22rem, 78vw); height: auto; margin: 0 auto; }
