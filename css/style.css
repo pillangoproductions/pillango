@@ -1235,3 +1235,9 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 .lm-facts dt { font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); padding-top: 0.2rem; }
 .lm-body .btn-row { justify-content: flex-start; }
 @media (max-width: 560px) { .lm-facts { grid-template-columns: 1fr; gap: 0.1rem; } .lm-facts dd { margin-bottom: 0.5rem; } }
+
+/* ---------- blog posts ---------- */
+.post-hero { margin: 0 0 2.4rem; padding: 0; overflow: hidden; }
+.doc-head .kicker { margin-bottom: 0.8rem; }
+.post-cta { margin-top: 2.6rem; }
+.post-card h3 { font-size: 1.05rem; }
