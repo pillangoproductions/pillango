@@ -224,11 +224,17 @@
      that the graphics chip runs by itself: the lights cost the page
      nothing while it flies. Three depths slide apart as you move.
      ============================================================ */
+  /* The depths slide with the whole journey, not with one page: z is the
+     camera's travel since the site opened (it carries on across page
+     changes), and the slide is a slow wave, so it never jumps and never
+     runs out of lights. */
   var bokehLayers = [];
-  var bokehShift = 0;
-  function setBokehShift(p) {
+  var bkBase = 0, bkZ = 0;
+  function setBokehZ(z) {
+    bkZ = z;
+    var w = Math.sin(z / 2600);
     for (var i = 0; i < bokehLayers.length; i++) {
-      bokehLayers[i].el.style.transform = "translate3d(0," + (-p * bokehLayers[i].depth * 22).toFixed(2) + "vh,0)";
+      bokehLayers[i].el.style.transform = "translate3d(0," + (-w * bokehLayers[i].depth * 16).toFixed(2) + "vh,0)";
     }
   }
   (function bokeh() {
@@ -239,9 +245,9 @@
     var WARM = [[232, 96, 124], [214, 80, 104], [240, 128, 150], [200, 72, 98]];
     var COOL = [[182, 88, 158], [156, 82, 170], [128, 72, 160], [104, 64, 146], [205, 106, 168]];
     var LAYERS = [
-      { n: 14, r: [3.5, 6],  a: [0.22, 0.40], soft: 0.30, depth: 0.25, dur: [26, 40] },
-      { n: 32, r: [7, 12],   a: [0.24, 0.40], soft: 0.42, depth: 0.55, dur: [30, 48] },
-      { n: 16, r: [13, 21],  a: [0.09, 0.17], soft: 0.65, depth: 1.0,  dur: [38, 60] }
+      { n: 14, r: [3.5, 6],  a: [0.22, 0.40], soft: 0.30, depth: 0.25, dur: [12, 20] },
+      { n: 32, r: [7, 12],   a: [0.24, 0.40], soft: 0.42, depth: 0.55, dur: [15, 25] },
+      { n: 16, r: [13, 21],  a: [0.09, 0.17], soft: 0.65, depth: 1.0,  dur: [20, 32] }
     ];
     function rgba(c, a) { return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")"; }
     var frag = document.createDocumentFragment();
@@ -265,8 +271,8 @@
           "margin:" + (-r).toFixed(2) + "vmin 0 0 " + (-r).toFixed(2) + "vmin;" +
           "background:radial-gradient(circle closest-side," + rgba(col, a * 0.7) + " 0%," + rgba(col, a * 0.8) + " 60%," +
             rgba(col, a * 0.95) + " " + rim + "%," + rgba(col, a * 0.45) + " " + edge + "%,rgba(0,0,0,0) 100%);" +
-          "--dx:" + ((rnd() - 0.5) * 9).toFixed(2) + "vw;--dy:" + (-(1 + rnd() * 5)).toFixed(2) + "vh;" +
-          "animation-duration:" + (L.dur[0] + rnd() * (L.dur[1] - L.dur[0])).toFixed(1) + "s," + (6 + rnd() * 8).toFixed(1) + "s;" +
+          "--dx:" + ((rnd() - 0.5) * 22).toFixed(2) + "vw;--dy:" + ((rnd() - 0.6) * 16).toFixed(2) + "vh;--ds:" + (0.9 + rnd() * 0.25).toFixed(3) + ";" +
+          "animation-duration:" + (L.dur[0] + rnd() * (L.dur[1] - L.dur[0])).toFixed(1) + "s," + (5 + rnd() * 6).toFixed(1) + "s;" +
           "animation-delay:-" + (rnd() * 40).toFixed(1) + "s,-" + (rnd() * 10).toFixed(1) + "s;";
         layer.appendChild(d);
       }
@@ -282,8 +288,8 @@
       sp.style.cssText =
         "left:" + (rnd() * 100).toFixed(2) + "%;top:" + (25 + rnd() * 72).toFixed(2) + "%;" +
         "width:" + (sr * 6).toFixed(2) + "vmin;height:" + (sr * 6).toFixed(2) + "vmin;margin:" + (-sr * 3).toFixed(2) + "vmin 0 0 " + (-sr * 3).toFixed(2) + "vmin;" +
-        "--dx:" + ((rnd() - 0.5) * 4).toFixed(2) + "vw;--dy:" + (-(1 + rnd() * 3)).toFixed(2) + "vh;" +
-        "animation-duration:" + (20 + rnd() * 20).toFixed(1) + "s," + (2 + rnd() * 4).toFixed(1) + "s;" +
+        "--dx:" + ((rnd() - 0.5) * 10).toFixed(2) + "vw;--dy:" + (-(2 + rnd() * 8)).toFixed(2) + "vh;" +
+        "animation-duration:" + (10 + rnd() * 10).toFixed(1) + "s," + (2 + rnd() * 4).toFixed(1) + "s;" +
         "animation-delay:-" + (rnd() * 30).toFixed(1) + "s,-" + (rnd() * 6).toFixed(1) + "s;";
       sparkLayer.appendChild(sp);
     }
@@ -761,7 +767,10 @@
         adoptPage(doc, next, url, fromHistory);
         crossing = null;
         leaving = false;
+        var zEnd = bkZ;
         initFlight(back ? "last" : null, true);
+        bkBase = zEnd - currentP * TOTAL_DEPTH;
+        setBokehZ(zEnd);
       }
     };
   }
@@ -770,6 +779,8 @@
     var t = Math.min(1, (now - c.start) / SNAP_MS);
     var e = easeInOut(t);
     var travelled = c.dist * e;
+    if (c.z0 == null) c.z0 = bkZ;
+    setBokehZ(c.z0 + travelled);
     /* the chapter we are leaving moves exactly as it would in a glide */
     layers.forEach(function (layer) {
       if (layer === c.from) placeLayer(layer.el, travelled, layer.fadeInStart, layer.fadeInEnd);
@@ -799,7 +810,7 @@
     renderedP = currentP;
     var camZ = currentP * TOTAL_DEPTH;
     paintGrade(currentP);
-    setBokehShift(currentP);
+    setBokehZ(bkBase + camZ);
     var activeIdx = -1, bestDist = Infinity;
     layers.forEach(function (layer, idx) {
       var dz = camZ - layer.depth;

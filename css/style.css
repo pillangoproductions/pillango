@@ -114,8 +114,8 @@ img { max-width: 100%; height: auto; }
   background: radial-gradient(circle closest-side, rgba(255, 238, 210, 1) 0%, rgba(255, 196, 140, 0.9) 12%, rgba(255, 150, 80, 0.28) 35%, rgba(255, 130, 60, 0) 100%);
   animation-name: bk-drift, bk-twinkle;
 }
-@keyframes bk-drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--dx), var(--dy), 0); } }
-@keyframes bk-breathe { from { opacity: 1; } to { opacity: 0.68; } }
+@keyframes bk-drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(var(--dx), var(--dy), 0) scale(var(--ds, 1)); } }
+@keyframes bk-breathe { from { opacity: 1; } to { opacity: 0.55; } }
 @keyframes bk-twinkle { from { opacity: 0.95; } to { opacity: 0.2; } }
 
 .grade {
