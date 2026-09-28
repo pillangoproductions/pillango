@@ -35,7 +35,7 @@ $topics = [
     'general' => 'General enquiry', 'production' => 'Film production',
     'post-production' => 'Post-production / booking the stage', 'financing' => 'Post-production financing',
     'consulting' => 'Production consulting', 'partnership' => 'Partnerships',
-    'projects' => 'Projects & screenings', 'blog' => 'Blog & press', 'book' => 'The Book',
+    'projects' => 'Projects & screenings', 'blog' => 'Blog & press', 'book' => 'The Book', 'flintmoors' => 'FLINTMOORS',
     'privacy' => 'Privacy / GDPR request',
 ];
 $topic = $topics[(string)($_POST['topic'] ?? '')] ?? $topics['general'];
