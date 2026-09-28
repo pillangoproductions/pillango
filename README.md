@@ -242,7 +242,7 @@ underneath; boxes that don't stay still. Make one a link with `<a class="box" hr
   tax number, EU VAT, managing director, e-mail provider, log retention
   (dashed orange, class `tbc`). Have the legal texts reviewed before launch.
 - Partner logos; loglines for Heartbreak Bay and The Other Shift; the online
-  store link for the book (its "Get the book" buttons open the contact form for now).
+  (the book page links to zoltandeak.com).
 
 ## Colours
 
