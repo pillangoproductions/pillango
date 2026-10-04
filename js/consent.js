@@ -58,13 +58,13 @@
   function showBanner() {
     if (banner) { banner.hidden = false; return; }
     banner = document.createElement("div");
-    banner.className = "consent";
+    banner.className = "cookie-bar";
     banner.setAttribute("role", "dialog");
     banner.setAttribute("aria-label", "Cookie settings");
     banner.innerHTML =
       '<p>We use cookies for anonymous visitor statistics (Google Analytics) and to show YouTube previews — only if you agree. ' +
       'Necessary storage is always on. <a href="/cookies">Cookie policy</a></p>' +
-      '<div class="consent-btns">' +
+      '<div class="cookie-bar-btns">' +
       '<button type="button" class="btn" data-consent="all">Accept all</button>' +
       '<button type="button" class="btn" data-consent="necessary">Necessary only</button>' +
       '</div>';

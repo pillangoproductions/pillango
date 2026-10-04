@@ -1294,7 +1294,7 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 /* ============================================================
    COOKIE CONSENT
    ============================================================ */
-.consent {
+.cookie-bar {
   position: fixed; z-index: 130;
   left: 50%; bottom: max(1rem, env(safe-area-inset-bottom));
   transform: translateX(-50%);
@@ -1306,11 +1306,11 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
   box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.9), 0 14px 30px -24px rgba(var(--glow), 0.7);
   font-size: 0.78rem; line-height: 1.6; color: var(--text);
 }
-.consent[hidden] { display: none; }
-.consent p { flex: 1 1 18rem; margin: 0; }
-.consent a { color: var(--amber); text-underline-offset: 3px; }
-.consent-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-.consent .btn { padding: 0.7rem 1.1rem; }
+.cookie-bar[hidden] { display: none; }
+.cookie-bar p { flex: 1 1 18rem; margin: 0; }
+.cookie-bar a { color: var(--amber); text-underline-offset: 3px; }
+.cookie-bar-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.cookie-bar .btn { padding: 0.7rem 1.1rem; }
 
 /* ============================================================
    OUR WORK — click-to-play video cards
@@ -1343,3 +1343,6 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 .v-info p { font-size: 0.78rem; margin: 0.35rem 0 0; }
 .v-note { font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: 1.6rem; }
 .v-note button { font: inherit; color: var(--amber); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* contact: the form is the page — a compact heading above it */
+.contact-title { font-size: clamp(1.9rem, 4.2vw, 2.8rem); margin-bottom: 1.2rem; }
