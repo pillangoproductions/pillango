@@ -1315,7 +1315,8 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 /* ============================================================
    OUR WORK — click-to-play video cards
    ============================================================ */
-.video-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 44rem)); justify-content: center; gap: 1.4rem; }
+.video-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+@media (max-width: 720px) { .video-grid { grid-template-columns: 1fr; } }
 .video-grid .box { padding: 0; gap: 0; }
 .video-grid .box:hover, .video-grid .box:focus-within {
   transform: translateY(-6px);
