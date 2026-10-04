@@ -1349,3 +1349,4 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 /* contact: the form is the page — a compact heading above it */
 .contact-title { font-size: clamp(1.9rem, 4.2vw, 2.8rem); margin-bottom: 1.2rem; }
 .lede.about-more { font-size: 0.86em; margin-top: 1rem; }
+@media (max-width: 420px) { .logo-mark { height: auto; min-height: 2.6rem; font-size: 0.92rem; letter-spacing: 0.1em; overflow-wrap: anywhere; } }
