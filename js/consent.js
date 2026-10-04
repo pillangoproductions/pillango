@@ -3,7 +3,7 @@
    To switch analytics on, put the GA4 Measurement ID below (e.g. "G-ABC123XYZ"). */
 (function () {
   "use strict";
-  var GA_ID = "";
+  var GA_ID = "G-SB41MDCY2D";
 
   var KEY = "pillango-consent";
   function read() {
