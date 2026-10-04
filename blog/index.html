@@ -27,8 +27,8 @@
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=27">
-<link rel="stylesheet" href="/css/style.css?v=27">
+<link rel="stylesheet" href="/css/fonts.css?v=28">
+<link rel="stylesheet" href="/css/style.css?v=28">
 <noscript><style>
   .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
@@ -69,22 +69,16 @@
 
 <main class="stage" id="stage" aria-label="Blog" data-page="/blog" data-next="/book" data-next-label="Book" data-prev="/flintmoors" data-prev-label="FLINTMOORS">
 <div id="main"></div>
-  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
-    <span class="scroll-cue" aria-hidden="true"></span>
-    <div class="layer-inner narrow">
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.62">
+    <div class="layer-inner wide">
       <p class="kicker">Blog</p>
       <h1 class="display intro">Blog</h1>
       <p class="lede">Production notes, post-production and news from the studio.</p>
-    </div>
-  </section>
-
-  <section class="layer" id="ch-posts" data-chapter="posts" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.72">
-    <div class="layer-inner wide">
       <!-- Posts: copy /_templates/blog-post.html to /blog/<slug>/index.html, then add a box here
            (newest first) and the URL to /sitemap.xml:
            <li><a class="box" href="/blog/<slug>"><div class="frame"><img src="/blog/<slug>/cover.jpg" alt=""></div>
              <p class="meta">2026-10-01</p><h3>Title</h3><p>One line.</p><span class="go">Read</span></a></li> -->
-      <ul class="box-grid cols-4">
+      <ul class="box-grid cols-4" style="margin-top:2rem">
         <li><a class="box post-card" href="/blog/hungary-uk-ireland-rebate-honest-comparison">
           <div class="frame"><img src="/assets/img/blog/rebate-comparison.jpg" alt="" loading="lazy"></div>
           <p class="meta">Production Strategy · June 2026</p>
@@ -113,6 +107,7 @@
       <a class="next-hint" href="/book" data-label="Book">Next<b>Book</b><i>Scroll again to continue</i></a>
     </div>
   </section>
+
 </main>
 
 <nav class="rail" id="rail" aria-label="Pages">
@@ -131,7 +126,7 @@
 
 <div class="scroll-space" id="scroll-space" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=27"></script>
-<script src="/js/consent.js?v=27"></script>
+<script src="/js/main.js?v=28"></script>
+<script src="/js/consent.js?v=28"></script>
 </body>
 </html>
