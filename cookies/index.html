@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>(function(){var r=document.documentElement;r.classList.add("js");try{var t=JSON.parse(sessionStorage.getItem("pillango-transit")||"null");if(t&&t.label){r.setAttribute("data-transit",t.label);r.classList.add("transit-in");if(t.dir==="back")r.classList.add("arriving-back");}}catch(e){}setTimeout(function(){r.classList.remove("arriving","transit-in");},3500);})();</script>
 <title>Cookie Policy | Pillango Productions</title>
-<meta name="description" content="Which cookies and browser storage pillangoprod.com uses: no tracking or advertising cookies, one strictly necessary session cookie, and how to control them.">
+<meta name="description" content="Which cookies and browser storage pillangoprod.com uses: strictly necessary storage, Google Analytics and YouTube only with your consent, and how to change your choice.">
 <link rel="canonical" href="https://pillangoprod.com/cookies">
 <meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
 <meta property="og:title" content="Cookie Policy | Pillango Productions">
-<meta property="og:description" content="Which cookies and browser storage pillangoprod.com uses: no tracking or advertising cookies, one strictly necessary session cookie, and how to control them.">
+<meta property="og:description" content="Which cookies and browser storage pillangoprod.com uses: strictly necessary storage, Google Analytics and YouTube only with your consent, and how to change your choice.">
 <meta property="og:url" content="https://pillangoprod.com/cookies">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <meta property="og:image:width" content="1200">
@@ -20,15 +20,15 @@
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Cookie Policy | Pillango Productions">
-<meta name="twitter:description" content="Which cookies and browser storage pillangoprod.com uses: no tracking or advertising cookies, one strictly necessary session cookie, and how to control them.">
+<meta name="twitter:description" content="Which cookies and browser storage pillangoprod.com uses: strictly necessary storage, Google Analytics and YouTube only with your consent, and how to change your choice.">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/cormorantgaramond-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/outfit-normal-300-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=20">
-<link rel="stylesheet" href="/css/style.css?v=20">
+<link rel="stylesheet" href="/css/fonts.css?v=21">
+<link rel="stylesheet" href="/css/style.css?v=21">
 <noscript><style>
   .stage{position:relative!important;height:auto!important}
   .layer{position:relative!important;transform:none!important;opacity:1!important;visibility:visible!important;min-height:100svh;pointer-events:auto!important}
@@ -72,7 +72,7 @@
 <main class="doc-main" id="main">
   <header class="doc-head">
     <h1 class="display">Cookie policy</h1>
-    <p class="lede">No tracking, no advertising, no banner needed.</p>
+    <p class="lede">No advertising cookies. Statistics and video only if you agree.</p>
   </header>
   <div class="prose">
     <p>This policy explains which cookies and similar browser technologies <strong>pillangoprod.com</strong>, operated by Pillango Productions Kft., uses and why. It follows the EU ePrivacy rules as applied in Hungary (Act C of 2003 on Electronic Communications, § 155(4)) and the GDPR. How we handle personal data in general is described in our <a href="/privacy">privacy notice</a>.</p>
@@ -80,16 +80,26 @@
     <h2>What cookies are</h2>
     <p>Cookies are small text files a website stores in your browser. Similar technologies, such as local storage and session storage, keep small pieces of information in your browser in the same way. The law treats them alike, so this policy covers all of them.</p>
 
+    <h2>Your choice</h2>
+    <p>When you first visit, a banner asks whether you accept analytics cookies and YouTube previews. Both buttons are equal: “Accept all” or “Necessary only”. Nothing optional is set until you choose “Accept all”, and you can change your mind at any time:</p>
+    <p><button type="button" class="btn" data-consent-open>Change cookie settings</button></p>
+
     <h2>What we do not use</h2>
     <ul>
-      <li>No analytics or statistics cookies.</li>
-      <li>No advertising, marketing or tracking cookies.</li>
-      <li>No social media plug-ins, embedded videos or other third-party content that could set its own cookies.</li>
-      <li>No third-party scripts or web fonts — everything is served from our own host.</li>
+      <li>No advertising, marketing or cross-site tracking cookies.</li>
+      <li>No social media plug-ins.</li>
+      <li>No third-party web fonts — typefaces are served from our own host.</li>
     </ul>
 
-    <h2>What we use</h2>
-    <p>Everything below is <strong>strictly necessary</strong> for a feature you ask for, contains no personal data, and never leaves your browser except where stated. Under the law, strictly necessary cookies do not require consent, which is why the site shows no cookie banner.</p>
+    <h2>Strictly necessary (always on)</h2>
+    <p>These are needed for features you ask for, contain no personal data, and never leave your browser except where stated. Under the law they do not require consent.</p>
+
+    <h3>Your cookie choice (local storage)</h3>
+    <dl>
+      <dt>Name</dt><dd>pillango-consent</dd>
+      <dt>Purpose</dt><dd>Remembers whether you chose “Accept all” or “Necessary only”, so the banner does not ask again.</dd>
+      <dt>Duration</dt><dd>Until you change your choice or clear your browser data</dd>
+    </dl>
 
     <h3>Private project sign-in (cookie)</h3>
     <dl>
@@ -115,14 +125,32 @@
       <dt>Duration</dt><dd>Until you remove the favourites or clear your browser data</dd>
     </dl>
 
-    <h2>Your choices</h2>
-    <p>You can block or delete cookies and site data at any time in your browser settings. The site works without them; you will only need to enter a private project password again, your favourites list will be empty, and page changes will start at the top.</p>
+    <h2>Only with your consent</h2>
+
+    <h3>Visitor statistics — Google Analytics</h3>
+    <dl>
+      <dt>Names</dt><dd>_ga, _ga_&lt;ID&gt;</dd>
+      <dt>Provider</dt><dd>Google Ireland Ltd. (first-party cookies on pillangoprod.com)</dd>
+      <dt>Purpose</dt><dd>Counts visits and shows us, in aggregate, how the site is used. Not used for advertising.</dd>
+      <dt>Duration</dt><dd>Up to 2 years; deleted straight away if you switch to “Necessary only”</dd>
+    </dl>
+
+    <h3>Videos — YouTube</h3>
+    <dl>
+      <dt>Provider</dt><dd>Google Ireland Ltd. (YouTube, privacy-enhanced mode: youtube-nocookie.com)</dd>
+      <dt>When</dt><dd>Only on the <a href="/work">work page</a>, and only after you accept cookies (preview images) or press play (the video player)</dd>
+      <dt>Purpose</dt><dd>Plays the video. YouTube may store cookies or local storage in your browser for playback, settings and statistics, as described in <a href="https://policies.google.com/technologies/cookies" rel="noopener" target="_blank">Google’s cookie policy</a>.</dd>
+      <dt>Duration</dt><dd>Set by Google — from the end of the session up to several months</dd>
+    </dl>
+
+    <h2>Browser settings</h2>
+    <p>You can also block or delete cookies and site data in your browser settings. The site works without them; you will only need to enter a private project password again, your favourites list will be empty, page changes will start at the top, and the cookie banner will ask again.</p>
 
     <h2>Links to other websites</h2>
     <p>Our pages link to partner sites and other websites. Once you follow such a link, that site’s own cookie policy applies.</p>
 
     <h2>Changes</h2>
-    <p>If we ever add cookies that need your consent — for example analytics — we will update this policy first and ask for your consent before setting them.</p>
+    <p>If we add or change cookies, we will update this policy first and, where consent is needed, ask for it again.</p>
 
     <p>Questions: please use the <a href="/contact?topic=privacy">contact form</a>.</p>
 
@@ -136,6 +164,7 @@
 </footer>
 </div>
 <div class="grain" aria-hidden="true"></div>
-<script src="/js/main.js?v=20"></script>
+<script src="/js/main.js?v=21"></script>
+<script src="/js/consent.js?v=21"></script>
 </body>
 </html>

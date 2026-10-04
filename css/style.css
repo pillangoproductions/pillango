@@ -1290,3 +1290,56 @@ ul.box-grid.cols-2.doc-boxes .box:has(h3) { flex-direction: column; align-items:
 .product .btn { text-transform: none; letter-spacing: 0.03em; font-size: 0.82rem; }
 .product-logo { line-height: 0; }
 .product-logo img { width: min(22rem, 78vw); height: auto; margin: 0 auto; }
+
+/* ============================================================
+   COOKIE CONSENT
+   ============================================================ */
+.consent {
+  position: fixed; z-index: 130;
+  left: 50%; bottom: max(1rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(40rem, calc(100% - 2rem));
+  display: flex; align-items: center; gap: 1rem 1.4rem; flex-wrap: wrap;
+  padding: 1rem 1.2rem;
+  background: rgba(12, 10, 13, 0.94);
+  border: 1px solid var(--hair-2);
+  box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.9), 0 14px 30px -24px rgba(var(--glow), 0.7);
+  font-size: 0.78rem; line-height: 1.6; color: var(--text);
+}
+.consent[hidden] { display: none; }
+.consent p { flex: 1 1 18rem; margin: 0; }
+.consent a { color: var(--amber); text-underline-offset: 3px; }
+.consent-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.consent .btn { padding: 0.7rem 1.1rem; }
+
+/* ============================================================
+   OUR WORK — click-to-play video cards
+   ============================================================ */
+.video-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 44rem)); justify-content: center; gap: 1.4rem; }
+.video-grid .box { padding: 0; gap: 0; }
+.video-grid .box:hover, .video-grid .box:focus-within {
+  transform: translateY(-6px);
+  border-color: rgba(var(--glow), 0.5);
+  box-shadow: 0 26px 40px -26px rgba(var(--glow), 0.95);
+}
+.video-grid .box:hover::after, .video-grid .box:focus-within::after { opacity: 1; transform: scaleX(1); }
+.v-frame { position: relative; aspect-ratio: 16 / 9; background: #08070a radial-gradient(ellipse at 50% 120%, rgba(var(--glow), 0.28), transparent 65%); }
+.v-frame iframe, .v-frame .v-play { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.v-play { display: block; padding: 0; background: transparent center / cover no-repeat; cursor: pointer; color: var(--white); }
+.v-play .wm { position: absolute; left: 50%; top: 50%; width: 38%; transform: translate(-50%, -50%); opacity: 0.18; transition: opacity 0.4s; }
+.v-play.has-thumb .wm { opacity: 0; }
+.v-play::before {
+  content: ""; position: absolute; left: 50%; top: 50%; width: 4.2rem; height: 4.2rem; transform: translate(-50%, -50%);
+  border-radius: 50%; border: 1px solid rgba(var(--glow), 0.8); background: rgba(10, 10, 11, 0.55);
+  transition: transform 0.4s var(--ease), background 0.3s;
+}
+.v-play::after {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-35%, -50%);
+  border-style: solid; border-width: 0.65rem 0 0.65rem 1.05rem; border-color: transparent transparent transparent var(--white);
+}
+.v-play:hover::before, .v-play:focus-visible::before { transform: translate(-50%, -50%) scale(1.08); background: rgba(var(--glow), 0.35); }
+.v-info { padding: 0.95rem 1.1rem 1.1rem; }
+.v-info h2 { font-family: var(--font-display); font-weight: 400; font-size: 1.35rem; line-height: 1.2; color: var(--white); margin: 0; }
+.v-info p { font-size: 0.78rem; margin: 0.35rem 0 0; }
+.v-note { font-size: 0.68rem; color: var(--text-dim); text-align: center; margin-top: 1.6rem; }
+.v-note button { font: inherit; color: var(--amber); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }

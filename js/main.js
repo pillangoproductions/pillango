@@ -127,8 +127,8 @@
 
   /* after the glide: the page around the new chapter becomes the page */
   function adoptPage(doc, next, url, fromHistory) {
+    document.title = doc.title;   /* before the URL changes, so analytics records the new title */
     if (!fromHistory) history.pushState({ pillango: true }, "", url);
-    document.title = doc.title;
     var dA = document.querySelector('meta[name="description"]'), dB = doc.querySelector('meta[name="description"]');
     if (dA && dB) dA.setAttribute("content", dB.getAttribute("content"));
     var canA = document.querySelector('link[rel="canonical"]'), canB = doc.querySelector('link[rel="canonical"]');
