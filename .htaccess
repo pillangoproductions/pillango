@@ -1,5 +1,5 @@
 # Pillango Productions — pillangoprod.com (Apache / DreamHost)
-Options -Indexes -MultiViews
+Options -Indexes -MultiViews +SymLinksIfOwnerMatch
 AddDefaultCharset UTF-8
 DirectoryIndex index.html
 ErrorDocument 404 /404.html
