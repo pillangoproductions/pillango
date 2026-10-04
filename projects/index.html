@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <script>(function(){var r=document.documentElement;r.classList.add("js");try{var t=JSON.parse(sessionStorage.getItem("pillango-transit")||"null");if(t&&t.label){r.setAttribute("data-transit",t.label);r.classList.add("transit-in");if(t.dir==="back")r.classList.add("arriving-back");}}catch(e){}setTimeout(function(){r.classList.remove("arriving","transit-in");},3500);})();</script>
-<title>Projects — Pillango Productions</title>
+<title>Our Development Slate — Pillango Productions</title>
 <meta name="description" content="Pillango Productions’ own projects: feature films and TV series in development, with private screening rooms for partners.">
 <link rel="canonical" href="https://pillangoprod.com/projects">
 <meta name="theme-color" content="#0A0A0B">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pillango Productions">
 <meta property="og:locale" content="en_GB">
-<meta property="og:title" content="Projects — Pillango Productions">
+<meta property="og:title" content="Our Development Slate — Pillango Productions">
 <meta property="og:description" content="Pillango Productions’ own projects: feature films and TV series in development, with private screening rooms for partners.">
 <meta property="og:url" content="https://pillangoprod.com/projects">
 <meta property="og:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
@@ -19,7 +19,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Pillango Productions logo over out-of-focus lights">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Projects — Pillango Productions">
+<meta name="twitter:title" content="Our Development Slate — Pillango Productions">
 <meta name="twitter:description" content="Pillango Productions’ own projects: feature films and TV series in development, with private screening rooms for partners.">
 <meta name="twitter:image" content="https://pillangoprod.com/assets/img/og-image.jpg">
 <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
@@ -55,7 +55,7 @@
     <a href="/about">About</a>
     <a href="/services">Services</a>
     <a href="/partners">Partners</a>
-    <a href="/projects" aria-current="page">Projects</a>
+    <a href="/projects" aria-current="page">Development Slate</a>
     <a href="/flintmoors">FLINTMOORS</a>
     <a href="/blog">Blog</a>
     <a href="/book">Book</a>
@@ -67,22 +67,16 @@
 <div class="bokeh" id="bokeh" aria-hidden="true"></div>
 <div class="grade" id="grade" aria-hidden="true"></div>
 
-<main class="stage" id="stage" aria-label="Projects" data-page="/projects" data-next="/flintmoors" data-next-label="FLINTMOORS" data-prev="/partners" data-prev-label="Partners">
+<main class="stage" id="stage" aria-label="Our Development Slate" data-page="/projects" data-next="/flintmoors" data-next-label="FLINTMOORS" data-prev="/partners" data-prev-label="Partners">
 <div id="main"></div>
-  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.42">
-    <span class="scroll-cue" aria-hidden="true"></span>
-    <div class="layer-inner narrow">
-      <p class="kicker">Projects</p>
-      <h1 class="display intro">Projects</h1>
-      <p class="lede">Feature films, TV series and more from our own slate.</p>
-    </div>
-  </section>
-
-  <section class="layer" id="ch-list" data-chapter="list" data-gap="1.3" data-sky="#0A0A0B" data-veil="0.72">
+  <section class="layer" id="ch-intro" data-chapter="intro" data-sky="#0A0A0B" data-veil="0.62">
     <div class="layer-inner wide">
+      <p class="kicker">Projects</p>
+      <h1 class="display intro">Our Development Slate</h1>
+      <p class="lede">Feature films, TV series and more from our own slate.</p>
       <!-- A project with a full page: copy /_templates/project.html to /projects/<slug>/index.html
            and link its box here. Held Still opens the password box instead. -->
-      <ul class="box-grid cols-3">
+      <ul class="box-grid cols-3" style="margin-top:2rem">
         <li><button class="box" type="button" data-gate id="held-still">
           <div class="frame"><img src="/assets/img/projects/held-still-key-art.jpg" alt="Held Still key art: an eye held open between two fingers" width="1200" height="675" loading="lazy"></div>
           <p class="meta"><svg class="icon" style="width:.7rem;height:.7rem;vertical-align:-1px" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Private screening room</p>
@@ -106,6 +100,7 @@
       <a class="next-hint" href="/flintmoors" data-label="FLINTMOORS">Next<b>FLINTMOORS</b><i>Scroll again to continue</i></a>
     </div>
   </section>
+
 </main>
 
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gate-title" data-endpoint="/projects/held-still/gate.php?action=login" hidden>
@@ -127,7 +122,7 @@
     <li class=""><a href="/about" data-label="About" data-dir="back">About</a></li>
     <li class=""><a href="/services" data-label="Services" data-dir="back">Services</a></li>
     <li class=""><a href="/partners" data-label="Partners" data-dir="back">Partners</a></li>
-    <li class="is-current"><a href="/projects" data-label="Projects" aria-current="page">Projects</a><ol class="rail-stops" id="rail-stops"></ol></li>
+    <li class="is-current"><a href="/projects" data-label="Development Slate" aria-current="page">Development Slate</a><ol class="rail-stops" id="rail-stops"></ol></li>
     <li class="is-next"><a href="/flintmoors" data-label="FLINTMOORS">FLINTMOORS</a></li>
     <li class=""><a href="/blog" data-label="Blog">Blog</a></li>
     <li class=""><a href="/book" data-label="Book">Book</a></li>
