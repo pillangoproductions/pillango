@@ -30,6 +30,14 @@ RewriteRule ^the-book/?$ /book [R=301,L]
 RewriteRule ^held-still(/.*)?$ /projects/held-still$1 [R=301,L]
 RewriteRule ^project-assessment/?$ /services/consulting [R=301,L]
 RewriteRule ^post-production/?$ /services/post-production [R=301,L]
+# addresses of the previous site that Google still knows (Search Console, Oct 2026)
+RewriteRule ^home/?$ / [R=301,L]
+RewriteRule ^film-consultation-services/?$ /services/consulting [R=301,L]
+RewriteRule ^post-production-services/?$ /services/post-production [R=301,L]
+RewriteRule ^film-production-services/?$ /services/film-production [R=301,L]
+RewriteRule ^(post-production-)?financing(-services)?/?$ /services/financing [R=301,L]
+RewriteRule ^about-us/?$ /about [R=301,L]
+RewriteRule ^contact-us/?$ /contact [R=301,L]
 
 # ---- /index.html and /page/index.html → clean URL -----------------------
 RewriteCond %{THE_REQUEST} \s/index\.html[\s?]
