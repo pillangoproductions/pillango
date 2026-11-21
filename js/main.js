@@ -22,8 +22,8 @@
      data-veil  how much of that colour covers the bokeh, 0–1
    and #stage itself carries data-next / data-prev (+ -label).
 
-   Also here: the bokeh background, the orange light under the cursor,
-   the water ripple on click, the menu, and the Held Still password box.
+   Also here: the bokeh background, the menu, and the Held Still
+   password box.
    ============================================================ */
 (function () {
   "use strict";
@@ -32,8 +32,6 @@
   var body = document.body;
   var stage = document.getElementById("stage");
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  var isSafari = /^((?!chrome|android|crios|fxios|edg).)*safari/i.test(navigator.userAgent);
 
   document.querySelectorAll("[data-year]").forEach(function (el) {
     el.textContent = new Date().getFullYear();
@@ -297,137 +295,6 @@
     frag.appendChild(sparkLayer);
     host.appendChild(frag);
   })();
-
-  /* ============================================================
-     4. The cursor: a tiny ⅃L (a CSS cursor image) with a pool of
-     orange light underneath that follows it and swells over anything
-     you can click.
-     ============================================================ */
-  var HOT = "a[href], button, [role='button'], label, summary, input[type='submit']";
-  if (finePointer) {
-    var glowEl = document.createElement("div");
-    glowEl.className = "cursor-light";
-    glowEl.setAttribute("aria-hidden", "true");
-    body.appendChild(glowEl);
-    var gx = -500, gy = -500, tx = -500, ty = -500, glowOn = false;
-    document.addEventListener("pointermove", function (e) {
-      if (e.pointerType !== "mouse") return;
-      tx = e.clientX; ty = e.clientY;
-      if (!glowOn) { gx = tx; gy = ty; glowOn = true; glowEl.classList.add("is-on"); }
-      var hot = e.target.closest && e.target.closest(HOT);
-      glowEl.classList.toggle("is-hot", !!hot);
-    }, { passive: true });
-    document.addEventListener("pointerleave", function () { glowOn = false; glowEl.classList.remove("is-on"); });
-    var following = false;
-    var follow = function () {
-      gx += (tx - gx) * (reduceMotion ? 1 : 0.22);
-      gy += (ty - gy) * (reduceMotion ? 1 : 0.22);
-      if (Math.abs(tx - gx) < 0.3 && Math.abs(ty - gy) < 0.3) { gx = tx; gy = ty; following = false; }
-      glowEl.style.transform = "translate3d(" + gx.toFixed(1) + "px," + gy.toFixed(1) + "px,0)";
-      if (following) requestAnimationFrame(follow);
-    };
-    document.addEventListener("pointermove", function () {
-      if (!following) { following = true; requestAnimationFrame(follow); }
-    }, { passive: true });
-  }
-
-  /* ============================================================
-     5. Ripples: a click sends rings out from the point, and the page
-     itself ripples like water (an SVG displacement filter over the
-     stage). Skipped for reduced motion; Safari gets the rings only.
-     ============================================================ */
-  var rippleDisplace = null;
-  if (!reduceMotion) {
-    if (!isSafari) rippleDisplace = makeWater();
-    document.addEventListener("pointerdown", function (e) {
-      if (e.button !== 0) return;
-      var r = document.createElement("span");
-      r.className = "ripple";
-      r.setAttribute("aria-hidden", "true");
-      r.style.left = e.clientX + "px";
-      r.style.top = e.clientY + "px";
-      r.innerHTML = "<i></i><i></i><i></i>";
-      body.appendChild(r);
-      setTimeout(function () { r.remove(); }, 1600);
-      if (rippleDisplace) rippleDisplace(e.clientX, e.clientY);
-    }, { passive: true });
-  }
-
-  function makeWater() {
-    var NS = "http://www.w3.org/2000/svg";
-    /* The displacement map: one expanding ring of waves. Red pushes
-       along x, green along y, mid-grey means "no movement". */
-    var M = 256, c = document.createElement("canvas");
-    c.width = c.height = M;
-    var g = c.getContext("2d"), img = g.createImageData(M, M);
-    for (var yy = 0; yy < M; yy++) {
-      for (var xx = 0; xx < M; xx++) {
-        var dx = (xx + 0.5) / M * 2 - 1, dy = (yy + 0.5) / M * 2 - 1;
-        var r = Math.sqrt(dx * dx + dy * dy), o = (yy * M + xx) * 4;
-        var env = r < 1 ? Math.exp(-Math.pow((r - 0.72) / 0.2, 2)) : 0;
-        var w = Math.sin(r * 34) * env;
-        img.data[o] = 128 + (r > 0 ? 127 * w * dx / r : 0);
-        img.data[o + 1] = 128 + (r > 0 ? 127 * w * dy / r : 0);
-        img.data[o + 2] = 128;
-        img.data[o + 3] = 255;
-      }
-    }
-    g.putImageData(img, 0, 0);
-    var svg = document.createElementNS(NS, "svg");
-    svg.setAttribute("aria-hidden", "true");
-    svg.setAttribute("class", "fx-defs");
-    body.appendChild(svg);
-    var href = c.toDataURL();
-    /* One filter per rippling layer, since each measures from its own
-       top-left corner: the stage (the page) and the bokeh behind it. */
-    var targets = [];
-    [stage, document.getElementById("bokeh")].forEach(function (el, i) {
-      if (!el) return;
-      var id = "fx-water-" + i;
-      var f = document.createElementNS(NS, "filter");
-      f.setAttribute("id", id);
-      f.setAttribute("filterUnits", "userSpaceOnUse");
-      f.setAttribute("primitiveUnits", "userSpaceOnUse");
-      f.setAttribute("color-interpolation-filters", "sRGB");
-      f.innerHTML =
-        '<feFlood flood-color="rgb(128,128,128)" result="flat"/>' +
-        '<feImage preserveAspectRatio="none" x="0" y="0" width="1" height="1" result="ring"/>' +
-        '<feComposite in="ring" in2="flat" operator="over" result="map"/>' +
-        '<feDisplacementMap in="SourceGraphic" in2="map" scale="0" xChannelSelector="R" yChannelSelector="G"/>';
-      svg.appendChild(f);
-      var img = f.querySelector("feImage");
-      img.setAttribute("href", href);
-      targets.push({ el: el, id: id, f: f, img: img, disp: f.querySelector("feDisplacementMap") });
-    });
-    var anim = null;
-    return function (cx, cy) {
-      if (!targets.length) return;
-      targets.forEach(function (t) {
-        var r = t.el.getBoundingClientRect();
-        t.ox = r.left; t.oy = r.top;
-        t.f.setAttribute("x", 0); t.f.setAttribute("y", 0);
-        t.f.setAttribute("width", Math.ceil(r.width)); t.f.setAttribute("height", Math.ceil(r.height));
-        t.el.style.filter = "url(#" + t.id + ")";
-      });
-      var start = performance.now(), DUR = 1300;
-      if (anim) cancelAnimationFrame(anim);
-      (function step(now) {
-        var t = Math.min(1, (now - start) / DUR);
-        var e = 1 - Math.pow(1 - t, 3);
-        var size = 60 + e * Math.max(window.innerWidth, window.innerHeight) * 1.1;
-        var scale = (34 * Math.pow(1 - t, 1.6)).toFixed(2);
-        targets.forEach(function (tg) {
-          tg.img.setAttribute("x", cx - tg.ox - size / 2);
-          tg.img.setAttribute("y", cy - tg.oy - size / 2);
-          tg.img.setAttribute("width", size);
-          tg.img.setAttribute("height", size);
-          tg.disp.setAttribute("scale", scale);
-        });
-        if (t < 1) { anim = requestAnimationFrame(step); }
-        else { anim = null; targets.forEach(function (tg) { tg.el.style.filter = ""; }); }
-      })(start);
-    };
-  }
 
   /* ============================================================
      6. Held Still: a small password box. The password is checked by

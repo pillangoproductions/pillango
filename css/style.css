@@ -88,7 +88,7 @@ img { max-width: 100%; height: auto; }
   top: -48px;
   left: -48px;
   width: calc(100% + 96px);
-  height: calc(100% + 96px);   /* overhangs the screen, see the water ripple */
+  height: calc(100% + 96px);   /* overhangs the screen so the parallax never shows an edge */
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
@@ -220,84 +220,8 @@ html.leaving::after, html.leaving-back::after { transition-delay: 0.4s; }
 /* going out (transit-in removed): quick, and drifting up out of the way */
 html[data-transit]:not(.leaving):not(.leaving-back):not(.transit-in)::before { transform: translateY(-0.8rem); }
 
-/* ============================================================
-   THE CURSOR — a tiny ⅃L with a pool of orange light beneath it
-   ============================================================ */
-@media (hover: hover) and (pointer: fine) {
-  html, body {
-    cursor: url("/assets/img/cursor-normal.svg") 16 16, url("/assets/img/cursor-normal.png") 16 16, auto;
-  }
-  a, button, [role="button"], label, select, summary, .box {
-    cursor: url("/assets/img/cursor-hover.svg") 16 16, url("/assets/img/cursor-hover.png") 16 16, pointer;
-  }
-  input, textarea { cursor: text; }
-}
-.cursor-light {
-  position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 35;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-.cursor-light::before,
-.cursor-light::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  transition: transform 0.45s var(--ease), opacity 0.45s;
-}
-/* the wide pool */
-.cursor-light::before {
-  width: 22rem;
-  height: 22rem;
-  left: -11rem;
-  top: -11rem;
-  background: radial-gradient(circle, rgba(var(--glow), 0.16) 0%, rgba(var(--glow), 0.06) 32%, rgba(var(--glow), 0) 68%);
-}
-/* the warm core right under the ⅃L */
-.cursor-light::after {
-  width: 3.4rem;
-  height: 3.4rem;
-  left: -1.7rem;
-  top: -1.7rem;
-  background: radial-gradient(circle, rgba(255, 150, 70, 0.45) 0%, rgba(var(--glow), 0.12) 45%, rgba(var(--glow), 0) 70%);
-}
-.cursor-light.is-on { opacity: 1; }
-.cursor-light.is-hot::before { transform: scale(1.35); opacity: 1.2; }
-.cursor-light.is-hot::after { transform: scale(1.6); }
-
-/* ---------- ripples: rings on the surface (the water distortion is an SVG filter) ---------- */
-.fx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
-.ripple {
-  position: fixed;
-  z-index: 200;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-}
-.ripple i {
-  position: absolute;
-  left: -6rem;
-  top: -6rem;
-  width: 12rem;
-  height: 12rem;
-  border-radius: 50%;
-  border: 1px solid rgba(var(--glow), 0.8);
-  box-shadow: 0 0 12px rgba(var(--glow), 0.25), inset 0 0 12px rgba(var(--glow), 0.15);
-  opacity: 0;
-  transform: scale(0.04);
-  animation: ripple 1.4s cubic-bezier(0.2, 0.6, 0.3, 1) forwards;
-}
-.ripple i:nth-child(2) { animation-delay: 0.16s; border-color: rgba(239, 236, 230, 0.5); }
-.ripple i:nth-child(3) { animation-delay: 0.32s; }
-@keyframes ripple {
-  0%   { transform: scale(0.04); opacity: 0.85; }
-  100% { transform: scale(1); opacity: 0; }
-}
+/* the normal system cursor; a pointing hand on everything clickable */
+button, [role="button"], label, select, summary { cursor: pointer; }
 
 /* ============================================================
    THE FLIGHT
